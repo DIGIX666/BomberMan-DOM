@@ -10,6 +10,7 @@ import (
 func main() {
 	// Définir la route pour le gestionnaire de connexions WebSocket
 	http.HandleFunc("/ws", server.HandleWebSocketConnection)
+	http.Handle("/asset/", http.StripPrefix("/asset/", http.FileServer(http.Dir("./asset"))))
 
 	// Définir le port d'écoute du serveur WebSocket
 	port := "8080"
