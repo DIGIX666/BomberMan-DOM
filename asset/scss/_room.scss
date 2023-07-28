@@ -16,7 +16,9 @@ body {
 
 //////////////// PLAYER CARD /////////////
 .card {
-    width: 190px;
+    margin: 0 auto;
+    margin-top: 100px;
+    width: 500px;
     height: 254px;
     color: white;
     display: grid;
@@ -49,18 +51,22 @@ body {
    
    .item--1 {
     background: #c7c7ff;
+    font-family: 'Handjet', cursive;
    }
    
    .item--2 {
-    background: #ffd8be;
+    background: #f32121;
+    font-family: 'Handjet', cursive;
    }
    
    .item--3 {
     background: #a9ecbf;
+    font-family: 'Handjet', cursive;
    }
    
    .item--4 {
     background: #f3bbe1;
+    font-family: 'Handjet', cursive;
    }
    
    .quantity {
