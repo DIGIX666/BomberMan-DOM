@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="character_sprite">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/images/bomberman-sprites/character_sprite.zip!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
