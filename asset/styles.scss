@@ -16,7 +16,7 @@ html, body, nav, header, footer, div, span,
 h1, h2, h3, p,
 a, img,
 ul, li,
-table, form, label, input, textarea, select, button {
+table, form, label, input, textarea, select{
   margin: 0;
   padding: 0;
   border: 0;
@@ -30,7 +30,7 @@ ul {
 li {
   list-style: none;
 }
-input, textarea, select, button {
+input, textarea, select {
   display: block;
   box-sizing: border-box;
   border-radius: 0;
@@ -40,12 +40,10 @@ input, textarea, select, button {
   color: inherit;
 }
 input:focus,
-textarea:focus,
-button:focus {
+textarea:focus {
   outline: none;
 }
-input[type='submit']:hover,
-button:hover {
+input[type='submit']:hover{
   cursor: pointer;
 }
 input::-ms-clear {
