@@ -9,10 +9,14 @@ import (
 
 func main() {
 	// Définir la route pour le gestionnaire de connexions WebSocket
-	http.HandleFunc("/ws", server.HandleWebSocketConnection)
-	http.Handle("/asset/", http.StripPrefix("/asset/", http.FileServer(http.Dir("./asset"))))
+	// http.Handle("/asset/", http.StripPrefix("/asset/", http.FileServer(http.Dir("./asset"))))
+	// http.HandleFunc("/ws", server.HandleWebSocketConnection)
 
-	http.HandleFunc("/", handleFileServer)
+	http.Handle("/asset/", http.StripPrefix("/asset/", http.FileServer(http.Dir("./asset"))))
+	http.HandleFunc("/ws", server.HandleWebSocketConnection)
+	http.HandleFunc("/", handleLog)
+	http.HandleFunc("/room", handleRoom)
+	http.HandleFunc("/game", handleGame)
 
 	// Définir le port d'écoute du serveur WebSocket
 	port := "8080"
@@ -25,6 +29,14 @@ func main() {
 	}
 }
 
-func handleFileServer(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./asset")
+func handleLog(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "./asset/log.html")
+}
+
+func handleRoom(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "./asset/room.html")
+}
+
+func handleGame(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "./asset/game.html")
 }
