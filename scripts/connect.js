@@ -1,5 +1,5 @@
 
-let socket = new WebSocket("ws//:localhost:8080/ws")
+let socket = new WebSocket("ws//:localhost:8080/")
 
 export function WSManager(){
     socket.onopen = function (_event) {

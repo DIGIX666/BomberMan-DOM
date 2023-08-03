@@ -12,6 +12,8 @@ func main() {
 	http.HandleFunc("/ws", server.HandleWebSocketConnection)
 	http.Handle("/asset/", http.StripPrefix("/asset/", http.FileServer(http.Dir("./asset"))))
 
+	http.HandleFunc("/", handleFileServer)
+
 	// Définir le port d'écoute du serveur WebSocket
 	port := "8080"
 
@@ -21,4 +23,8 @@ func main() {
 	if err != nil {
 		fmt.Println("Erreur lors du démarrage du serveur:", err)
 	}
+}
+
+func handleFileServer(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "./asset")
 }

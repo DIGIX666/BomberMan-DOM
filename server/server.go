@@ -10,10 +10,8 @@ import (
 func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 	// Mettez en place une mise à jour pour permettre la communication WebSocket
 	upgrader := websocket.Upgrader{
-		CheckOrigin: func(r *http.Request) bool {
-			// Vous pouvez personnaliser la vérification de l'origine ici si nécessaire
-			return true
-		},
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
 	}
 
 	// Mise à niveau de la connexion HTTP vers une connexion WebSocket
