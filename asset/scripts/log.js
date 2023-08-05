@@ -1,7 +1,6 @@
 import { socket } from "./connect.js"
 /* BackEnd Logic of the page */
 
-
 function GetUserName() {
     let button = document.getElementById("button")
     let input = document.querySelector(".input")

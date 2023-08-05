@@ -4,16 +4,13 @@ import (
 	"fmt"
 	"net/http"
 
-	"bomberman-dom/server"
+	"bomberman/server"
 )
 
 func main() {
 	// Définir la route pour le gestionnaire de connexions WebSocket
-	// http.Handle("/asset/", http.StripPrefix("/asset/", http.FileServer(http.Dir("./asset"))))
-	// http.HandleFunc("/ws", server.HandleWebSocketConnection)
 
 	http.Handle("/asset/", http.StripPrefix("/asset/", http.FileServer(http.Dir("./asset"))))
-	http.HandleFunc("/ws", server.HandleWebSocketConnection)
 
 	router := http.NewServeMux()
 	router.HandleFunc("/", handleLog)
@@ -22,10 +19,11 @@ func main() {
 
 	// Combiner les gestionnaires de routeur et de fichiers statiques
 	http.Handle("/", router)
-	port := "8080"
 
-	fmt.Println("Serveur WebSocket démarré sur le port", port)
+	http.HandleFunc("/ws", server.HandleWebSocketConnection)
+	port := "8080"
 	// Lancer le serveur en écoutant sur le port spécifié
+	fmt.Println("Serveur WebSocket démarré sur le port", port)
 	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		fmt.Println("Erreur lors du démarrage du serveur:", err)
