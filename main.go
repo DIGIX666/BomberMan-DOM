@@ -14,11 +14,14 @@ func main() {
 
 	http.Handle("/asset/", http.StripPrefix("/asset/", http.FileServer(http.Dir("./asset"))))
 	http.HandleFunc("/ws", server.HandleWebSocketConnection)
-	http.HandleFunc("/", handleLog)
-	http.HandleFunc("/room", handleRoom)
-	http.HandleFunc("/game", handleGame)
 
-	// Définir le port d'écoute du serveur WebSocket
+	router := http.NewServeMux()
+	router.HandleFunc("/", handleLog)
+	router.HandleFunc("/room", handleRoom)
+	router.HandleFunc("/game", handleGame)
+
+	// Combiner les gestionnaires de routeur et de fichiers statiques
+	http.Handle("/", router)
 	port := "8080"
 
 	fmt.Println("Serveur WebSocket démarré sur le port", port)

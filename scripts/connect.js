@@ -1,22 +1,21 @@
 
-let socket = new WebSocket("ws//:localhost:8080/")
+let socket = new WebSocket("ws//:localhost:8080")
 
-export function WSManager(){
-    socket.onopen = function (_event) {
-        console.log('Connexion WebSocket établie !');
-    
-      };
-    
-      socket.onmessage = function (event) {
-        console.log('Message reçu du serveur : ' + event.data);
-      };
-    
-      socket.onclose = function (_event) {
-        console.log('Connexion WebSocket fermée !');
-      };
-    
-      socket.onerror = function (error) {
-        console.error('Erreur WebSocket : ' + error);
-      };
+socket.onopen = function (_event) {
+  console.log('Connexion WebSocket établie !');
 
-}
+};
+
+socket.onmessage = function (event) {
+  console.log('Message reçu du serveur : ' + event.data);
+};
+
+socket.onclose = function (_event) {
+  console.log('Connexion WebSocket fermée !');
+};
+
+socket.onerror = function (error) {
+  console.error('Erreur WebSocket : ' + error);
+};
+
+export {socket}
