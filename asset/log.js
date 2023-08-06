@@ -1,4 +1,4 @@
-import { socket } from "./connect.js"
+import { socket } from "./scripts/connect.js"
 /* BackEnd Logic of the page */
 
 function GetUserName() {
