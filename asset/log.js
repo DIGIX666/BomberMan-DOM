@@ -9,19 +9,20 @@ button.addEventListener("click", () => {
     console.log("values of the input", input)
     console.log("value in input", input.value)
     userName = input.value;
+    
+    if (userName != "") {
+
+        const data = {
+            type: "UserLog",
+            UserInfo: {
+                UserName: userName,
+            }
+        }
+        socket.send(JSON.stringify(data))
+        userName = ""
+    }
 })
 
-const data = {
-    type: "UserLog",
-    UserInfo: {
-        UserName: userName,
-    }
-}
 
-if (userName != "") {
-
-    socket.send(JSON.stringify(data))
-    userName = ""
-}
 
 /****************************/
