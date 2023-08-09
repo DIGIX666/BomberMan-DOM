@@ -7,12 +7,13 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
+
 func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 	// Mettez en place une mise à jour pour permettre la communication WebSocket
-	upgrader := websocket.Upgrader{
-		ReadBufferSize:  1024,
-		WriteBufferSize: 1024,
-	}
 
 	// Mise à niveau de la connexion HTTP vers une connexion WebSocket
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -20,7 +21,7 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Erreur lors de la mise à niveau de la connexion HTTP en WebSocket:", err)
 		return
 	}
-	defer conn.Close()
+	// defer conn.Close()
 
 	fmt.Println("Client connecté au serveur WebSocket.")
 

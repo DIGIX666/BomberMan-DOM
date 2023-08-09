@@ -1,27 +1,27 @@
-import { socket } from "./scripts/connect.js"
 /* BackEnd Logic of the page */
+import { socket } from "./connect.js";
 
-function GetUserName() {
-    let button = document.getElementById("button")
-    let input = document.querySelector(".input")
-    button.addEventListener("click", (input) => {
-        console.log("values of the input", input)
-        console.log("value in input", input.value)
-        return input.value;
-    })
+let userName = ""
+
+let button = document.getElementById("button")
+let input = document.querySelector(".input")
+button.addEventListener("click", () => {
+    console.log("values of the input", input)
+    console.log("value in input", input.value)
+    userName = input.value;
+})
+
+const data = {
+    type: "UserLog",
+    UserInfo: {
+        UserName: userName,
+    }
 }
 
-function SendUserName(Name = "") {
-
-    const data = {
-        type: "UserLog",
-        UserInfo: {
-            UserName: Name,
-        }
-    }
+if (userName != "") {
 
     socket.send(JSON.stringify(data))
-
+    userName = ""
 }
-SendUserName(GetUserName())
+
 /****************************/
