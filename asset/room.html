@@ -7,6 +7,7 @@
     <title>Room Player</title>
 </head>
 <body>
+ <a href="" onclick="navigateTo('/game')">Game</a>
     <div class="room"></div>
 
     <div class="card">
@@ -39,5 +40,10 @@
         </div>
       </div>
     <script src="./scripts/room.js"></script>
+    <script src="router.js"></script>
+    <script type="module">
+      import { WSManager } from "./connect.js"
+      WSManager()
+    </script>
 </body>
 </html>

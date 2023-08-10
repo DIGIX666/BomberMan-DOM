@@ -37,8 +37,6 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 		// Afficher le message reçu du client
 		fmt.Printf("Message reçu du client: %s\n", message)
 
-		// Vous pouvez ajouter ici la logique de traitement des messages reçus du client
-
 		// Exemple de réponse au client
 		response := []byte("Message bien reçu par le serveur.")
 		// Envoyer la réponse au client

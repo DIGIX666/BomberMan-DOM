@@ -22,7 +22,4 @@ button.addEventListener("click", () => {
         userName = ""
     }
 })
-
-
-
 /****************************/
