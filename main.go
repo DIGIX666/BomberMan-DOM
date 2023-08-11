@@ -13,7 +13,7 @@ func main() {
 	http.Handle("/asset/", http.StripPrefix("/asset/", http.FileServer(http.Dir("./asset"))))
 
 	http.HandleFunc("/ws", server.HandleWebSocketConnection)
-	http.HandleFunc("/", handLog)
+	http.HandleFunc("/", handleLog)
 	http.HandleFunc("/room", room)
 	http.HandleFunc("/game", game)
 
@@ -26,7 +26,7 @@ func main() {
 	}
 }
 
-func handLog(w http.ResponseWriter, r *http.Request) {
+func handleLog(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "./asset/log.html")
 }
 

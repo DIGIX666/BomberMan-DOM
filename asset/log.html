@@ -9,8 +9,10 @@
 </head>
 
 <body>
+    <script type="module" src="/asset/router.js" ></script>
+    <script type="module" src="/asset/log.js" ></script>
     <section class="log">
-        <a href="" onclick="navigateTo('/room')">Room</a>
+        <a href="/room" onclick="navigateTo('/room')">Room</a>
         <div class="group">
             <input required="" type="text" class="input">
             <span class="highlight"></span>
@@ -20,10 +22,8 @@
         <button id="button">Join!</button>
         
     </section>
-    <script type="module" src="log.js"></script>
-    <script src="router.js"></script>
-    <script type="module">
-        import { WSManager } from "./connect.js";
+    <script type="module" >
+        import { WSManager } from "./asset/connect.js";
         WSManager();
     </script>
 </body>

@@ -7,7 +7,7 @@
     <title>Room Player</title>
 </head>
 <body>
- <a href="" onclick="navigateTo('/game')">Game</a>
+ <a href="/game" onclick="navigateTo('/game')">Game</a>
     <div class="room"></div>
 
     <div class="card">
@@ -39,10 +39,10 @@
           <span class="text text--4"> Air </span>
         </div>
       </div>
-    <script src="./scripts/room.js"></script>
-    <script src="router.js"></script>
+      <script type="module" src="/asset/router.js"></script>
+    <script type="module" src="/asset/scripts/room.js"></script>
     <script type="module">
-      import { WSManager } from "./connect.js"
+      import { WSManager } from "./asset/connect.js"
       WSManager()
     </script>
 </body>
