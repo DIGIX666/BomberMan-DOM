@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -10,6 +11,22 @@ import (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+}
+
+var (
+	activeConnections = make(map[string]*websocket.Conn)
+	activeClients     = make(map[string]*websocket.Conn)
+)
+
+type UserParam struct {
+	Name  string
+	Time  int
+	Score int
+}
+
+type DataParam struct {
+	Type string
+	Data map[string]interface{}
 }
 
 func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
@@ -24,6 +41,10 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 	// defer conn.Close()
 
 	fmt.Println("Client connecté au serveur WebSocket.")
+
+	activeClients[conn.RemoteAddr().String()] = conn
+
+	var data DataParam
 
 	// Boucle de gestion des messages du client
 	for {
@@ -44,6 +65,24 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println("Erreur lors de l'envoi de la réponse:", err)
 			break
+		}
+
+		switch data.Type {
+		case "UserLog":
+			sendPlayerRegister(conn, data.Data["name"].(string))
+		}
+	}
+}
+
+func sendPlayerRegister(conn *websocket.Conn, player string) {
+	if player != "" {
+		err := conn.WriteMessage(1, []byte(player))
+		if err != nil {
+			log.Fatal("Failed to send player to client")
+		}
+		err = conn.WriteMessage(1, []byte("room"))
+		if err != nil {
+			log.Fatal("Failed to send the page activation")
 		}
 	}
 }
