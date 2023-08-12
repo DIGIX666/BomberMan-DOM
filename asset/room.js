@@ -7,7 +7,7 @@ let playersIn = []
 
 window.addEventListener("DOMContentLoaded", () => {
 
-    setTimeout((timeWait) => {
+    setTimeout((timeWait, ) => {
     
         socket.onmessage = function (event) {
             let dataPlayerEnter = JSON.parse(event.Data)
