@@ -7,6 +7,10 @@
   box-sizing: border-box;
 }
 
+body {
+  background-image: url(../../images/green_grass.jpeg);
+}
+
 html {
   -webkit-text-size-adjust: none; /*─ Debug font size on iphone when landscape orientation ─*/
   -webkit-font-smoothing: subpixel-antialiased; /*─ Debug safari font weight when fixed element on the page ─*/
