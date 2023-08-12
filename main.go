@@ -1,10 +1,9 @@
 package main
 
 import (
+	"bomberman/server"
 	"fmt"
 	"net/http"
-
-	"bomberman/server"
 )
 
 func main() {
@@ -27,13 +26,13 @@ func main() {
 }
 
 func handleLog(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./asset/log.html")
+	http.ServeFile(w, r, "./client/log.html")
 }
 
 func room(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./asset/room.html")
+	http.ServeFile(w, r, "./client/room.html")
 }
 
 func game(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./asset/game.html")
+	http.ServeFile(w, r, "./client/game.html")
 }

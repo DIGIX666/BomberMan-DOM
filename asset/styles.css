@@ -1,9 +1,5 @@
 @charset "UTF-8";
 @import url("https://fonts.googleapis.com/css2?family=Handjet:wght@300&display=swap");
-body {
-  background-image: url("images/green_grass.jpeg");
-}
-
 .log {
   display: flex;
   justify-content: center;
@@ -117,10 +113,6 @@ button {
 button:active {
   color: #666;
   box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
-}
-
-body {
-  background-image: url("images/green_grass.jpeg");
 }
 
 .players_heading {
@@ -273,7 +265,7 @@ body {
 }
 
 body {
-  background-image: url(../../images/green_grass.jpeg);
+  background-image: url(../asset/images/green_grass.jpeg);
 }
 
 html {
