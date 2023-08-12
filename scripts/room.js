@@ -22,14 +22,6 @@ window.addEventListener("DOMContentLoaded", () => {
 })
 
 
-
-
-
-
-
-
-
-
 // Sélectionnez la div avec la classe "room"
 const roomDiv = document.querySelector('.room');
 
