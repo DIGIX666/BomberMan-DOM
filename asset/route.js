@@ -1,4 +1,4 @@
-import { Router } from "../framework/router"
+import { Router } from "../framework/router.js"
 
 const route = new Router();
 route.addRoute("/", () => {
@@ -55,9 +55,6 @@ route.addRoute("/game", () => {
     });
 })
 
-
-
-
 const routes = {
     "/": "log.html",
     "/room": "room.html",
@@ -83,8 +80,7 @@ function loadPage(route) {
         });
 }
 
- function navigateTo(route) {
+export function navigateTo(route) {
     history.pushState(null, null, route);
     loadPage(route);
 }
-
