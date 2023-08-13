@@ -1,4 +1,4 @@
-import { socket } from "../connect";
+import { socket } from "../connect.js";
 
 let roomEnd = false
 let playersIn = []
@@ -125,7 +125,6 @@ function formatTime(time) {
   if (seconds < 10) {
     seconds = `0${seconds}`;
   }
-
   return `${minutes}:${seconds}`;
 }
 

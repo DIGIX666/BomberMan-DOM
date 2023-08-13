@@ -37,7 +37,6 @@ route.addRoute("/room", () => {
 
 })
 
-
 route.addRoute("/game", () => {
     loadPage();
     navigateTo();
