@@ -13,11 +13,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
         if (userName != "") {
 
-            const data = {
+            socket.send(JSON.stringify({
                 type: "UserLog",
-                name: userName
-            }
-            socket.send(JSON.stringify(data))
+                data: {
+                    name: userName,
+                }
+            }))
             userName = ""
         }
     })

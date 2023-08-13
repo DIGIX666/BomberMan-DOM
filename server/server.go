@@ -25,8 +25,8 @@ type UserParam struct {
 }
 
 type DataParam struct {
-	Type string
-	Data map[string]interface{}
+	Type string                 `json:"type"`
+	Data map[string]interface{} `json:"data"`
 }
 
 func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
@@ -49,23 +49,30 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 	// Boucle de gestion des messages du client
 	for {
 		// Lecture du message reçu du client
-		messageType, message, err := conn.ReadMessage()
-		if err != nil {
-			fmt.Println("Erreur lors de la lecture du message:", err)
-			break
-		}
+		// messageType, message, err := conn.ReadMessage()
+		// if err != nil {
+		// 	fmt.Println("Erreur lors de la lecture du message:", err)
+		// 	break
+		// }
 
 		// Afficher le message reçu du client
-		fmt.Printf("Message reçu du client: %s\n", message)
+		// fmt.Printf("Message reçu du client: %s\n", message)
 
 		// Exemple de réponse au client
-		response := []byte("Message bien reçu par le serveur.")
-		// Envoyer la réponse au client
-		err = conn.WriteMessage(messageType, response)
+		// response := []byte("Message bien reçu par le serveur.")
+		// // Envoyer la réponse au client
+		// // err = conn.WriteMessage(messageType, response)
+		// if err != nil {
+		// 	fmt.Println("Erreur lors de l'envoi de la réponse:", err)
+		// 	break
+		// }
+
+		err = conn.ReadJSON(&data)
 		if err != nil {
-			fmt.Println("Erreur lors de l'envoi de la réponse:", err)
-			break
+			log.Fatal("Error Reading JSON ")
 		}
+
+		fmt.Printf("data: %v\n", data)
 
 		switch data.Type {
 		case "UserLog":
