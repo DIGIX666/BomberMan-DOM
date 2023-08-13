@@ -1,26 +1,7 @@
-import { socket } from "./connect.js";
+import { socket } from "../connect";
 
 let roomEnd = false
 let playersIn = []
-
-
-
-window.addEventListener("DOMContentLoaded", () => {
-
-    setTimeout((timeWait, ) => {
-    
-        socket.onmessage = function (event) {
-            let dataPlayerEnter = JSON.parse(event.Data)
-
-            if (dataPlayerEnter!="") {
-                
-                playersIn.push(dataPlayerEnter)
-            }
-            console.log(dataPlayerEnter)
-        }
-    }, timeWait);
-})
-
 
 // Sélectionnez la div avec la classe "room"
 const roomDiv = document.querySelector('.room');
@@ -62,7 +43,10 @@ let timeLeft = TIME_LIMIT;
 let timerInterval = null;
 let remainingPathColor = COLOR_CODES.info.color;
 
-document.getElementById("chrono").innerHTML = `
+window.addEventListener("DOMContentLoaded", () => {
+
+
+  document.getElementById("chrono").innerHTML = `
 <div class="base-timer">
   <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <g class="base-timer__circle">
@@ -86,7 +70,33 @@ document.getElementById("chrono").innerHTML = `
 </div>
 `;
 
-startTimer();
+  if (playersIn.length == 2) {
+
+    startTimer();
+    socket.onmessage = function (event) {
+      let dataPlayerEnter = JSON.parse(event.Data)
+
+      if (dataPlayerEnter != "") {
+
+        playersIn.push(dataPlayerEnter)
+      }
+      console.log(dataPlayerEnter)
+    }
+
+  }
+
+  if (playersIn.length == 4) {
+    onTimesUp()
+
+    data = {
+      type: "roomTimesUp",
+      usersNames: dataPlayerEnter,
+      nbrUsers: dataPlayerEnter.length,
+    }
+
+    socket.send(JSON.stringify(data))
+  }
+})
 
 function onTimesUp() {
   clearInterval(timerInterval);

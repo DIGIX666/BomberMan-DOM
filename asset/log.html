@@ -6,14 +6,12 @@
     <meta name="viewport"
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="../asset/styles.css">
+    <link rel="stylesheet" href="./asset/styles.css">
     <title>Log Players</title>
 </head>
 
 <body>
     <a href="/room" onclick="navigateTo('/room')">Room</a>
-    <script type="module" src="/asset/route.js"></script>
-    <script type="module" src="/asset/log.js"></script>
     <section class="log">
         <div class="group">
             <input required="" type="text" class="input">
@@ -21,11 +19,15 @@
             <span class="bar"></span>
             <label>Name</label>
         </div>
-        <a href="./room.html"><button id="button">Join!</button></a>
+        <!-- <a href=""><button id="button">Join!</button></a> -->
+        <button id="button">Join!</button>
     </section>
-    <script type="module" >
-        import { WSManager } from "./asset/connect.js";
+    <script type="module">
+        import { WSManager } from "./asset/client/connect.js";
         WSManager();
     </script>
+    <script type="module" src="../asset/client/route.js"></script>
+    <script type="module" src="../asset/client/log.js"></script>
 </body>
+
 </html>

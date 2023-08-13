@@ -1,4 +1,4 @@
-import { Router } from "../framework/router.js"
+import { Router } from "../framework/router.js";
 
 const route = new Router();
 route.addRoute("/", () => {
@@ -80,7 +80,7 @@ function loadPage(route) {
         });
 }
 
-export function navigateTo(route) {
+function navigateTo(route) {
     history.pushState(null, null, route);
     loadPage(route);
 }
