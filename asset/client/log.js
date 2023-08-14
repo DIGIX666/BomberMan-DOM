@@ -1,5 +1,6 @@
 /* BackEnd Logic of the page */
 import { socket } from "./connect.js";
+import { loadPage } from "./route.js";
 
 window.addEventListener("DOMContentLoaded", () => {
 
@@ -24,7 +25,7 @@ window.addEventListener("DOMContentLoaded", () => {
     })
 
     socket.onmessage = function (event) {
-        let data = event.data
+        let data = JSON.parse(event.data)
 
         if (data.type == "room") {
 

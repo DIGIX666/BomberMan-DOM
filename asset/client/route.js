@@ -60,7 +60,7 @@ const routes = {
     "/game": "game.html"
 };
 
-function loadPage(route) {
+export function loadPage(route) {
     const appContainer = document.getElementById("app");
     const filename = routes[route];
 

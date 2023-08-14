@@ -82,14 +82,17 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 }
 
 func sendPlayerRegister(conn *websocket.Conn, player string) {
+	var data DataParam
 	if player != "" {
-		err := conn.WriteMessage(1, []byte(player))
+		// err := conn.WriteMessage(1, []byte(player))
+		// if err != nil {
+		// 	log.Fatal("Failed to send player to client")
+		// }
+		data.Type = "room"
+		data.Data = nil
+		err := conn.WriteJSON(data)
 		if err != nil {
-			log.Fatal("Failed to send player to client")
-		}
-		err = conn.WriteMessage(1, []byte("room"))
-		if err != nil {
-			log.Fatal("Failed to send the page activation")
+			log.Fatal("erreur writing data function sendPlayerRegister")
 		}
 	}
 }
