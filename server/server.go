@@ -67,12 +67,12 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 		// 	break
 		// }
 
-		err = conn.ReadJSON(&data)
-		if err != nil {
-			log.Fatal("Error Reading JSON ")
-		}
-
 		fmt.Printf("data: %v\n", data)
+		err := conn.ReadJSON(&data)
+		if err != nil {
+			fmt.Println("Error Reading JSON")
+			break
+		}
 
 		switch data.Type {
 		case "UserLog":
