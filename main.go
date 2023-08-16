@@ -5,14 +5,17 @@ import (
 	"net/http"
 
 	"bomberman/server"
+	"bomberman/userDB"
 )
 
 func main() {
+	userDB.CreateDataBase()
 	// Définir la route pour le gestionnaire de connexions WebSocket
 
 	http.Handle("/asset/", http.StripPrefix("/asset/", http.FileServer(http.Dir("./asset"))))
 
 	http.HandleFunc("/ws", server.HandleWebSocketConnection)
+	// http.HandleFunc("/", handleApp)
 	http.HandleFunc("/", handleLog)
 	http.HandleFunc("/room", room)
 	http.HandleFunc("/game", game)
@@ -24,6 +27,10 @@ func main() {
 	if err != nil {
 		fmt.Println("Erreur lors du démarrage du serveur:", err)
 	}
+}
+
+func handleApp(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "./asset/app.html")
 }
 
 func handleLog(w http.ResponseWriter, r *http.Request) {

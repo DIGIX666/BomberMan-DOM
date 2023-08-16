@@ -11,7 +11,7 @@
 </head>
 
 <body>
-    <a href="/room" onclick="navigateTo('/room')">Room</a>
+    <!-- <a href="/room" onclick="navigateTo('/room')">Room</a> -->
     <section class="log">
         <div class="group">
             <input required="" type="text" class="input">
@@ -19,14 +19,49 @@
             <span class="bar"></span>
             <label>Name</label>
         </div>
-        <!-- <a href="/room"><button id="button">Join!</button></a> -->
-        <button id="button">Join!</button>
+        <a href="/room"><button id="button">Join!</button></a>   
+        <!-- <button id="button">Join!</button> -->
     </section>
     <script type="module">
-        import { WSManager } from "./asset/client/connect.js";
-        WSManager();
+        import {  socket } from "./asset/client/connect.js";
+        import { navigateTo } from "./asset/client/route.js";
+        //WSManager();
+        document.addEventListener("DOMContentLoaded", () => {
+
+            console.log("IN addEVENTListener")
+            let userName = ""
+            let button = document.getElementById("button")
+            let input = document.querySelector(".input")
+            button.addEventListener("click", () => {
+                console.log("values of the input", input)
+                console.log("value in input", input.value)
+                userName = input.value;
+
+                if (userName != "") {
+
+                    socket.send(JSON.stringify({
+                        type: "UserLog",
+                        data: {
+                            name: userName,
+                        }
+                    }))
+                    userName = ""
+                }
+            })
+        })
+        // socket.onmessage = function (event) {
+        //     let data = JSON.parse(event.data)
+        //     console.log("data from server:", data)
+
+        //     if (data.type == "room") {
+        //         navigateTo("/" + data.type)
+        //     }
+        // }
+
+
     </script>
-    <script type="module" src="../asset/client/route.js"></script>
-    <script type="module" src="../asset/client/log.js"></script>
+    <!-- <script type="module" src="../asset/client/route.js"></script> -->
+    <!-- <script type="module" src="../asset/client/log.js"></script> -->
+
 </body>
 </html>

@@ -9,7 +9,7 @@
 </head>
 
 <body>
-  <a href="/game" onclick="navigateTo('/game')">Game</a>
+  <!-- <a href="/game" onclick="navigateTo('/game')">Game</a> -->
   <div class="room"></div>
 
   <div class="card">
@@ -115,14 +115,77 @@
       <span class="text text--4"> Air </span>
     </div>
   </div>
-  <script type="module" src="../asset/client/route.js"></script>
+  <!-- <script type="module" src="../asset/client/route.js"></script> -->
+
   <script type="module">
-    import { WSManager } from "./asset/client/connect.js";
-    WSManager()
+    import { onTimesUp, startTimer } from "./asset/client/scripts/room.js";
+    import { socket } from "./asset/client/connect.js";
+    document.addEventListener("DOMContentLoaded", () => {
+      let roomEnd = false
+      // let playersIn = ["Luffy","Zorro"]
+
+      socket.send(JSON.stringify({
+        type: "inRoom",
+        data: {
+          onRoom: true,
+        }
+      }))
+
+      socket.onmessage = function (event) {
+        let dataFromServer = event.data;
+
+        if (dataFromServer.type == "players" && dataFromServer.data.length != 0) {
+
+
+          // Sélectionnez la div avec la classe "room"
+          const roomDiv = document.querySelector('.room');
+
+          // Créez un élément h1
+          const heading = document.createElement('h1');
+          heading.classList.add('players_heading');
+
+          // Définissez le texte à l'intérieur de l'élément h1
+          heading.textContent = 'Players';
+
+          // Ajoutez l'élément h1 à l'intérieur de la div avec la classe "room"
+          roomDiv.appendChild(heading);
+          document.addEventListener("DOMContentLoaded", () => {
+            if (playersIn.length == 2) {
+
+              startTimer();
+              socket.onmessage = function (event) {
+                let dataPlayerEnter = JSON.parse(event.Data)
+
+                if (dataPlayerEnter != "") {
+
+                  playersIn.push(dataPlayerEnter)
+                }
+                console.log(dataPlayerEnter)
+              }
+            }
+
+            if (playersIn.length == 4) {
+              onTimesUp()
+
+              data = {
+                type: "roomTimesUp",
+                usersNames: dataPlayerEnter,
+                nbrUsers: dataPlayerEnter.length,
+              }
+
+              socket.send(JSON.stringify(data))
+            }
+          })
+        }
+      }
+    })
+
   </script>
-  <script type="module" src="../asset/client/scripts/room.js"></script>
+  
+  <!-- <script type="module" src="../asset/client/scripts/room.js"></script> -->
 
   <div id="chrono"></div>
   <!-- <script src="../scripts/room.js"></script> -->
 </body>
+
 </html>

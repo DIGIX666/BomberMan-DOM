@@ -1,43 +1,43 @@
 /* BackEnd Logic of the page */
 import { socket } from "./connect.js";
-import { loadPage } from "./route.js";
+import { loadPage, navigateTo } from "./route.js";
 
-window.addEventListener("DOMContentLoaded", () => {
+loadPage("/")
+// document.addEventListener("DOMContentLoaded", () => {
+//     console.log("IN addEVENTListener")
+//     let userName = ""
+//     let button = document.getElementById("button")
+//     let input = document.querySelector(".input")
+//     button.addEventListener("click", () => {
+//         console.log("values of the input", input)
+//         console.log("value in input", input.value)
+//         userName = input.value;
 
-    let userName = ""
-    let button = document.getElementById("button")
-    let input = document.querySelector(".input")
-    button.addEventListener("click", () => {
-        console.log("values of the input", input)
-        console.log("value in input", input.value)
-        userName = input.value;
+//         if (userName != "") {
 
-        if (userName != "") {
+//             socket.send(JSON.stringify({
+//                 type: "UserLog",
+//                 data: {
+//                     name: userName,
+//                 }
+//             }))
+//             userName = ""
+//         }
+//     })
+// })
 
-            socket.send(JSON.stringify({
-                type: "UserLog",
-                data: {
-                    name: userName,
-                }
-            }))
-            userName = ""
-        }
-    })
+socket.onmessage = function (event) {
+    let data = JSON.parse(event.data)
+    console.log("data from server:", data)
 
-    socket.onmessage = function (event) {
-        let data = JSON.parse(event.data)
-
-        if (data.type == "room") {
-
-            navigateTo(data.type)
-
-        }
+    if (data.type == "room") {
+        navigateTo("/" + data.type)
     }
-})
-
-function navigateTo(route) {
-    history.pushState(null, null, route);
-    loadPage(route);
 }
+
+// function navigateTo(route) {
+//     history.pushState(null, null, route);
+//     loadPage(route);
+// }
 
 /****************************/
