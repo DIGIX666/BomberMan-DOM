@@ -1,6 +1,8 @@
 package server
 
 import (
+	"bomberman/structure"
+	"bomberman/userDB"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,17 +20,6 @@ var (
 	activeClients     = make(map[string]*websocket.Conn)
 )
 
-type UserParam struct {
-	Name  string
-	Time  int
-	Score int
-}
-
-type DataParam struct {
-	Type string                 `json:"type"`
-	Data map[string]interface{} `json:"data"`
-}
-
 func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 	// Mettez en place une mise à jour pour permettre la communication WebSocket
 
@@ -44,7 +35,7 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 
 	activeClients[conn.RemoteAddr().String()] = conn
 
-	var data DataParam
+	var data structure.DataParam
 
 	// Boucle de gestion des messages du client
 	for {
@@ -76,23 +67,34 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 
 		switch data.Type {
 		case "UserLog":
-			sendPlayerRegister(conn, data.Data["name"].(string))
+			players2DB(conn, data.Data["name"].(string))
+		case "inRoom":
+			sendPlayerRegister(conn)
 		}
+
 	}
 }
 
-func sendPlayerRegister(conn *websocket.Conn, player string) {
-	var data DataParam
+func players2DB(conn *websocket.Conn, player string) {
 	if player != "" {
-		// err := conn.WriteMessage(1, []byte(player))
-		// if err != nil {
-		// 	log.Fatal("Failed to send player to client")
-		// }
-		data.Type = "room"
-		data.Data = nil
-		err := conn.WriteJSON(data)
-		if err != nil {
-			log.Fatal("erreur writing data function sendPlayerRegister")
-		}
+		userDB.StorePlayers(player)
+	} else {
+		fmt.Println("Error function GetPlayers player empty")
+	}
+}
+
+func sendPlayerRegister(conn *websocket.Conn) {
+	var data structure.DataParam
+
+	// err := conn.WriteMessage(1, []byte(player))
+	// if err != nil {
+	// 	log.Fatal("Failed to send player to client")
+	// }
+	data.Type = "players"
+	data.Data = userDB.GetPlayers()
+	fmt.Printf("data: %v\n", data)
+	err := conn.WriteJSON(data)
+	if err != nil {
+		log.Fatal("erreur writing data function sendPlayerRegister")
 	}
 }

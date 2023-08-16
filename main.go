@@ -14,8 +14,6 @@ func main() {
 
 	http.HandleFunc("/ws", server.HandleWebSocketConnection)
 	http.HandleFunc("/", handleLog)
-	http.HandleFunc("/room", room)
-	http.HandleFunc("/game", game)
 
 	port := "8080"
 	// Lancer le serveur en écoutant sur le port spécifié
@@ -28,12 +26,4 @@ func main() {
 
 func handleLog(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "./asset/log.html")
-}
-
-func room(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./asset/room.html")
-}
-
-func game(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./asset/game.html")
 }
