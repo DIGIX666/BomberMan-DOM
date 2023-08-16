@@ -26,9 +26,7 @@ const logSection = document.querySelector('.log');
 
 // Ajoutez un gestionnaire d'événement pour le clic sur le bouton
 button.addEventListener('click', () => {
-    // Affichez la div de la salle
     roomDiv.style.display = 'block';
-    // Masquez la section de journal
     logSection.style.display = 'none';
 });
 
@@ -37,7 +35,6 @@ button.addEventListener('click', () => {
 // CACHER LA PAGE D'ATTENTE ET AFFICHER LA DE JEU /
 ///////////////////////////////////////////////////
 
-
 // Sélectionnez le bouton par son ID
 const buttonGame = document.getElementById('button-game');
 
@@ -45,9 +42,7 @@ const buttonGame = document.getElementById('button-game');
 const bombermanDiv = document.querySelector('.bomberman');
 
 buttonGame.addEventListener('click', () => {
-    // Affichez la div de la salle
     bombermanDiv.style.display = 'block';
-    // Masquez la section de journal
     roomDiv.style.display = 'none';
 });
 
