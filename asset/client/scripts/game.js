@@ -15,7 +15,7 @@ const mapData = [
     ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#']
 ];
 document.addEventListener('DOMContentLoaded', () => {
-    const bomberMan = document.querySelector('.bomberman');
+    const bomberMan = document.querySelector('.game');
 
     function createMap() {
         for (let row = 0; row < mapData.length; row++) {
