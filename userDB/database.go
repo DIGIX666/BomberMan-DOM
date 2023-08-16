@@ -22,6 +22,7 @@ func CreateDataBase() {
 
 	_, err = Db.Exec(`CREATE TABLE IF NOT EXISTS players
 <<<<<<< HEAD
+<<<<<<< HEAD
     (id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT DEFAULT '',
     score INTEGER DEFAULT 0,
@@ -29,12 +30,17 @@ func CreateDataBase() {
 
     )`)
 =======
+=======
+>>>>>>> fd50697 (adding loadLog.js home.html structure/ and userDB/)
 	(id INTEGER PRIMARY KEY AUTOINCREMENT,
 	username TEXT DEFAULT '',
 	score INTEGER DEFAULT 0,
 	ranking INTEGER DEFAULT 0
 
 	)`)
+<<<<<<< HEAD
+>>>>>>> fd50697 (adding loadLog.js home.html structure/ and userDB/)
+=======
 >>>>>>> fd50697 (adding loadLog.js home.html structure/ and userDB/)
 	if err != nil {
 		log.Println("erreur creation de table players")
