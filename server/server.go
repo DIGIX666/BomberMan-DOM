@@ -1,11 +1,12 @@
 package server
 
 import (
-	"bomberman/structure"
-	"bomberman/userDB"
 	"fmt"
 	"log"
 	"net/http"
+
+	"bomberman/structure"
+	"bomberman/userDB"
 
 	"github.com/gorilla/websocket"
 )
@@ -97,4 +98,7 @@ func sendPlayerRegister(conn *websocket.Conn) {
 	if err != nil {
 		log.Fatal("erreur writing data function sendPlayerRegister")
 	}
+}
+
+func LOL() {
 }
