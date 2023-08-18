@@ -5,10 +5,13 @@ import (
 	"net/http"
 
 	"bomberman/server"
+	"bomberman/userDB"
 )
 
 func main() {
 	// Définir la route pour le gestionnaire de connexions WebSocket
+
+	userDB.CreateDataBase()
 
 	http.Handle("/asset/", http.StripPrefix("/asset/", http.FileServer(http.Dir("./asset"))))
 

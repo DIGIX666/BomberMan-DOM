@@ -1,8 +1,7 @@
 import { socket } from "../connect.js";
+import { displayRoom, masquerElementsParClasse } from "./setting-page.js";
 
-let roomEnd = false
 let playersIn = []
-
 
 const FULL_DASH_ARRAY = 283;
 const WARNING_THRESHOLD = 10;
@@ -28,58 +27,75 @@ let timeLeft = TIME_LIMIT;
 let timerInterval = null;
 let remainingPathColor = COLOR_CODES.info.color;
 
-window.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
 
+  socket.onmessage = function (event) {
+    let dataServer = JSON.parse(event.data)
+    console.log("dataServer:", dataServer)
+    if (dataServer.type == "goRoom") {
+      displayRoom()
+      socket.send(JSON.stringify({
+            type: "clientInfo",
+            data: {
+              playersUpdate: playersIn,
+              client: dataServer.data.clientAdress
+            }
+      }))
+      // playersIn.push(dataServer.data.name)
 
-  document.getElementById("chrono").innerHTML = `
-<div class="base-timer">
-  <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <g class="base-timer__circle">
+      document.getElementById("chrono").innerHTML = `
+      <div class="base-timer">
+      <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <g class="base-timer__circle">
       <circle class="base-timer__path-elapsed" cx="50" cy="50" r="45"></circle>
       <path
-        id="base-timer-path-remaining"
-        stroke-dasharray="283"
-        class="base-timer__path-remaining ${remainingPathColor}"
-        d="
-          M 50, 50
-          m -45, 0
-          a 45,45 0 1,0 90,0
-          a 45,45 0 1,0 -90,0
-        "
-      ></path>
-    </g>
-  </svg>
-  <span id="base-timer-label" class="base-timer__label">${formatTime(
-    timeLeft
-  )}</span>
-</div>
-`;
+      id="base-timer-path-remaining"
+      stroke-dasharray="283"
+      class="base-timer__path-remaining ${remainingPathColor}"
+      d="
+      M 50, 50
+      m -45, 0
+      a 45,45 0 1,0 90,0
+                  a 45,45 0 1,0 -90,0
+                  "
+                  ></path>
+                  </g>
+                  </svg>
+                  <span id="base-timer-label" class="base-timer__label">${formatTime(
+        timeLeft
+      )}</span>
+        </div>
+        `;
 
-  if (playersIn.length == 2) {
+    }
+    if (dataServer.type == "players") {
 
-    startTimer();
-    socket.onmessage = function (event) {
-      let dataPlayerEnter = JSON.parse(event.Data)
+      // let playersIn = Object.keys(dataServer.data).length-1
+      // console.log("playerIn",playersIn)
 
-      if (dataPlayerEnter != "") {
 
-        playersIn.push(dataPlayerEnter)
+      if (dataServer.data.name != "") {
+        playersIn.push(dataServer.data.name)
+
       }
-      console.log(dataPlayerEnter)
+      console.log("playersIn", playersIn)
+      if (playersIn.length >= 2) {
+
+        startTimer();
+      }
+
+      if (playersIn.length == 4) {
+        onTimesUp()
+
+        data = {
+          type: "roomTimesUp",
+          usersNames: data.data,
+          nbrUsers: playersIn,
+        }
+
+        socket.send(JSON.stringify(data))
+      }
     }
-
-  }
-
-  if (playersIn.length == 4) {
-    onTimesUp()
-
-    data = {
-      type: "roomTimesUp",
-      usersNames: dataPlayerEnter,
-      nbrUsers: dataPlayerEnter.length,
-    }
-
-    socket.send(JSON.stringify(data))
   }
 })
 

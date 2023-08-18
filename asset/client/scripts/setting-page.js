@@ -1,5 +1,5 @@
 // Fonction pour masquer les éléments avec des classes spécifiques
-function masquerElementsParClasse(nomClasse) {
+export function masquerElementsParClasse(nomClasse) {
     const elements = document.querySelectorAll('.' + nomClasse);
     elements.forEach(element => {
         element.style.display = 'none';
@@ -15,34 +15,42 @@ masquerElementsParClasse('bomberman');
 // CACHER LA PAGE DE REGISTER ET AFFICHER LA PAGE D'ATTENTE /
 /////////////////////////////////////////////////////////////
 
-// Sélectionnez le bouton par son ID
-const button = document.getElementById('button');
+export function displayRoom() {
 
-// Sélectionnez la div avec la classe "room"
-const roomDiv = document.querySelector('.room');
 
-// Sélectionnez la section avec la classe "log"
-const logSection = document.querySelector('.log');
+    // Sélectionnez le bouton par son ID
+    //const button = document.getElementById('button');
 
-// Ajoutez un gestionnaire d'événement pour le clic sur le bouton
-button.addEventListener('click', () => {
+    // Sélectionnez la div avec la classe "room"
+    const roomDiv = document.querySelector('.room');
+
+    // Sélectionnez la section avec la classe "log"
+    const logSection = document.querySelector('.log');
+
+    // Ajoutez un gestionnaire d'événement pour le clic sur le bouton
     roomDiv.style.display = 'block';
     logSection.style.display = 'none';
-});
+    // button.addEventListener('click', () => {
+    // });
+}
 
 
 ///////////////////////////////////////////////////
 // CACHER LA PAGE D'ATTENTE ET AFFICHER LA DE JEU /
 ///////////////////////////////////////////////////
 
-// Sélectionnez le bouton par son ID
-const buttonGame = document.getElementById('button-game');
 
-// Sélectionnez la div avec la classe "bomberman"
-const bombermanDiv = document.querySelector('.bomberman');
+export function displayGame() {
 
-buttonGame.addEventListener('click', () => {
+    // Sélectionnez le bouton par son ID
+    //const buttonGame = document.getElementById('button-game');
+
+    // Sélectionnez la div avec la classe "bomberman"
+    const bombermanDiv = document.querySelector('.bomberman');
+
     bombermanDiv.style.display = 'block';
     roomDiv.style.display = 'none';
-});
+    // buttonGame.addEventListener('click', () => {
+    // });
 
+}

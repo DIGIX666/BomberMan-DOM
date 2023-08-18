@@ -1,6 +1,7 @@
 /* BackEnd Logic of the page */
 import { socket } from "./connect.js";
 import { loadPage } from "./route.js";
+import { masquerElementsParClasse } from "./scripts/setting-page.js";
 
 window.addEventListener("DOMContentLoaded", () => {
 
@@ -14,6 +15,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
         if (userName != "") {
 
+            masquerElementsParClasse('log')
             socket.send(JSON.stringify({
                 type: "UserLog",
                 data: {
@@ -24,15 +26,15 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     })
 
-    socket.onmessage = function (event) {
-        let data = JSON.parse(event.data)
+    // socket.onmessage = function (event) {
+    //     let data = JSON.parse(event.data)
 
-        if (data.type == "room") {
+    //     if (data.type == "room") {
 
-            navigateTo(data.type)
+    //         navigateTo(data.type)
 
-        }
-    }
+    //     }
+    // }
 })
 
 function navigateTo(route) {

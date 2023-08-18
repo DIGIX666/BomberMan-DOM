@@ -57,7 +57,7 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 		// if err != nil {
 		// 	fmt.Println("Erreur lors de l'envoi de la réponse:", err)
 		// 	break
-		// }
+		// }onn
 
 		fmt.Printf("data: %v\n", data)
 		err := conn.ReadJSON(&data)
@@ -68,19 +68,45 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 
 		switch data.Type {
 		case "UserLog":
-			players2DB(conn, data.Data["name"].(string))
-		case "inRoom":
-			sendPlayerRegister(conn)
+			activeConnections[data.Data["name"].(string)] = conn
+			room(conn, data.Data["name"].(string))
+			players2DB(conn)
+		case "clientInfo":
+			manageClientInfo(conn, data)
 		}
-
 	}
 }
 
-func players2DB(conn *websocket.Conn, player string) {
+func room(conn *websocket.Conn, player string) {
+	var data structure.DataParam
+
 	if player != "" {
+
 		userDB.StorePlayers(player)
-	} else {
-		fmt.Println("Error function GetPlayers player empty")
+		data.Type = "goRoom"
+		data.Data = map[string]interface{}{
+			"clientAdress": conn.RemoteAddr().String(),
+			"players":      userDB.GetPlayers(),
+		}
+		err := conn.WriteJSON(data)
+		if err != nil {
+			log.Fatal("erreur writing data function Room")
+		}
+	}
+}
+
+func players2DB(conn *websocket.Conn) {
+	var data structure.DataParam
+
+	data.Type = "players"
+	data.Data = userDB.GetPlayers()
+	if data.Data != nil {
+		for _, c := range activeConnections {
+			err := c.WriteJSON(data)
+			if err != nil {
+				fmt.Println("erreur writing data function players2DB")
+			}
+		}
 	}
 }
 
@@ -100,5 +126,8 @@ func sendPlayerRegister(conn *websocket.Conn) {
 	}
 }
 
-func LOL() {
+func manageClientInfo(conn *websocket.Conn, dataReceive structure.DataParam) {
+	players := dataReceive.Data["playersUpdate"]
+
+	fmt.Printf("players: %v\n", players)
 }
