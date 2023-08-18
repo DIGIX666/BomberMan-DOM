@@ -34,14 +34,19 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("dataServer:", dataServer)
     if (dataServer.type == "goRoom") {
       displayRoom()
+      if (dataServer.data.name != "") {
+
+        playersIn.push(dataServer.data.previousPlayers)
+      }
+      playersIn = dataServer.data["previousPlayers"]
       socket.send(JSON.stringify({
-            type: "clientInfo",
-            data: {
-              playersUpdate: playersIn,
-              client: dataServer.data.clientAdress
-            }
+        type: "clientInfo",
+        data: {
+          playersUpdate: playersIn,
+          client: dataServer.data.clientAdress
+        }
       }))
-      // playersIn.push(dataServer.data.name)
+      // playersIn = dataServer.data.playersJoined.name
 
       document.getElementById("chrono").innerHTML = `
       <div class="base-timer">
@@ -68,20 +73,30 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
 
     }
+
+    if (dataServer.type == "newPlayersList") {
+
+      if (!playersIn.includes(dataServer.data.lastPlayer)) {
+        console.log("YOOOOOOOO !!!!!!!!")
+        playersIn.push(dataServer.data.lastPlayer)
+      }
+
+
+    }
+
     if (dataServer.type == "players") {
 
       // let playersIn = Object.keys(dataServer.data).length-1
       // console.log("playerIn",playersIn)
 
 
-      if (dataServer.data.name != "") {
-        playersIn.push(dataServer.data.name)
-
-      }
       console.log("playersIn", playersIn)
       if (playersIn.length >= 2) {
 
         startTimer();
+        if (dataServer.data.name != "") {
+          playersIn.push(dataServer.data.name)
+        }
       }
 
       if (playersIn.length == 4) {
@@ -89,10 +104,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         data = {
           type: "roomTimesUp",
-          usersNames: data.data,
-          nbrUsers: playersIn,
+          usersReady2Play: playersIn,
+          nbrUsers: playersIn.length,
         }
-
         socket.send(JSON.stringify(data))
       }
     }

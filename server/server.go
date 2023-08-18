@@ -31,10 +31,9 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// defer conn.Close()
+	activeClients[conn.RemoteAddr().String()] = conn
 
 	fmt.Println("Client connecté au serveur WebSocket.")
-
-	activeClients[conn.RemoteAddr().String()] = conn
 
 	var data structure.DataParam
 
@@ -57,7 +56,7 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 		// if err != nil {
 		// 	fmt.Println("Erreur lors de l'envoi de la réponse:", err)
 		// 	break
-		// }onn
+		// }
 
 		fmt.Printf("data: %v\n", data)
 		err := conn.ReadJSON(&data)
@@ -70,9 +69,9 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 		case "UserLog":
 			activeConnections[data.Data["name"].(string)] = conn
 			room(conn, data.Data["name"].(string))
-			players2DB(conn)
 		case "clientInfo":
 			manageClientInfo(conn, data)
+			players2DB(conn)
 		}
 	}
 }
@@ -85,8 +84,9 @@ func room(conn *websocket.Conn, player string) {
 		userDB.StorePlayers(player)
 		data.Type = "goRoom"
 		data.Data = map[string]interface{}{
-			"clientAdress": conn.RemoteAddr().String(),
-			"players":      userDB.GetPlayers(),
+			"clientAdress":    conn.RemoteAddr().String(),
+			"previousPlayers": userDB.PlayersTab(),
+			"playerJoined":    player,
 		}
 		err := conn.WriteJSON(data)
 		if err != nil {
@@ -101,7 +101,7 @@ func players2DB(conn *websocket.Conn) {
 	data.Type = "players"
 	data.Data = userDB.GetPlayers()
 	if data.Data != nil {
-		for _, c := range activeConnections {
+		for _, c := range activeClients {
 			err := c.WriteJSON(data)
 			if err != nil {
 				fmt.Println("erreur writing data function players2DB")
@@ -127,7 +127,32 @@ func sendPlayerRegister(conn *websocket.Conn) {
 }
 
 func manageClientInfo(conn *websocket.Conn, dataReceive structure.DataParam) {
-	players := dataReceive.Data["playersUpdate"]
+	playersRaw := dataReceive.Data["playersUpdate"].([]interface{})
+	// client := dataReceive.Data["client"].(string)
+
+	// Transforme PlayersRaw de type `[]interface{}` en players de type []string
+
+	players := make([]string, len(playersRaw))
+
+	for i, v := range playersRaw {
+		players[i] = v.(string)
+	}
+
+	var playerUpdate2Client structure.DataParam
+
+	playerUpdate2Client.Type = "newPlayersList"
+	playerUpdate2Client.Data = map[string]interface{}{
+		"lastPlayer": userDB.PlayersTab()[len(userDB.PlayersTab())-1],
+	}
 
 	fmt.Printf("players: %v\n", players)
+	fmt.Printf("last Player in DB: %v\n", userDB.PlayersTab()[len(userDB.PlayersTab())-1])
+
+	for _, c := range activeConnections {
+		err := c.WriteJSON(playerUpdate2Client)
+		if err != nil {
+			fmt.Println("erreur writing data function manageClientInfo:")
+			log.Fatal(err)
+		}
+	}
 }

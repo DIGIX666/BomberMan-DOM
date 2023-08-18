@@ -141,11 +141,10 @@ func PlayersTab() []string {
 		log.Fatal(err)
 	}
 	// defer rows.Close()
-	var id int
 
 	for rows.Next() {
 
-		err := rows.Scan(&id, &name)
+		err := rows.Scan(&name)
 		if err != nil {
 			fmt.Println("Error in Feed Function Query didn't work in dataBase:")
 			log.Fatal(err)
@@ -155,4 +154,19 @@ func PlayersTab() []string {
 	}
 
 	return tab
+}
+
+func FindPlayer(player string) string {
+	count := 0
+	err := Db.QueryRow("SELECT COUNT(*) FROM players WHERE username = ?)", player).Scan(&count)
+	if err != nil {
+		fmt.Println("Erreur lors de la recherche de l'utilisateur dans la base de données, func NumberOfPlayers:")
+		log.Fatal(err)
+	}
+
+	if count == 0 {
+		return player
+	} else {
+		return ""
+	}
 }
