@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("dataServer:", dataServer)
     if (dataServer.type == "goRoom") {
       displayRoom()
-      if (dataServer.data.name != "") {
+      if (dataServer.data.name != "" && !playersIn.includes(dataServer.data.previousPlayers)) {
 
         playersIn.push(dataServer.data.previousPlayers)
       }
@@ -93,23 +93,45 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("playersIn", playersIn)
       if (playersIn.length >= 2) {
 
-        startTimer();
-        if (dataServer.data.name != "") {
+        // startTimer();
+        if (dataServer.data.name != "" && !playersIn.includes(dataServer.data.name)) {
           playersIn.push(dataServer.data.name)
         }
+
+        const startTime = new Date().getTime();
+
+        setInterval(() => {
+          const elapsedTime = new Date().getTime() - startTime;
+          socket.send(elapsedTime.toString());
+        }, 1000);
+
+        socket.send(JSON.stringify({
+          type: "StartTimer",
+          data: null
+        }))
       }
 
-      if (playersIn.length == 4) {
-        onTimesUp()
-
-        data = {
-          type: "roomTimesUp",
-          usersReady2Play: playersIn,
-          nbrUsers: playersIn.length,
-        }
-        socket.send(JSON.stringify(data))
-      }
     }
+    if (playersIn.length == 4) {
+      onTimesUp()
+
+      data = {
+        type: "roomTimesUp",
+        usersReady2Play: playersIn,
+        nbrUsers: playersIn.length,
+      }
+      socket.send(JSON.stringify(data))
+    }
+
+    if (dataServer.type == "Chrono") {
+
+      timePassed = dataServer.data.time
+
+      console.log("time left:", 20-timePassed)
+      
+    }
+
+
   }
 })
 

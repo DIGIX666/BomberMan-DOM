@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"bomberman/structure"
 	"bomberman/userDB"
@@ -17,8 +18,12 @@ var upgrader = websocket.Upgrader{
 }
 
 var (
-	activeConnections = make(map[string]*websocket.Conn)
 	activeClients     = make(map[string]*websocket.Conn)
+	activeConnections = make(map[string]*websocket.Conn)
+	elapsed           = 0
+	// tunnel4Connections  = make(chan map[string]*websocket.Conn)
+	// channel4Connections = make(chan chan string)
+	startTime time.Time
 )
 
 func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
@@ -37,10 +42,12 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 
 	var data structure.DataParam
 
+	activeConnections = make(map[string]*websocket.Conn)
+
 	// Boucle de gestion des messages du client
 	for {
 		// Lecture du message reçu du client
-		// messageType, message, err := conn.ReadMessage()
+		// _, message, err := conn.ReadMessage()
 		// if err != nil {
 		// 	fmt.Println("Erreur lors de la lecture du message:", err)
 		// 	break
@@ -59,24 +66,43 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 		// }
 
 		fmt.Printf("data: %v\n", data)
-		err := conn.ReadJSON(&data)
+		err = conn.ReadJSON(&data)
 		if err != nil {
 			fmt.Println("Error Reading JSON")
 			break
 		}
 
+		// if string(message) == "Connexion WebSocket fermée !" {
+		// 	delete(activeConnections, data.Data["name"].(string))
+		// 	// break
+		// }
+
 		switch data.Type {
 		case "UserLog":
 			activeConnections[data.Data["name"].(string)] = conn
-			room(conn, data.Data["name"].(string))
+			// tunnel4Connections <- activeConnections
+			fmt.Println("nombre de connections:", len(activeConnections))
+			if len(activeConnections) <= 4 {
+				room(conn, data.Data["name"].(string))
+			}
+			if len(activeConnections) == 2 {
+				startTime = time.Now()
+				TimerManager(conn, activeConnections, true)
+			}
+			if len(activeConnections) == 4 {
+				TimerManager(conn, activeConnections, false)
+			}
 		case "clientInfo":
 			manageClientInfo(conn, data)
 			players2DB(conn)
+
+		case "StartTimer":
+			// tunnel4Connections <- activeConnections
 		}
 	}
 }
 
-func room(conn *websocket.Conn, player string) {
+func room(conn *websocket.Conn, player string) string {
 	var data structure.DataParam
 
 	if player != "" {
@@ -93,6 +119,8 @@ func room(conn *websocket.Conn, player string) {
 			log.Fatal("erreur writing data function Room")
 		}
 	}
+
+	return conn.RemoteAddr().String()
 }
 
 func players2DB(conn *websocket.Conn) {
@@ -110,21 +138,21 @@ func players2DB(conn *websocket.Conn) {
 	}
 }
 
-func sendPlayerRegister(conn *websocket.Conn) {
-	var data structure.DataParam
+// func sendPlayerRegister(conn *websocket.Conn) {
+// 	var data structure.DataParam
 
-	// err := conn.WriteMessage(1, []byte(player))
-	// if err != nil {
-	// 	log.Fatal("Failed to send player to client")
-	// }
-	data.Type = "players"
-	data.Data = userDB.GetPlayers()
-	fmt.Printf("data: %v\n", data)
-	err := conn.WriteJSON(data)
-	if err != nil {
-		log.Fatal("erreur writing data function sendPlayerRegister")
-	}
-}
+// 	// err := conn.WriteMessage(1, []byte(player))
+// 	// if err != nil {
+// 	// 	log.Fatal("Failed to send player to client")
+// 	// }
+// 	data.Type = "players"
+// 	data.Data = userDB.GetPlayers()
+// 	fmt.Printf("data: %v\n", data)
+// 	err := conn.WriteJSON(data)
+// 	if err != nil {
+// 		log.Fatal("erreur writing data function sendPlayerRegister")
+// 	}
+// }
 
 func manageClientInfo(conn *websocket.Conn, dataReceive structure.DataParam) {
 	playersRaw := dataReceive.Data["playersUpdate"].([]interface{})
@@ -155,4 +183,33 @@ func manageClientInfo(conn *websocket.Conn, dataReceive structure.DataParam) {
 			log.Fatal(err)
 		}
 	}
+}
+
+func TimerManager(conn *websocket.Conn, activeConnections map[string]*websocket.Conn, gameFull bool) {
+	// var data structure.DataParam
+	// dataChannel := make(chan structure.DataParam)
+	// startTime := time.Now()
+
+	go func(activeConnections map[string]*websocket.Conn) {
+		for elapsed < 20 && gameFull {
+			elapsed = int(time.Since(startTime).Seconds())
+			newData := structure.DataParam{
+				Type: "Chrono",
+				Data: map[string]interface{}{
+					"time": elapsed,
+				},
+			}
+			// dataChannel <- newData
+			for _, c := range activeConnections {
+
+				err := c.WriteJSON(newData)
+				if err != nil {
+					fmt.Println("Error in WriteJSON in TimerManager:")
+					log.Fatal(err)
+
+				}
+			}
+			time.Sleep(1 * time.Second)
+		}
+	}(activeConnections)
 }
