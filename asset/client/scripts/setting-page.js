@@ -24,7 +24,7 @@ const roomDiv = document.querySelector('.room');
 // Sélectionnez la section avec la classe "log"
 const logSection = document.querySelector('.log');
 
-// Ajoutez un gestionnaire d'événement pour le clic sur le bouton
+
 button.addEventListener('click', () => {
     roomDiv.style.display = 'block';
     logSection.style.display = 'none';
