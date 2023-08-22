@@ -42,7 +42,9 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 
 	var data structure.DataParam
 
-	activeConnections = make(map[string]*websocket.Conn)
+	if len(activeConnections) > 4 {
+		activeConnections = make(map[string]*websocket.Conn)
+	}
 
 	// Boucle de gestion des messages du client
 	for {
@@ -96,7 +98,7 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 			manageClientInfo(conn, data)
 			players2DB(conn)
 
-		case "StartTimer":
+		case "roomTimesUp":
 			// tunnel4Connections <- activeConnections
 		}
 	}
@@ -190,7 +192,8 @@ func TimerManager(conn *websocket.Conn, activeConnections map[string]*websocket.
 	// dataChannel := make(chan structure.DataParam)
 	// startTime := time.Now()
 
-	go func(activeConnections map[string]*websocket.Conn) {
+	go func(activeConnections map[string]*websocket.Conn, gameFull bool) {
+		fmt.Println("gameFull:", gameFull)
 		for elapsed < 20 && gameFull {
 			elapsed = int(time.Since(startTime).Seconds())
 			newData := structure.DataParam{
@@ -211,5 +214,5 @@ func TimerManager(conn *websocket.Conn, activeConnections map[string]*websocket.
 			}
 			time.Sleep(1 * time.Second)
 		}
-	}(activeConnections)
+	}(activeConnections, gameFull)
 }

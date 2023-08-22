@@ -23,7 +23,8 @@ const COLOR_CODES = {
 
 const TIME_LIMIT = 20;
 let timePassed = 0;
-let timeLeft = TIME_LIMIT;
+// let timeLeft = TIME_LIMIT;
+let timeLeft = 0
 let timerInterval = null;
 let remainingPathColor = COLOR_CODES.info.color;
 
@@ -80,8 +81,6 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("YOOOOOOOO !!!!!!!!")
         playersIn.push(dataServer.data.lastPlayer)
       }
-
-
     }
 
     if (dataServer.type == "players") {
@@ -115,7 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (playersIn.length == 4) {
       onTimesUp()
 
-      data = {
+      const data = {
         type: "roomTimesUp",
         usersReady2Play: playersIn,
         nbrUsers: playersIn.length,
@@ -126,12 +125,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (dataServer.type == "Chrono") {
 
       timePassed = dataServer.data.time
+      startTimer()
+      console.log("time left:", dataServer.data.time)
 
-      console.log("time left:", 20-timePassed)
-      
     }
-
-
   }
 })
 
@@ -141,11 +138,12 @@ function onTimesUp() {
 
 function startTimer() {
   timerInterval = setInterval(() => {
-    timePassed = timePassed += 1;
+    // timePassed = timePassed += 1;
     timeLeft = TIME_LIMIT - timePassed;
-    document.getElementById("base-timer-label").innerHTML = formatTime(
-      timeLeft
-    );
+    // document.getElementById("base-timer-label").innerHTML = formatTime(
+    //   timeLeft
+    // );
+    document.getElementById("base-timer-label").innerHTML = timeLeft;
     setCircleDasharray();
     setRemainingPathColor(timeLeft);
 
