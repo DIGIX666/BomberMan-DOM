@@ -30,6 +30,7 @@ export function displayRoom() {
     // Ajoutez un gestionnaire d'événement pour le clic sur le bouton
     roomDiv.style.display = 'block';
     logSection.style.display = 'none';
+    
     // button.addEventListener('click', () => {
     // });
 }
