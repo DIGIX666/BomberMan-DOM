@@ -45,6 +45,9 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 	if len(activeConnections) > 4 {
 		activeConnections = make(map[string]*websocket.Conn)
 	}
+	if len(activeClients) > 4 {
+		activeClients = make(map[string]*websocket.Conn)
+	}
 
 	// Boucle de gestion des messages du client
 	for {
@@ -99,12 +102,12 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 			players2DB(conn)
 
 		case "roomTimesUp":
-			// tunnel4Connections <- activeConnections
+			fmt.Println("Times Up Data:", data.Data["usersReady2Play"])
 		}
 	}
 }
 
-func room(conn *websocket.Conn, player string) string {
+func room(conn *websocket.Conn, player string) {
 	var data structure.DataParam
 
 	if player != "" {
@@ -121,8 +124,6 @@ func room(conn *websocket.Conn, player string) string {
 			log.Fatal("erreur writing data function Room")
 		}
 	}
-
-	return conn.RemoteAddr().String()
 }
 
 func players2DB(conn *websocket.Conn) {
@@ -140,34 +141,18 @@ func players2DB(conn *websocket.Conn) {
 	}
 }
 
-// func sendPlayerRegister(conn *websocket.Conn) {
-// 	var data structure.DataParam
-
-// 	// err := conn.WriteMessage(1, []byte(player))
-// 	// if err != nil {
-// 	// 	log.Fatal("Failed to send player to client")
-// 	// }
-// 	data.Type = "players"
-// 	data.Data = userDB.GetPlayers()
-// 	fmt.Printf("data: %v\n", data)
-// 	err := conn.WriteJSON(data)
-// 	if err != nil {
-// 		log.Fatal("erreur writing data function sendPlayerRegister")
-// 	}
-// }
-
 func manageClientInfo(conn *websocket.Conn, dataReceive structure.DataParam) {
 	playersRaw := dataReceive.Data["playersUpdate"].([]interface{})
 	// client := dataReceive.Data["client"].(string)
 
-	// Transforme PlayersRaw de type `[]interface{}` en players de type []string
+	/////////////Transforme PlayersRaw de type `[]interface{}` en players de type []string/////////////////////////////
 
 	players := make([]string, len(playersRaw))
 
 	for i, v := range playersRaw {
 		players[i] = v.(string)
 	}
-
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	var playerUpdate2Client structure.DataParam
 
 	playerUpdate2Client.Type = "newPlayersList"
@@ -178,7 +163,7 @@ func manageClientInfo(conn *websocket.Conn, dataReceive structure.DataParam) {
 	fmt.Printf("players: %v\n", players)
 	fmt.Printf("last Player in DB: %v\n", userDB.PlayersTab()[len(userDB.PlayersTab())-1])
 
-	for _, c := range activeConnections {
+	for _, c := range activeClients {
 		err := c.WriteJSON(playerUpdate2Client)
 		if err != nil {
 			fmt.Println("erreur writing data function manageClientInfo:")
@@ -194,7 +179,7 @@ func TimerManager(conn *websocket.Conn, activeConnections map[string]*websocket.
 
 	go func(activeConnections map[string]*websocket.Conn, gameFull bool) {
 		fmt.Println("gameFull:", gameFull)
-		for elapsed < 20 && gameFull {
+		for elapsed < 20 {
 			elapsed = int(time.Since(startTime).Seconds())
 			newData := structure.DataParam{
 				Type: "Chrono",
@@ -213,6 +198,9 @@ func TimerManager(conn *websocket.Conn, activeConnections map[string]*websocket.
 				}
 			}
 			time.Sleep(1 * time.Second)
+			if !gameFull {
+				break
+			}
 		}
 	}(activeConnections, gameFull)
 }

@@ -24,7 +24,7 @@ const COLOR_CODES = {
 const TIME_LIMIT = 20;
 let timePassed = 0;
 // let timeLeft = TIME_LIMIT;
-let timeLeft = 0
+let timeLeft = null
 let timerInterval = null;
 let remainingPathColor = COLOR_CODES.info.color;
 
@@ -97,37 +97,38 @@ document.addEventListener("DOMContentLoaded", () => {
           playersIn.push(dataServer.data.name)
         }
 
-        const startTime = new Date().getTime();
+        // const startTime = new Date().getTime();
 
-        setInterval(() => {
-          const elapsedTime = new Date().getTime() - startTime;
-          socket.send(elapsedTime.toString());
-        }, 1000);
+        // setInterval(() => {
+        //   const elapsedTime = new Date().getTime() - startTime;
+        //   socket.send(elapsedTime.toString());
+        // }, 1000);
 
-        socket.send(JSON.stringify({
-          type: "StartTimer",
-          data: null
-        }))
+        // socket.send(JSON.stringify({
+        //   type: "StartTimer",
+        //   data: null
+        // }))
       }
 
     }
-    if (playersIn.length == 4) {
-      onTimesUp()
-
-      const data = {
-        type: "roomTimesUp",
-        usersReady2Play: playersIn,
-        nbrUsers: playersIn.length,
-      }
-      socket.send(JSON.stringify(data))
-    }
-
+    
     if (dataServer.type == "Chrono") {
-
+      
       timePassed = dataServer.data.time
       startTimer()
-      console.log("time left:", dataServer.data.time)
-
+      console.log("time passed:", dataServer.data.time)
+      if (playersIn.length == 4) {
+        onTimesUp()
+  
+        
+        socket.send(JSON.stringify({
+          type: "roomTimesUp",
+          data: {
+            usersReady2Play: playersIn,
+            nbrUsers: playersIn.length,
+          }
+        }))
+      }
     }
   }
 })
@@ -146,6 +147,8 @@ function startTimer() {
     document.getElementById("base-timer-label").innerHTML = timeLeft;
     setCircleDasharray();
     setRemainingPathColor(timeLeft);
+
+    console.log("time Left:", timeLeft)
 
     if (timeLeft === 0) {
       onTimesUp();
