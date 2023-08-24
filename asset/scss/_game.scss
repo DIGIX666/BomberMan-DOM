@@ -13,7 +13,6 @@
   height: 100px;
   width: 100px;
   overflow: hidden;
-  border: solid;
 }
 
 .brick {
@@ -66,12 +65,42 @@
 .character {
   position: absolute;
   border: solid;
-  top: 122px;
-  left: 330px;
+  top: 120px;
+  left: 130px;
   width: 60px;
   height: 96px;
   background-image: url(../asset/images/character/perso1/perso1-marche.png);
   /* Ajustez les valeurs de background-position pour afficher la première image */
 background-position: -5px -17px;
+}
+
+.bombe {
+    position: absolute;
+    overflow: hidden;
+    border: solid;
+    width: 32px;
+    height: 40px;
+    background-image: url(../asset/images/bombe.png);
+    /* Ajustez les valeurs de background-position pour afficher la première image */
+  background-position: -5px;
+}
+
+.explosion {
+  position: absolute;
+  width: 80px; /* Ajustez la largeur et la hauteur en fonction de vos besoins */
+  height: 80px;
+  background-image: url(../asset/images/explosion.gif);
+  background-size: cover;
+  animation: explode 1s steps(8) forwards; /* Créez une animation pour le GIF */
+  border-radius: 30%;
+}
+
+@keyframes explode {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
