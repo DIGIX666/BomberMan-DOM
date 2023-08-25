@@ -21,9 +21,9 @@ var (
 	activeClients     = make(map[string]*websocket.Conn)
 	activeConnections = make(map[string]*websocket.Conn)
 	elapsed           = 0
-	// tunnel4Connections  = make(chan map[string]*websocket.Conn)
-	// channel4Connections = make(chan chan string)
-	startTime time.Time
+	startTime         time.Time
+	timerID           = []map[string]interface{}{}
+	gameFull          = false
 )
 
 func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
@@ -44,9 +44,12 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 
 	if len(activeConnections) > 4 {
 		activeConnections = make(map[string]*websocket.Conn)
+		timerID = []map[string]interface{}{}
+
 	}
 	if len(activeClients) > 4 {
 		activeClients = make(map[string]*websocket.Conn)
+		timerID = []map[string]interface{}{}
 	}
 
 	// Boucle de gestion des messages du client
@@ -92,19 +95,55 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 			}
 			if len(activeConnections) == 2 {
 				startTime = time.Now()
-				TimerManager(conn, activeConnections, true)
+				gameFull = true
+				TimerManager(conn, activeConnections, gameFull, 40)
+				gameFull = false
 			}
 			if len(activeConnections) == 4 {
-				TimerManager(conn, activeConnections, false)
+				startTime = time.Now()
+				gameFull = false
+				TimerManager(conn, activeConnections, false, 20)
+				gameFull = true
+
 			}
+
 		case "clientInfo":
 			manageClientInfo(conn, data)
-			players2DB(conn)
+			// players2DB(conn)
+
+		case "timerID":
+			manageTimerID(conn, data.Data)
 
 		case "roomTimesUp":
 			fmt.Println("Times Up Data:", data.Data["usersReady2Play"])
 		}
 	}
+}
+
+func manageTimerID(conn *websocket.Conn, data map[string]interface{}) {
+	fmt.Println("Data TimerID:", data)
+	fmt.Println()
+
+	// for clientAdress := range data {
+	// 	timerID[clientAdress] = data[clientAdress]
+	// }
+	// rightLocalhost := "[::1]"
+	newMap := make(map[string]interface{})
+	// if strings.Split(data["playerAdress"].(string), ":")[0] == "[::1]" {
+	// 	newMap[data["playerAdress"].(string)] = data["ID"]
+	// 	timerID = append(timerID, newMap)
+	// } else {
+	// 	urlNumber := strings.Split(data["playerAdress"].(string), ":")[0]
+	// 	rightAdress := rightLocalhost + ":" + urlNumber
+	// 	newMap[rightAdress] = data["ID"]
+	// 	timerID = append(timerID, newMap)
+	// }
+
+	newMap[data["playerAdress"].(string)] = data["ID"]
+	timerID = append(timerID, newMap)
+
+	fmt.Printf("tID: %v\n", timerID)
+	fmt.Println()
 }
 
 func room(conn *websocket.Conn, player string) {
@@ -126,24 +165,8 @@ func room(conn *websocket.Conn, player string) {
 	}
 }
 
-func players2DB(conn *websocket.Conn) {
-	var data structure.DataParam
-
-	data.Type = "players"
-	data.Data = userDB.GetPlayers()
-	if data.Data != nil {
-		for _, c := range activeClients {
-			err := c.WriteJSON(data)
-			if err != nil {
-				fmt.Println("erreur writing data function players2DB")
-			}
-		}
-	}
-}
-
 func manageClientInfo(conn *websocket.Conn, dataReceive structure.DataParam) {
 	playersRaw := dataReceive.Data["playersUpdate"].([]interface{})
-	// client := dataReceive.Data["client"].(string)
 
 	/////////////Transforme PlayersRaw de type `[]interface{}` en players de type []string/////////////////////////////
 
@@ -172,22 +195,23 @@ func manageClientInfo(conn *websocket.Conn, dataReceive structure.DataParam) {
 	}
 }
 
-func TimerManager(conn *websocket.Conn, activeConnections map[string]*websocket.Conn, gameFull bool) {
+func TimerManager(conn *websocket.Conn, activeConnections map[string]*websocket.Conn, gameFull bool, duration int) {
 	// var data structure.DataParam
 	// dataChannel := make(chan structure.DataParam)
 	// startTime := time.Now()
 
-	go func(activeConnections map[string]*websocket.Conn, gameFull bool) {
+	go func(activeConnections map[string]*websocket.Conn, gameFull bool, conn *websocket.Conn, duration int) {
 		fmt.Println("gameFull:", gameFull)
-		for elapsed < 20 {
+		for elapsed < duration && gameFull {
 			elapsed = int(time.Since(startTime).Seconds())
 			newData := structure.DataParam{
 				Type: "Chrono",
 				Data: map[string]interface{}{
-					"time": elapsed,
+					"time":      elapsed,
+					"nbPlayers": userDB.NumberOfPlayers(),
 				},
 			}
-			// dataChannel <- newData
+			fmt.Printf("userDB.NumberOfPlayers(): %v\n", userDB.NumberOfPlayers())
 			for _, c := range activeConnections {
 
 				err := c.WriteJSON(newData)
@@ -198,9 +222,66 @@ func TimerManager(conn *websocket.Conn, activeConnections map[string]*websocket.
 				}
 			}
 			time.Sleep(1 * time.Second)
-			if !gameFull {
-				break
+		}
+
+		if !gameFull {
+			gameFull = true
+			// newData := structure.DataParam{
+			// 	Type: "Chrono",
+			// 	Data: map[string]interface{}{
+			// 		"time": duration,
+			// 	},
+			// }
+
+			// for _, c := range activeConnections {
+
+			// 	err := c.WriteJSON(newData)
+			// 	if err != nil {
+			// 		fmt.Println("Error in WriteJSON in TimerManager:")
+			// 		log.Fatal(err)
+
+			// 	}
+			// }
+			fmt.Printf("activeClients: %v\n", activeClients)
+			fmt.Printf("activeConnections: %v\n", activeConnections)
+			for i := 0; i < len(timerID); i++ {
+				for key, value := range activeClients {
+					for k, v := range timerID[i] {
+						if key == k {
+							fmt.Println("FOUND key activeClients:", key)
+							fmt.Println("FOUND key timerID:", k)
+							data := structure.DataParam{
+								Type: "Chrono",
+								Data: map[string]interface{}{
+									"readyGame": true,
+									"ID":        v,
+									"time":      20,
+								},
+							}
+							err := value.WriteJSON(data)
+							if err != nil {
+								fmt.Println("Error WriteJSON in TimerManager Last loop")
+								log.Fatal(err)
+							}
+						}
+					}
+				}
 			}
 		}
-	}(activeConnections, gameFull)
+	}(activeConnections, gameFull, conn, duration)
 }
+
+// func players2DB(conn *websocket.Conn) {
+// 	var data structure.DataParam
+
+// 	data.Type = "players"
+// 	data.Data = userDB.GetPlayers()
+// 	if data.Data != nil {
+// 		for _, c := range activeClients {
+// 			err := c.WriteJSON(data)
+// 			if err != nil {
+// 				fmt.Println("erreur writing data function players2DB")
+// 			}
+// 		}
+// 	}
+// }

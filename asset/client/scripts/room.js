@@ -21,12 +21,15 @@ const COLOR_CODES = {
   }
 };
 
-const TIME_LIMIT = 20;
+const TIME_LIMIT = 40;
 let timePassed = 0;
 // let timeLeft = TIME_LIMIT;
 let timeLeft = null
 let timerInterval = null;
 let remainingPathColor = COLOR_CODES.info.color;
+let clientAdress = null
+let clientPlayer = null
+let count = 0
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -40,6 +43,8 @@ document.addEventListener("DOMContentLoaded", () => {
         playersIn.push(dataServer.data.previousPlayers)
       }
       playersIn = dataServer.data["previousPlayers"]
+      clientAdress = dataServer.data.clientAdress
+      clientPlayer = dataServer.data.playerJoined
       socket.send(JSON.stringify({
         type: "clientInfo",
         data: {
@@ -62,23 +67,22 @@ document.addEventListener("DOMContentLoaded", () => {
       M 50, 50
       m -45, 0
       a 45,45 0 1,0 90,0
-                  a 45,45 0 1,0 -90,0
-                  "
-                  ></path>
-                  </g>
+      a 45,45 0 1,0 -90,0
+      "
+      ></path>
+      </g>
                   </svg>
                   <span id="base-timer-label" class="base-timer__label">${formatTime(
         timeLeft
       )}</span>
-        </div>
-        `;
+                    </div>
+                    `;
 
     }
 
     if (dataServer.type == "newPlayersList") {
 
       if (!playersIn.includes(dataServer.data.lastPlayer)) {
-        console.log("YOOOOOOOO !!!!!!!!")
         playersIn.push(dataServer.data.lastPlayer)
       }
     }
@@ -90,70 +94,90 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
       console.log("playersIn", playersIn)
-      if (playersIn.length >= 2) {
 
-        // startTimer();
-        if (dataServer.data.name != "" && !playersIn.includes(dataServer.data.name)) {
-          playersIn.push(dataServer.data.name)
+      // startTimer();
+      if (dataServer.data.name != "" && !playersIn.includes(dataServer.data.name)) {
+        playersIn.push(dataServer.data.name)
+      }
+    }
+
+    if (dataServer.type == "Chrono") {
+
+      timePassed = dataServer.data.time
+      console.log("nombre de player:", dataServer.data.nbPlayers)
+      if (dataServer.data.nbPlayers >= 2 && dataServer.data.nbPlayers <= 4) {
+
+        if (count==0) {
+          
+          timerInterval = startTimer(40)
+          socket.send(JSON.stringify({
+            type: "timerID",
+            data: {
+              playerAdress: clientAdress,
+              playerName: clientPlayer,
+              ID: timerInterval,
+            }
+          }))
+          count++
         }
+        // startTimer(40)
+      }
+      console.log("time passed:", dataServer.data.time)
+      if (dataServer.data.readyGame) {
+        // console.log("NB PLAYERS in timesUP :", nbPlayers)
+        console.log("READY GAME")
 
-        // const startTime = new Date().getTime();
+        clearInterval(dataServer.data.ID)
+        console.log("CLEAR ID:", dataServer.data.ID)
+        startTimer(dataServer.data.time)
 
-        // setInterval(() => {
-        //   const elapsedTime = new Date().getTime() - startTime;
-        //   socket.send(elapsedTime.toString());
-        // }, 1000);
+        // onTimesUp(timerInterval)
+        // startTimer(timerInterval,20)
+        // clearInterval(timerInterval)
+
 
         // socket.send(JSON.stringify({
-        //   type: "StartTimer",
-        //   data: null
+        //   type: "roomTimesUp",
+        //   data: {
+        //     usersReady2Play: playersIn,
+        //     nbrUsers: playersIn.length,
+        //   }
         // }))
       }
-
-    }
-    
-    if (dataServer.type == "Chrono") {
-      
-      timePassed = dataServer.data.time
-      startTimer()
-      console.log("time passed:", dataServer.data.time)
-      if (playersIn.length == 4) {
-        onTimesUp()
-  
-        
-        socket.send(JSON.stringify({
-          type: "roomTimesUp",
-          data: {
-            usersReady2Play: playersIn,
-            nbrUsers: playersIn.length,
-          }
-        }))
+      if (timeLeft === 0) {
+        clearInterval(timerInterval)
       }
     }
   }
 })
 
-function onTimesUp() {
-  clearInterval(timerInterval);
+function onTimesUp(timerInterval) {
+  setTimeout(() => {
+    clearInterval(timerInterval);
+
+  }, 1)
 }
 
-function startTimer() {
+function startTimer(timeLimit) {
+ 
   timerInterval = setInterval(() => {
     // timePassed = timePassed += 1;
-    timeLeft = TIME_LIMIT - timePassed;
+    timeLeft = timeLimit - timePassed;
     // document.getElementById("base-timer-label").innerHTML = formatTime(
     //   timeLeft
     // );
     document.getElementById("base-timer-label").innerHTML = timeLeft;
-    setCircleDasharray();
+    setCircleDasharray(timeLimit);
     setRemainingPathColor(timeLeft);
 
-    console.log("time Left:", timeLeft)
+    // console.log("time Left:", timeLeft)
 
-    if (timeLeft === 0) {
-      onTimesUp();
-    }
   }, 1000);
+  return timerInterval
+  //   if (timeLeft === 0) {
+  // console.log("timer Interval:", timerInterval)
+  //     onTimesUp(timerInterval);
+  //   }
 }
 
 function formatTime(time) {
@@ -185,14 +209,14 @@ function setRemainingPathColor(timeLeft) {
   }
 }
 
-function calculateTimeFraction() {
-  const rawTimeFraction = timeLeft / TIME_LIMIT;
-  return rawTimeFraction - (1 / TIME_LIMIT) * (1 - rawTimeFraction);
+function calculateTimeFraction(timeLimit) {
+  const rawTimeFraction = timeLeft / timeLimit;
+  return rawTimeFraction - (1 / timeLimit) * (1 - rawTimeFraction);
 }
 
-function setCircleDasharray() {
+function setCircleDasharray(timeLimit) {
   const circleDasharray = `${(
-    calculateTimeFraction() * FULL_DASH_ARRAY
+    calculateTimeFraction(timeLimit) * FULL_DASH_ARRAY
   ).toFixed(0)} 283`;
   document
     .getElementById("base-timer-path-remaining")

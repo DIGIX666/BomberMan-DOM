@@ -123,7 +123,7 @@ func PlayersUpdate() (map[string]interface{}, int) {
 
 func NumberOfPlayers() int {
 	var count int
-	err := Db.QueryRow("SELECT COUNT(*) FROM players)").Scan(&count)
+	err := Db.QueryRow("SELECT COUNT(*) FROM players").Scan(&count)
 	if err != nil {
 		fmt.Println("Erreur lors de la recherche de l'utilisateur dans la base de données, func NumberOfPlayers:")
 		log.Fatal(err)
