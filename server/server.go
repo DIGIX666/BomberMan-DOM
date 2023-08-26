@@ -36,7 +36,6 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// defer conn.Close()
-	activeClients[conn.RemoteAddr().String()] = conn
 
 	fmt.Println("Client connecté au serveur WebSocket.")
 
@@ -51,27 +50,10 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 		activeClients = make(map[string]*websocket.Conn)
 		timerID = []map[string]interface{}{}
 	}
+	activeClients[conn.RemoteAddr().String()] = conn
 
 	// Boucle de gestion des messages du client
 	for {
-		// Lecture du message reçu du client
-		// _, message, err := conn.ReadMessage()
-		// if err != nil {
-		// 	fmt.Println("Erreur lors de la lecture du message:", err)
-		// 	break
-		// }
-
-		// Afficher le message reçu du client
-		// fmt.Printf("Message reçu du client: %s\n", message)
-
-		// Exemple de réponse au client
-		// response := []byte("Message bien reçu par le serveur.")
-		// // Envoyer la réponse au client
-		// // err = conn.WriteMessage(messageType, response)
-		// if err != nil {
-		// 	fmt.Println("Erreur lors de l'envoi de la réponse:", err)
-		// 	break
-		// }
 
 		fmt.Printf("data: %v\n", data)
 		err = conn.ReadJSON(&data)
@@ -80,36 +62,32 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		// if string(message) == "Connexion WebSocket fermée !" {
-		// 	delete(activeConnections, data.Data["name"].(string))
-		// 	// break
-		// }
-
 		switch data.Type {
 		case "UserLog":
-			activeConnections[data.Data["name"].(string)] = conn
-			// tunnel4Connections <- activeConnections
-			fmt.Println("nombre de connections:", len(activeConnections))
+
 			if len(activeConnections) <= 4 {
+				activeConnections[data.Data["name"].(string)] = conn
+				fmt.Println("nombre de connections:", len(activeConnections))
 				room(conn, data.Data["name"].(string))
 			}
 			if len(activeConnections) == 2 {
+				fmt.Println("DURATION 20 !!!!!!!!!")
 				startTime = time.Now()
 				gameFull = true
-				TimerManager(conn, activeConnections, gameFull, 40)
+				TimerManager(conn, activeClients, activeConnections, true, 20)
 				gameFull = false
 			}
 			if len(activeConnections) == 4 {
+				fmt.Println("DURATION 10 !!!!!!!!!")
 				startTime = time.Now()
 				gameFull = false
-				TimerManager(conn, activeConnections, false, 20)
+				TimerManager(conn, activeClients, activeConnections, false, 10)
 				gameFull = true
 
 			}
 
 		case "clientInfo":
 			manageClientInfo(conn, data)
-			// players2DB(conn)
 
 		case "timerID":
 			manageTimerID(conn, data.Data)
@@ -124,20 +102,7 @@ func manageTimerID(conn *websocket.Conn, data map[string]interface{}) {
 	fmt.Println("Data TimerID:", data)
 	fmt.Println()
 
-	// for clientAdress := range data {
-	// 	timerID[clientAdress] = data[clientAdress]
-	// }
-	// rightLocalhost := "[::1]"
 	newMap := make(map[string]interface{})
-	// if strings.Split(data["playerAdress"].(string), ":")[0] == "[::1]" {
-	// 	newMap[data["playerAdress"].(string)] = data["ID"]
-	// 	timerID = append(timerID, newMap)
-	// } else {
-	// 	urlNumber := strings.Split(data["playerAdress"].(string), ":")[0]
-	// 	rightAdress := rightLocalhost + ":" + urlNumber
-	// 	newMap[rightAdress] = data["ID"]
-	// 	timerID = append(timerID, newMap)
-	// }
 
 	newMap[data["playerAdress"].(string)] = data["ID"]
 	timerID = append(timerID, newMap)
@@ -195,20 +160,21 @@ func manageClientInfo(conn *websocket.Conn, dataReceive structure.DataParam) {
 	}
 }
 
-func TimerManager(conn *websocket.Conn, activeConnections map[string]*websocket.Conn, gameFull bool, duration int) {
+func TimerManager(conn *websocket.Conn, activeClients map[string]*websocket.Conn, activeConnections map[string]*websocket.Conn, gameFull bool, duration int) {
 	// var data structure.DataParam
 	// dataChannel := make(chan structure.DataParam)
 	// startTime := time.Now()
 
-	go func(activeConnections map[string]*websocket.Conn, gameFull bool, conn *websocket.Conn, duration int) {
+	go func(activeConnections map[string]*websocket.Conn, activeClients map[string]*websocket.Conn, gameFull bool, conn *websocket.Conn, duration int) {
 		fmt.Println("gameFull:", gameFull)
-		for elapsed < duration && gameFull {
+		for elapsed < duration && gameFull && len(activeConnections) < 4 {
 			elapsed = int(time.Since(startTime).Seconds())
 			newData := structure.DataParam{
 				Type: "Chrono",
 				Data: map[string]interface{}{
 					"time":      elapsed,
 					"nbPlayers": userDB.NumberOfPlayers(),
+					"duration":  duration,
 				},
 			}
 			fmt.Printf("userDB.NumberOfPlayers(): %v\n", userDB.NumberOfPlayers())
@@ -224,12 +190,14 @@ func TimerManager(conn *websocket.Conn, activeConnections map[string]*websocket.
 			time.Sleep(1 * time.Second)
 		}
 
-		if !gameFull {
-			gameFull = true
+		// gameFull = false
+
+		if !gameFull && len(activeConnections) == 4 {
+			// gameFull = true
 			// newData := structure.DataParam{
 			// 	Type: "Chrono",
 			// 	Data: map[string]interface{}{
-			// 		"time": duration,
+			// 		"duration": duration,
 			// 	},
 			// }
 
@@ -244,18 +212,21 @@ func TimerManager(conn *websocket.Conn, activeConnections map[string]*websocket.
 			// }
 			fmt.Printf("activeClients: %v\n", activeClients)
 			fmt.Printf("activeConnections: %v\n", activeConnections)
+
 			for i := 0; i < len(timerID); i++ {
 				for key, value := range activeClients {
 					for k, v := range timerID[i] {
 						if key == k {
 							fmt.Println("FOUND key activeClients:", key)
 							fmt.Println("FOUND key timerID:", k)
+
 							data := structure.DataParam{
 								Type: "Chrono",
 								Data: map[string]interface{}{
 									"readyGame": true,
 									"ID":        v,
-									"time":      20,
+									"duration":  duration,
+									// "time":      elapsed,
 								},
 							}
 							err := value.WriteJSON(data)
@@ -263,25 +234,66 @@ func TimerManager(conn *websocket.Conn, activeConnections map[string]*websocket.
 								fmt.Println("Error WriteJSON in TimerManager Last loop")
 								log.Fatal(err)
 							}
+
 						}
 					}
 				}
 			}
+
+			for elapsed < duration {
+
+				elapsed = int(time.Since(startTime).Seconds())
+				fmt.Println("ELAPSED:", elapsed)
+				fmt.Println()
+				fmt.Printf("DURATION: %v\n", duration)
+				fmt.Println()
+				data := structure.DataParam{
+					Type: "Chrono",
+					Data: map[string]interface{}{
+						"readyGame": true,
+						"duration":  duration,
+						"time":      elapsed,
+					},
+				}
+				for _, c := range activeConnections {
+
+					err := c.WriteJSON(data)
+					if err != nil {
+						fmt.Println("Error in WriteJSON in TimerManager:")
+						log.Fatal(err)
+
+					}
+				}
+			}
+
 		}
-	}(activeConnections, gameFull, conn, duration)
+	}(activeConnections, activeClients, gameFull, conn, duration)
 }
 
-// func players2DB(conn *websocket.Conn) {
-// 	var data structure.DataParam
-
-// 	data.Type = "players"
-// 	data.Data = userDB.GetPlayers()
-// 	if data.Data != nil {
-// 		for _, c := range activeClients {
-// 			err := c.WriteJSON(data)
-// 			if err != nil {
-// 				fmt.Println("erreur writing data function players2DB")
+// func Timer() {
+// 	go func(activeConnections map[string]*websocket.Conn, gameFull bool, conn *websocket.Conn, duration int) {
+// 		fmt.Println("gameFull:", gameFull)
+// 		for elapsed < duration && gameFull {
+// 			elapsed = int(time.Since(startTime).Seconds())
+// 			newData := structure.DataParam{
+// 				Type: "Chrono",
+// 				Data: map[string]interface{}{
+// 					"time":      elapsed,
+// 					"nbPlayers": userDB.NumberOfPlayers(),
+// 					"duration":  duration,
+// 				},
 // 			}
+// 			fmt.Printf("userDB.NumberOfPlayers(): %v\n", userDB.NumberOfPlayers())
+// 			for _, c := range activeConnections {
+
+// 				err := c.WriteJSON(newData)
+// 				if err != nil {
+// 					fmt.Println("Error in WriteJSON in TimerManager:")
+// 					log.Fatal(err)
+
+// 				}
+// 			}
+// 			time.Sleep(1 * time.Second)
 // 		}
-// 	}
+// 	}(activeConnections,gameFull,conn,duration)
 // }

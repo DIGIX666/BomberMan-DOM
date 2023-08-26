@@ -103,13 +103,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (dataServer.type == "Chrono") {
 
-      timePassed = dataServer.data.time
       console.log("nombre de player:", dataServer.data.nbPlayers)
       if (dataServer.data.nbPlayers >= 2 && dataServer.data.nbPlayers <= 4) {
+        timePassed = dataServer.data.time
+        
+        if (count == 0) {
 
-        if (count==0) {
-          
-          timerInterval = startTimer(40)
+          timerInterval = startTimer(dataServer.data.duration)
+          console.log("duration:", dataServer.data.duration)
           socket.send(JSON.stringify({
             type: "timerID",
             data: {
@@ -126,23 +127,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (dataServer.data.readyGame) {
         // console.log("NB PLAYERS in timesUP :", nbPlayers)
         console.log("READY GAME")
+        timePassed = dataServer.data.time
 
         clearInterval(dataServer.data.ID)
         console.log("CLEAR ID:", dataServer.data.ID)
-        startTimer(dataServer.data.time)
-
-        // onTimesUp(timerInterval)
-        // startTimer(timerInterval,20)
-        // clearInterval(timerInterval)
-
-
-        // socket.send(JSON.stringify({
-        //   type: "roomTimesUp",
-        //   data: {
-        //     usersReady2Play: playersIn,
-        //     nbrUsers: playersIn.length,
-        //   }
-        // }))
+        console.log("IN Ready game duration:",dataServer.data.duration)
+        startTimer(dataServer.data.duration)
       }
       if (timeLeft === 0) {
         clearInterval(timerInterval)
@@ -159,7 +149,7 @@ function onTimesUp(timerInterval) {
 }
 
 function startTimer(timeLimit) {
- 
+
   timerInterval = setInterval(() => {
     // timePassed = timePassed += 1;
     timeLeft = timeLimit - timePassed;
