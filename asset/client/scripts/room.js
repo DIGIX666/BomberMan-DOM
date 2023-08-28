@@ -1,5 +1,5 @@
 import { socket } from "../connect.js";
-import { displayRoom, masquerElementsParClasse } from "./setting-page.js";
+import { displayGame, displayRoom, masquerElementsParClasse } from "./setting-page.js";
 
 let playersIn = []
 
@@ -21,12 +21,16 @@ const COLOR_CODES = {
   }
 };
 
-const TIME_LIMIT = 20;
+const TIME_LIMIT = 40;
 let timePassed = 0;
 // let timeLeft = TIME_LIMIT;
-let timeLeft = 0
+let timeLeft = null
 let timerInterval = null;
 let remainingPathColor = COLOR_CODES.info.color;
+let clientAdress = null
+let clientPlayer = null
+let count = 0
+let compteur = 0
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -40,6 +44,8 @@ document.addEventListener("DOMContentLoaded", () => {
         playersIn.push(dataServer.data.previousPlayers)
       }
       playersIn = dataServer.data["previousPlayers"]
+      clientAdress = dataServer.data.clientAdress
+      clientPlayer = dataServer.data.playerJoined
       socket.send(JSON.stringify({
         type: "clientInfo",
         data: {
@@ -62,23 +68,22 @@ document.addEventListener("DOMContentLoaded", () => {
       M 50, 50
       m -45, 0
       a 45,45 0 1,0 90,0
-                  a 45,45 0 1,0 -90,0
-                  "
-                  ></path>
-                  </g>
+      a 45,45 0 1,0 -90,0
+      "
+      ></path>
+      </g>
                   </svg>
                   <span id="base-timer-label" class="base-timer__label">${formatTime(
         timeLeft
       )}</span>
-        </div>
-        `;
+                    </div>
+                    `;
 
     }
 
     if (dataServer.type == "newPlayersList") {
 
       if (!playersIn.includes(dataServer.data.lastPlayer)) {
-        console.log("YOOOOOOOO !!!!!!!!")
         playersIn.push(dataServer.data.lastPlayer)
       }
     }
@@ -90,67 +95,103 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
       console.log("playersIn", playersIn)
-      if (playersIn.length >= 2) {
 
-        // startTimer();
-        if (dataServer.data.name != "" && !playersIn.includes(dataServer.data.name)) {
-          playersIn.push(dataServer.data.name)
-        }
-
-        const startTime = new Date().getTime();
-
-        setInterval(() => {
-          const elapsedTime = new Date().getTime() - startTime;
-          socket.send(elapsedTime.toString());
-        }, 1000);
-
-        socket.send(JSON.stringify({
-          type: "StartTimer",
-          data: null
-        }))
+      // startTimer();
+      if (dataServer.data.name != "" && !playersIn.includes(dataServer.data.name)) {
+        playersIn.push(dataServer.data.name)
       }
-
-    }
-    if (playersIn.length == 4) {
-      onTimesUp()
-
-      const data = {
-        type: "roomTimesUp",
-        usersReady2Play: playersIn,
-        nbrUsers: playersIn.length,
-      }
-      socket.send(JSON.stringify(data))
     }
 
     if (dataServer.type == "Chrono") {
 
+      console.log("nombre de player:", dataServer.data.nbPlayers)
       timePassed = dataServer.data.time
-      startTimer()
-      console.log("time left:", dataServer.data.time)
+      if (dataServer.data.nbPlayers >= 2 && dataServer.data.nbPlayers <= 4) {
 
+        if (count == 0) {
+
+          timerInterval = startTimer(dataServer.data.duration)
+          console.log("duration:", dataServer.data.duration)
+          socket.send(JSON.stringify({
+            type: "timerID",
+            data: {
+              playerAdress: clientAdress,
+              playerName: clientPlayer,
+              ID: timerInterval,
+            }
+          }))
+          count++
+        }
+        // startTimer(40)
+      }
+      // console.log("time passed:", dataServer.data.time)
+      if (dataServer.data.readyGame) {
+        // console.log("NB PLAYERS in timesUP :", nbPlayers)
+        console.log("READY GAME")
+        // timePassed = dataServer.data.time
+
+        clearInterval(dataServer.data.ID)
+        console.log("CLEAR ID:", dataServer.data.ID)
+        console.log("IN Ready game duration:", dataServer.data.duration)
+        startTimerGame(dataServer.data.duration)
+        // if (timeLeft === 0) {
+        //   clearInterval(timerInterval)
+        // }
+      }
+      // if (timeLeft === 0) {
+      //   clearInterval(timerInterval)
+      // }
     }
   }
 })
 
-function onTimesUp() {
-  clearInterval(timerInterval);
+function onTimesUp(timerInterval) {
+  setTimeout(() => {
+    clearInterval(timerInterval);
+
+  }, 1)
 }
 
-function startTimer() {
+function startTimer(timeLimit) {
+
   timerInterval = setInterval(() => {
     // timePassed = timePassed += 1;
-    timeLeft = TIME_LIMIT - timePassed;
+    timeLeft = timeLimit - timePassed;
     // document.getElementById("base-timer-label").innerHTML = formatTime(
     //   timeLeft
     // );
     document.getElementById("base-timer-label").innerHTML = timeLeft;
-    setCircleDasharray();
+    setCircleDasharray(timeLimit);
     setRemainingPathColor(timeLeft);
 
-    if (timeLeft === 0) {
-      onTimesUp();
-    }
+    // console.log("time Left:", timeLeft)
+
   }, 1000);
+  
+  return timerInterval
+}
+
+function startTimerGame(timeLimit) {
+
+  timerInterval = setInterval(() => {
+    // timePassed = timePassed += 1;
+    timeLeft = timeLimit - timePassed;
+    // document.getElementById("base-timer-label").innerHTML = formatTime(
+    //   timeLeft
+    // );
+    document.getElementById("base-timer-label").innerHTML = timeLeft;
+    setCircleDasharray(timeLimit);
+    setRemainingPathColor(timeLeft);
+
+    // console.log("time Left:", timeLeft)
+
+  }, 1000);
+  if (timeLeft === 0) {
+    clearInterval(timerInterval)
+    masquerElementsParClasse('room')
+    displayGame()
+  }
+
 }
 
 function formatTime(time) {
@@ -182,14 +223,14 @@ function setRemainingPathColor(timeLeft) {
   }
 }
 
-function calculateTimeFraction() {
-  const rawTimeFraction = timeLeft / TIME_LIMIT;
-  return rawTimeFraction - (1 / TIME_LIMIT) * (1 - rawTimeFraction);
+function calculateTimeFraction(timeLimit) {
+  const rawTimeFraction = timeLeft / timeLimit;
+  return rawTimeFraction - (1 / timeLimit) * (1 - rawTimeFraction);
 }
 
-function setCircleDasharray() {
+function setCircleDasharray(timeLimit) {
   const circleDasharray = `${(
-    calculateTimeFraction() * FULL_DASH_ARRAY
+    calculateTimeFraction(timeLimit) * FULL_DASH_ARRAY
   ).toFixed(0)} 283`;
   document
     .getElementById("base-timer-path-remaining")

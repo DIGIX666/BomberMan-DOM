@@ -11,9 +11,9 @@ window.addEventListener("DOMContentLoaded", () => {
     button.addEventListener("click", () => {
         console.log("values of the input", input)
         console.log("value in input", input.value)
-        userName = input.value;
-
-        if (userName != "") {
+        
+        if (input.value != "") {
+            userName = input.value;
 
             masquerElementsParClasse('log')
             socket.send(JSON.stringify({
@@ -22,8 +22,8 @@ window.addEventListener("DOMContentLoaded", () => {
                     name: userName,
                 }
             }))
-            userName = ""
         }
+        // userName = ""
     })
 
     // socket.onmessage = function (event) {
