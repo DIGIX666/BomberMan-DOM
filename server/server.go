@@ -246,6 +246,22 @@ func TimerManager(conn *websocket.Conn, activeClients map[string]*websocket.Conn
 				}
 				time.Sleep(1 * time.Second)
 			}
+
+			if elapsed == duration {
+				donnee := structure.DataParam{
+					Type: "Game",
+					Data: nil,
+				}
+				for _, c := range activeConnections {
+
+					err := c.WriteJSON(donnee)
+					if err != nil {
+						fmt.Println("Error in WriteJSON in TimerManager:")
+						log.Fatal(err)
+
+					}
+				}
+			}
 		}
 	}(activeConnections, activeClients, gameFull, conn, duration)
 }

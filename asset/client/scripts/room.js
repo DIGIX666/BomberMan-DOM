@@ -134,13 +134,16 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("CLEAR ID:", dataServer.data.ID)
         console.log("IN Ready game duration:", dataServer.data.duration)
         startTimerGame(dataServer.data.duration)
-        // if (timeLeft === 0) {
-        //   clearInterval(timerInterval)
-        // }
+       
       }
       // if (timeLeft === 0) {
       //   clearInterval(timerInterval)
       // }
+    }
+    if (dataServer.type === "Game") {
+      console.log("GO TO GAME")
+      masquerElementsParClasse('room')
+      displayGame()
     }
   }
 })
@@ -167,7 +170,7 @@ function startTimer(timeLimit) {
     // console.log("time Left:", timeLeft)
 
   }, 1000);
-  
+
   return timerInterval
 }
 
@@ -188,8 +191,7 @@ function startTimerGame(timeLimit) {
   }, 1000);
   if (timeLeft === 0) {
     clearInterval(timerInterval)
-    masquerElementsParClasse('room')
-    displayGame()
+
   }
 
 }

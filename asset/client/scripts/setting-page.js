@@ -39,7 +39,7 @@ export function displayRoom() {
 ///////////////////////////////////////////////////
 
 
-function displayGame() {
+export function displayGame() {
 
     // Sélectionnez le bouton par son ID
     const buttonGame = document.getElementById('button-game');
@@ -49,9 +49,11 @@ function displayGame() {
     // Sélectionnez la div avec la classe "bomberman"
     const bombermanDiv = document.querySelector('.bomberman');
 
-    buttonGame.addEventListener('click', () => {
-        bombermanDiv.style.display = 'block';
-        roomDiv.style.display = 'none';
-    });
+    // buttonGame.addEventListener('click', () => {
+    //     bombermanDiv.style.display = 'block';
+    //     roomDiv.style.display = 'none';
+    // });
+    bombermanDiv.style.display = 'block';
+    roomDiv.style.display = 'none';
 }
-displayGame()
+// displayGame()
