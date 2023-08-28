@@ -1,5 +1,5 @@
 import { socket } from "../connect.js";
-import { displayRoom, masquerElementsParClasse } from "./setting-page.js";
+import { displayGame, displayRoom, masquerElementsParClasse } from "./setting-page.js";
 
 let playersIn = []
 
@@ -188,6 +188,8 @@ function startTimerGame(timeLimit) {
   }, 1000);
   if (timeLeft === 0) {
     clearInterval(timerInterval)
+    masquerElementsParClasse('room')
+    displayGame()
   }
 
 }
