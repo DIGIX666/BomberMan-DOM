@@ -161,14 +161,10 @@ func manageClientInfo(conn *websocket.Conn, dataReceive structure.DataParam) {
 }
 
 func TimerManager(conn *websocket.Conn, activeClients map[string]*websocket.Conn, activeConnections map[string]*websocket.Conn, gameFull bool, duration int) {
-	// var data structure.DataParam
-	// dataChannel := make(chan structure.DataParam)
-	// startTime := time.Now()
-
 	go func(activeConnections map[string]*websocket.Conn, activeClients map[string]*websocket.Conn, gameFull bool, conn *websocket.Conn, duration int) {
 		fmt.Println("gameFull:", gameFull)
 		for elapsed < duration && gameFull && len(activeConnections) < 4 {
-			elapsed = int(time.Since(startTime).Seconds())
+			elapsed := int(time.Since(startTime).Seconds())
 			newData := structure.DataParam{
 				Type: "Chrono",
 				Data: map[string]interface{}{
@@ -192,24 +188,10 @@ func TimerManager(conn *websocket.Conn, activeClients map[string]*websocket.Conn
 
 		// gameFull = false
 
-		if !gameFull && len(activeConnections) == 4 {
-			// gameFull = true
-			// newData := structure.DataParam{
-			// 	Type: "Chrono",
-			// 	Data: map[string]interface{}{
-			// 		"duration": duration,
-			// 	},
-			// }
+		if !gameFull && len(activeConnections) == 4 && duration == 10 {
 
-			// for _, c := range activeConnections {
+			// stopClockID := 0
 
-			// 	err := c.WriteJSON(newData)
-			// 	if err != nil {
-			// 		fmt.Println("Error in WriteJSON in TimerManager:")
-			// 		log.Fatal(err)
-
-			// 	}
-			// }
 			fmt.Printf("activeClients: %v\n", activeClients)
 			fmt.Printf("activeConnections: %v\n", activeConnections)
 
@@ -219,7 +201,6 @@ func TimerManager(conn *websocket.Conn, activeClients map[string]*websocket.Conn
 						if key == k {
 							fmt.Println("FOUND key activeClients:", key)
 							fmt.Println("FOUND key timerID:", k)
-
 							data := structure.DataParam{
 								Type: "Chrono",
 								Data: map[string]interface{}{
@@ -227,6 +208,7 @@ func TimerManager(conn *websocket.Conn, activeClients map[string]*websocket.Conn
 									"ID":        v,
 									"duration":  duration,
 									// "time":      elapsed,
+									"nbPlayers": userDB.NumberOfPlayers(),
 								},
 							}
 							err := value.WriteJSON(data)
@@ -243,57 +225,27 @@ func TimerManager(conn *websocket.Conn, activeClients map[string]*websocket.Conn
 			for elapsed < duration {
 
 				elapsed = int(time.Since(startTime).Seconds())
-				fmt.Println("ELAPSED:", elapsed)
-				fmt.Println()
-				fmt.Printf("DURATION: %v\n", duration)
-				fmt.Println()
-				data := structure.DataParam{
+
+				dataT := structure.DataParam{
 					Type: "Chrono",
 					Data: map[string]interface{}{
 						"readyGame": true,
 						"duration":  duration,
 						"time":      elapsed,
+						"nbPlayers": userDB.NumberOfPlayers(),
 					},
 				}
 				for _, c := range activeConnections {
 
-					err := c.WriteJSON(data)
+					err := c.WriteJSON(dataT)
 					if err != nil {
 						fmt.Println("Error in WriteJSON in TimerManager:")
 						log.Fatal(err)
 
 					}
 				}
+				time.Sleep(1 * time.Second)
 			}
-
 		}
 	}(activeConnections, activeClients, gameFull, conn, duration)
 }
-
-// func Timer() {
-// 	go func(activeConnections map[string]*websocket.Conn, gameFull bool, conn *websocket.Conn, duration int) {
-// 		fmt.Println("gameFull:", gameFull)
-// 		for elapsed < duration && gameFull {
-// 			elapsed = int(time.Since(startTime).Seconds())
-// 			newData := structure.DataParam{
-// 				Type: "Chrono",
-// 				Data: map[string]interface{}{
-// 					"time":      elapsed,
-// 					"nbPlayers": userDB.NumberOfPlayers(),
-// 					"duration":  duration,
-// 				},
-// 			}
-// 			fmt.Printf("userDB.NumberOfPlayers(): %v\n", userDB.NumberOfPlayers())
-// 			for _, c := range activeConnections {
-
-// 				err := c.WriteJSON(newData)
-// 				if err != nil {
-// 					fmt.Println("Error in WriteJSON in TimerManager:")
-// 					log.Fatal(err)
-
-// 				}
-// 			}
-// 			time.Sleep(1 * time.Second)
-// 		}
-// 	}(activeConnections,gameFull,conn,duration)
-// }

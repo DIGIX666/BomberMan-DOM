@@ -30,6 +30,7 @@ let remainingPathColor = COLOR_CODES.info.color;
 let clientAdress = null
 let clientPlayer = null
 let count = 0
+let compteur = 0
 
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -104,9 +105,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (dataServer.type == "Chrono") {
 
       console.log("nombre de player:", dataServer.data.nbPlayers)
+      timePassed = dataServer.data.time
       if (dataServer.data.nbPlayers >= 2 && dataServer.data.nbPlayers <= 4) {
-        timePassed = dataServer.data.time
-        
+
         if (count == 0) {
 
           timerInterval = startTimer(dataServer.data.duration)
@@ -123,20 +124,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         // startTimer(40)
       }
-      console.log("time passed:", dataServer.data.time)
+      // console.log("time passed:", dataServer.data.time)
       if (dataServer.data.readyGame) {
         // console.log("NB PLAYERS in timesUP :", nbPlayers)
         console.log("READY GAME")
-        timePassed = dataServer.data.time
+        // timePassed = dataServer.data.time
 
         clearInterval(dataServer.data.ID)
         console.log("CLEAR ID:", dataServer.data.ID)
-        console.log("IN Ready game duration:",dataServer.data.duration)
-        startTimer(dataServer.data.duration)
+        console.log("IN Ready game duration:", dataServer.data.duration)
+        startTimerGame(dataServer.data.duration)
+        // if (timeLeft === 0) {
+        //   clearInterval(timerInterval)
+        // }
       }
-      if (timeLeft === 0) {
-        clearInterval(timerInterval)
-      }
+      // if (timeLeft === 0) {
+      //   clearInterval(timerInterval)
+      // }
     }
   }
 })
@@ -163,11 +167,29 @@ function startTimer(timeLimit) {
     // console.log("time Left:", timeLeft)
 
   }, 1000);
+  
   return timerInterval
-  //   if (timeLeft === 0) {
-  // console.log("timer Interval:", timerInterval)
-  //     onTimesUp(timerInterval);
-  //   }
+}
+
+function startTimerGame(timeLimit) {
+
+  timerInterval = setInterval(() => {
+    // timePassed = timePassed += 1;
+    timeLeft = timeLimit - timePassed;
+    // document.getElementById("base-timer-label").innerHTML = formatTime(
+    //   timeLeft
+    // );
+    document.getElementById("base-timer-label").innerHTML = timeLeft;
+    setCircleDasharray(timeLimit);
+    setRemainingPathColor(timeLeft);
+
+    // console.log("time Left:", timeLeft)
+
+  }, 1000);
+  if (timeLeft === 0) {
+    clearInterval(timerInterval)
+  }
+
 }
 
 function formatTime(time) {
