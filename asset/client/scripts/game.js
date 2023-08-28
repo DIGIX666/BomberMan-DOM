@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bomberMan = document.querySelector('.game');
     const characterWidth = 10; // Largeur du personnage
     const characterHeight = 67; // Hauteur du personnage
+    let hitPlayer = false;
 ///////////////////////////////////////////////////////////////////////////////////
     function createMap() {
         for (let row = 0; row < mapData.length; row++) {
@@ -49,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let newLeft = characterLeft;
             let newTop = characterTop;
+            hitPlayer = false;
 
             if (event.key === 'ArrowRight') {
                 newLeft += 10;
@@ -87,13 +89,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Ajouter la logique pour déposer une bombe avec la touche Espace
             if (event.key === ' ') { // Touche Espace
-                    dropBomb(characterLeft + characterWidth / 2, characterTop + characterHeight / 2);
+                    dropBomb(character,characterLeft + characterWidth / 2, characterTop + characterHeight / 2);
             }
         });
     }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    function dropBomb(x, y) {
+    function dropBomb(character,x, y) {
         const bomb = document.createElement('div');
         bomb.classList.add('bombe');
         bomb.style.left = x + 'px';
@@ -121,6 +123,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     brick.classList.remove('brick'); // Retirer la classe "brick"
 
                     mapData[brickRow][brickCol] = ' '; // Mettre à jour le modèle de données
+                    if (
+                        checkCollision(explosion, character) &&
+                        !hitPlayer
+                    ) {
+                        hitPlayer = true; // Marquer que le joueur a été touché
+                        reduceLife(); // Appeler la fonction pour réduire la vie du joueur
+                        console.log("vie perdu");
+                    }
                 }
             });
 
@@ -129,6 +139,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 bomberMan.removeChild(explosion);
             }, 1000); // Supprimer l'explosion après 1 seconde
         }, 2000); // 3 secondes
+    }
+
+    function reduceLife() {
+        const lifeElement = document.querySelector('.life');
+        let currentLife = parseInt(lifeElement.textContent);
+
+        if (currentLife > 0) {
+            currentLife--;
+            lifeElement.textContent = currentLife;
+
+            if (currentLife === 0) {
+                const characterLife = document.querySelector('.character');
+                bomberMan.removeChild(characterLife);
+                console.log("Game over!");
+            }
+        }
     }
     /////////////////////////////////////////////////////////////////////////////////////////////////
 
