@@ -1,5 +1,5 @@
 import { socket } from "../connect.js";
-import { displayGame, displayRoom, masquerElementsParClasse } from "./setting-page.js";
+import { displayGame,displayRoom, masquerElementsParClasse } from "./setting-page.js";
 
 let playersIn = []
 
@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("dataServer:", dataServer)
     if (dataServer.type == "goRoom") {
       displayRoom()
+      console.log("after displayRoom")
       if (dataServer.data.name != "" && !playersIn.includes(dataServer.data.previousPlayers)) {
 
         playersIn.push(dataServer.data.previousPlayers)
@@ -144,6 +145,11 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("GO TO GAME")
       masquerElementsParClasse('room')
       displayGame()
+
+      socket.send(JSON.stringify({
+              type:"GameOn",
+              data: null,
+      }))
     }
   }
 })

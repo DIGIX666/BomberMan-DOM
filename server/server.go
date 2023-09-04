@@ -13,8 +13,8 @@ import (
 )
 
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+	ReadBufferSize:  2048,
+	WriteBufferSize: 2048,
 }
 
 var (
@@ -65,8 +65,8 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 		switch data.Type {
 		case "UserLog":
 
+			activeConnections[data.Data["name"].(string)] = conn
 			if len(activeConnections) <= 4 {
-				activeConnections[data.Data["name"].(string)] = conn
 				fmt.Println("nombre de connections:", len(activeConnections))
 				room(conn, data.Data["name"].(string))
 			}
@@ -83,7 +83,6 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 				gameFull = false
 				TimerManager(conn, activeClients, activeConnections, false, 10)
 				gameFull = true
-
 			}
 
 		case "clientInfo":
@@ -94,6 +93,8 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 
 		case "roomTimesUp":
 			fmt.Println("Times Up Data:", data.Data["usersReady2Play"])
+		case "GameOn":
+			fmt.Println("GAME ON !!!")
 		}
 	}
 }
@@ -114,6 +115,8 @@ func manageTimerID(conn *websocket.Conn, data map[string]interface{}) {
 func room(conn *websocket.Conn, player string) {
 	var data structure.DataParam
 
+	fmt.Printf("player: %v\n", player)
+
 	if player != "" {
 
 		userDB.StorePlayers(player)
@@ -125,7 +128,8 @@ func room(conn *websocket.Conn, player string) {
 		}
 		err := conn.WriteJSON(data)
 		if err != nil {
-			log.Fatal("erreur writing data function Room")
+			fmt.Println("Error WriteJSON function room:")
+			log.Fatal(err)
 		}
 	}
 }
@@ -216,7 +220,6 @@ func TimerManager(conn *websocket.Conn, activeClients map[string]*websocket.Conn
 								fmt.Println("Error WriteJSON in TimerManager Last loop")
 								log.Fatal(err)
 							}
-
 						}
 					}
 				}

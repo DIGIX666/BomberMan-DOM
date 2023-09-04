@@ -284,6 +284,14 @@ button:active {
   font-weight: 600;
 }
 
+/* .Player1,
+.Player2,
+.Player3,
+.Player4{
+  font-size: 25px;
+  font-weight: 600;
+} */
+
 .text {
   font-size: 12px;
   font-family: inherit;

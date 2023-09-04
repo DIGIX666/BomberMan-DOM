@@ -1,6 +1,5 @@
-// import {createElement} from "../../framework/domUtils";
-// import {appendChild} from "../../framework/domUtils";
-// import {getElementById} from "../../framework/domUtils";
+import { socket } from "../connect.js";
+
 
 
 //////////////////////// CREATE MAP //////////////
@@ -14,13 +13,39 @@ const mapData = [
     ['#', ' ', 'b', ' ', ' ', ' ', ' ', 'b', ' ', '#'],
     ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#']
 ];
+//////////////////////////////////////////////////////////////////////////////////
 
 document.addEventListener('DOMContentLoaded', () => {
     const bomberMan = document.querySelector('.game');
     const characterWidth = 10; // Largeur du personnage
     const characterHeight = 67; // Hauteur du personnage
     let hitPlayer = false;
-///////////////////////////////////////////////////////////////////////////////////
+    let P1 = document.querySelector(".Player1")
+    let P2 = document.querySelector(".Player2")
+    let P3 = document.querySelector(".Player3")
+    let P4 = document.querySelector(".Player4")
+
+    ///////////////////Recevoir les joueurs///////////////////////////////////////////
+    socket.onmessage = function (event) {
+        let Server = JSON.parse(event.data)
+        if (Server.type == "Players") {
+            let Players = []
+            console.log("Server In Game:", Server)
+            Server.data.Players.forEach(element => {
+                Players.push(element)
+            });
+    
+            console.log("Players tab:", Players)
+            P1.innerHTML = Players[0]
+            P2.innerHTML = Players[1]
+            P3.innerHTML = Players[2]
+            P4.innerHTML = Players[3]
+            
+        }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////
+
     function createMap() {
         for (let row = 0; row < mapData.length; row++) {
             for (let col = 0; col < mapData[row].length; col++) {
@@ -84,18 +109,18 @@ document.addEventListener('DOMContentLoaded', () => {
             ) {
                 character.style.left = newLeft + 'px';
                 character.style.top = newTop + 'px';
-              }
+            }
 
 
             // Ajouter la logique pour déposer une bombe avec la touche Espace
             if (event.key === ' ') { // Touche Espace
-                    dropBomb(character,characterLeft + characterWidth / 2, characterTop + characterHeight / 2);
+                dropBomb(character, characterLeft + characterWidth / 2, characterTop + characterHeight / 2);
             }
         });
     }
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    function dropBomb(character,x, y) {
+    function dropBomb(character, x, y) {
         const bomb = document.createElement('div');
         bomb.classList.add('bombe');
         bomb.style.left = x + 'px';
@@ -103,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
         bomberMan.appendChild(bomb);
 
         // Programmer l'animation d'explosion après 3 secondes
-        setTimeout(function() {
+        setTimeout(function () {
             bomberMan.removeChild(bomb); // Supprimer l'élément de la bombe
 
             // Créer l'élément d'explosion
@@ -135,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // Supprimer l'élément d'explosion après un délai
-            setTimeout(function() {
+            setTimeout(function () {
                 bomberMan.removeChild(explosion);
             }, 1000); // Supprimer l'explosion après 1 seconde
         }, 2000); // 3 secondes
@@ -171,6 +196,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     createMap();
+
+
 });
 //////////////////////////////// FIN JEU ////////////////////////////////
 
