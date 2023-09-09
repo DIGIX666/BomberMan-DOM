@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("CLEAR ID:", dataServer.data.ID)
         console.log("IN Ready game duration:", dataServer.data.duration)
         startTimerGame(dataServer.data.duration)
-       
+
       }
       // if (timeLeft === 0) {
       //   clearInterval(timerInterval)
@@ -158,43 +158,22 @@ function onTimesUp(timerInterval) {
 function startTimer(timeLimit) {
 
   timerInterval = setInterval(() => {
-    // timePassed = timePassed += 1;
     timeLeft = timeLimit - timePassed;
-    // document.getElementById("base-timer-label").innerHTML = formatTime(
-    //   timeLeft
-    // );
     document.getElementById("base-timer-label").innerHTML = timeLeft;
     setCircleDasharray(timeLimit);
     setRemainingPathColor(timeLeft);
 
-    // console.log("time Left:", timeLeft)
+    if (timeLeft === 0) {
+      clearInterval(timerInterval)
+      displayGame()
+    }
+    console.log("time Left:", timeLeft)
 
   }, 1000);
 
   return timerInterval
 }
 
-function startTimerGame(timeLimit) {
-
-  timerInterval = setInterval(() => {
-    // timePassed = timePassed += 1;
-    timeLeft = timeLimit - timePassed;
-    // document.getElementById("base-timer-label").innerHTML = formatTime(
-    //   timeLeft
-    // );
-    document.getElementById("base-timer-label").innerHTML = timeLeft;
-    setCircleDasharray(timeLimit);
-    setRemainingPathColor(timeLeft);
-
-    // console.log("time Left:", timeLeft)
-
-  }, 1000);
-  if (timeLeft === 0) {
-    clearInterval(timerInterval)
-
-  }
-
-}
 
 function formatTime(time) {
   const minutes = Math.floor(time / 60);

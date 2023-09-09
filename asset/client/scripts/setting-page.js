@@ -56,4 +56,3 @@ export function displayGame() {
     bombermanDiv.style.display = 'block';
     roomDiv.style.display = 'none';
 }
-// displayGame()
