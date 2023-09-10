@@ -95,9 +95,61 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Times Up Data:", data.Data["usersReady2Play"])
 		case "GameOn":
 			fmt.Println("GAME ON !!!")
+			managePlayers()
+
+		case "PlayerMoving":
+
+			fmt.Printf("Player %v moving:\n", data.Data["name"])
+
+			playerMoving(conn, data.Data)
+
+		case "GAME OVER":
+			println("Player Dead Game Over !!!!")
+		}
+
+	}
+}
+
+///////////////Manage Players///////////////////
+
+func managePlayers() {
+	for player, connection := range activeConnections {
+
+		data := structure.DataParam{
+			Type: "Players",
+			Data: map[string]interface{}{
+				"clientAdress": connection.RemoteAddr().String(),
+				"playerName":   player,
+				"allPlayers":   userDB.PlayersTab(),
+			},
+		}
+		err := connection.WriteJSON(data)
+		if err != nil {
+			fmt.Println("Error WriteJSON function managerPlayers")
+			panic(err)
 		}
 	}
 }
+
+func playerMoving(conn *websocket.Conn, data map[string]interface{}) {
+	data2client := structure.DataParam{
+		Type: "PlayerMoved",
+		Data: map[string]interface{}{
+			"direction": data["direction"],
+			"Name":      data["name"],
+		},
+	}
+
+	for _, c := range activeConnections {
+		err := c.WriteJSON(data2client)
+		if err != nil {
+			println("Error WriteJSON function playerMoving")
+			panic(err)
+		}
+	}
+}
+
+///////////////////////////////////////////////////
 
 func manageTimerID(conn *websocket.Conn, data map[string]interface{}) {
 	fmt.Println("Data TimerID:", data)

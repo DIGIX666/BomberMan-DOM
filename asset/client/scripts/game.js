@@ -1,4 +1,16 @@
+import { stringify } from "querystring";
 import { socket } from "../connect.js";
+
+
+////////////////Player//////////////////
+class Player {
+    namePlayer = ""
+    adress = ""
+    direction = ""
+    lives = 3
+    bombe = false
+}
+///////////////////////////////////////
 
 
 
@@ -15,8 +27,11 @@ const mapData = [
 ];
 //////////////////////////////////////////////////////////////////////////////////
 
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const bomberMan = document.querySelector('.game');
+    const character = document.createElement('div');
     const characterWidth = 10; // Largeur du personnage
     const characterHeight = 67; // Hauteur du personnage
     let hitPlayer = false;
@@ -25,22 +40,38 @@ document.addEventListener('DOMContentLoaded', () => {
     let P3 = document.querySelector(".Player3")
     let P4 = document.querySelector(".Player4")
 
+    const characterStyle = getComputedStyle(character);
+    const characterLeft = parseInt(characterStyle.left);
+    const characterTop = parseInt(characterStyle.top);
+
+    let direction = new Player(direction)
+    let currentLife = new Player(lives)
+    let newLeft = 0
+    let newTop = 0
+
+
+    // Créer le personnage
+    character.classList.add('character');
+    bomberMan.appendChild(character);
+
     ///////////////////Recevoir les joueurs///////////////////////////////////////////
     socket.onmessage = function (event) {
         let Server = JSON.parse(event.data)
         if (Server.type == "Players") {
             let Players = []
             console.log("Server In Game:", Server)
-            Server.data.Players.forEach(element => {
+            Server.data.allPlayers.forEach(element => {
                 Players.push(element)
             });
-    
+
             console.log("Players tab:", Players)
             P1.innerHTML = Players[0]
             P2.innerHTML = Players[1]
             P3.innerHTML = Players[2]
             P4.innerHTML = Players[3]
-            
+            const playerName = new Player(namePlayer) = Server.data.name
+            const playerAdress = new Player(adress) = Server.data.clientAdress
+
         }
     }
 
@@ -62,29 +93,98 @@ document.addEventListener('DOMContentLoaded', () => {
                 bomberMan.appendChild(cell);
             }
         }
-        // Créer le personnage
-        const character = document.createElement('div');
-        character.classList.add('character');
-        bomberMan.appendChild(character);
 
+
+    }
+    function Moving(character, socket) {
+        
+        socket.onmessage = (event) => {
+            let ServerMovement = JSON.parse(event.data)
+            
+            if (ServerMovement.Type === "playerMoved") {
+                
+                
+                if (ServerMovement.data.name === playerName) {
+                    if (ServerMovement.data.direction === "Right" || ServerMovement.data.direction === "Left") {
+                        direction = ServerMovement.data.direction
+                        newLeft = characterLeft
+                        newLeft += ServerMovement.data.direction 
+                    }
+
+                    if (ServerMovement.data.direction === "Up" || ServerMovement.data.direction === "Down") {
+                        direction = ServerMovement.data.direction
+                        newTop = characterTop
+                        newTop += ServerMovement.data.direction 
+                    }
+                }
+            }
+            
+            
+        }
+        
         // Gérer le mouvement du personnage avec les flèches du clavier
         document.addEventListener('keydown', (event) => {
-            const characterStyle = getComputedStyle(character);
-            const characterLeft = parseInt(characterStyle.left);
-            const characterTop = parseInt(characterStyle.top);
+            // const characterStyle = getComputedStyle(character);
+            // const characterLeft = parseInt(characterStyle.left);
+            // const characterTop = parseInt(characterStyle.top);
 
-            let newLeft = characterLeft;
-            let newTop = characterTop;
+            newLeft = characterLeft;
+            newTop = characterTop;
             hitPlayer = false;
 
             if (event.key === 'ArrowRight') {
                 newLeft += 10;
+                direction = Player(direction) = "Right"
+                socket.send(JSON.stringify({
+                    Type: "PlayerMoving",
+                    data: {
+                        direction: direction,
+                        player: playerAdress,
+                        name: playerName,
+
+
+                    }
+                }))
             } else if (event.key === 'ArrowLeft') {
                 newLeft -= 10;
+                direction = Player(direction) = "Left"
+
+                socket.send(JSON.stringify({
+                    Type: "PlayerMoving",
+                    data: {
+                        direction: direction,
+                        player: playerAdress,
+                        name: playerName
+
+                    }
+                }))
             } else if (event.key === 'ArrowUp') {
                 newTop -= 10;
+                direction = Player(direction) = "Up"
+
+                socket.send(JSON.stringify({
+                    Type: "PlayerMoving",
+                    data: {
+                        direction: direction,
+                        player: playerAdress,
+                        name: playerName
+
+
+                    }
+                }))
             } else if (event.key === 'ArrowDown') {
                 newTop += 10;
+                direction = Player(direction) = "Down"
+
+                socket.send(JSON.stringify({
+                    Type: "PlayerMoving",
+                    data: {
+                        direction: direction,
+                        player: playerAdress,
+                        name: playerName
+
+                    }
+                }))
             }
 
             // Vérifier les collisions avec les murs et les briques
@@ -114,13 +214,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Ajouter la logique pour déposer une bombe avec la touche Espace
             if (event.key === ' ') { // Touche Espace
-                dropBomb(character, characterLeft + characterWidth / 2, characterTop + characterHeight / 2);
+                dropBomb(character, characterLeft + characterWidth / 2, characterTop + characterHeight / 2,currentLife);
+                socket.send(stringify({
+                    Type: "Player Dropped Bomb",
+                    data:{
+                        name: playerName,
+                        adress: playerAdress,
+                        x:characterLeft + characterWidth / 2,
+                        y:characterTop + characterHeight / 2,
+                        currentLife: currentLife
+
+                    }
+                }))
             }
         });
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    function dropBomb(character, x, y) {
+    function dropBomb(character, x, y,currentLife) {
         const bomb = document.createElement('div');
         bomb.classList.add('bombe');
         bomb.style.left = x + 'px';
@@ -153,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         !hitPlayer
                     ) {
                         hitPlayer = true; // Marquer que le joueur a été touché
-                        reduceLife(); // Appeler la fonction pour réduire la vie du joueur
+                        reduceLife(currentLife); // Appeler la fonction pour réduire la vie du joueur
                         console.log("vie perdu");
                     }
                 }
@@ -166,9 +277,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 2000); // 3 secondes
     }
 
-    function reduceLife() {
+    function reduceLife(currentLife) {
         const lifeElement = document.querySelector('.life');
-        let currentLife = parseInt(lifeElement.textContent);
+        currentLife = parseInt(lifeElement.textContent);
 
         if (currentLife > 0) {
             currentLife--;
@@ -178,6 +289,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const characterLife = document.querySelector('.character');
                 bomberMan.removeChild(characterLife);
                 console.log("Game over!");
+                socket.send(JSON.stringify({
+                    Type: "GAME OVER",
+                    Data: {
+                        name: namePlayer,
+                        adress: playerAdress,
+                    }
+                }))
             }
         }
     }
@@ -196,9 +314,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     createMap();
+    Moving(character,socket);
 
 
 });
 //////////////////////////////// FIN JEU ////////////////////////////////
+
+export { Moving, createMap, dropBomb, reduceLife, mapData }
 
 
