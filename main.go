@@ -25,6 +25,8 @@ func main() {
 	if err != nil {
 		fmt.Println("Erreur lors du démarrage du serveur:", err)
 	}
+
+	userDB.DropDB()
 }
 
 func handleLog(w http.ResponseWriter, r *http.Request) {

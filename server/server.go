@@ -44,18 +44,20 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 	if len(activeConnections) > 4 {
 		activeConnections = make(map[string]*websocket.Conn)
 		timerID = []map[string]interface{}{}
+		userDB.DropDB()
 
 	}
 	if len(activeClients) > 4 {
 		activeClients = make(map[string]*websocket.Conn)
 		timerID = []map[string]interface{}{}
+		userDB.DropDB()
 	}
 	activeClients[conn.RemoteAddr().String()] = conn
 
 	// Boucle de gestion des messages du client
 	for {
 
-		fmt.Printf("data: %v\n", data)
+		// fmt.Printf("data: %v\n", data)
 		err = conn.ReadJSON(&data)
 		if err != nil {
 			fmt.Println("Error Reading JSON")
@@ -68,7 +70,7 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 			activeConnections[data.Data["name"].(string)] = conn
 			if len(activeConnections) <= 4 {
 				fmt.Println("nombre de connections:", len(activeConnections))
-				room(conn, data.Data["name"].(string))
+				room(activeConnections[data.Data["name"].(string)], data.Data["name"].(string))
 			}
 			if len(activeConnections) == 2 {
 				fmt.Println("DURATION 20 !!!!!!!!!")
@@ -167,8 +169,6 @@ func manageTimerID(conn *websocket.Conn, data map[string]interface{}) {
 func room(conn *websocket.Conn, player string) {
 	var data structure.DataParam
 
-	fmt.Printf("player: %v\n", player)
-
 	if player != "" {
 
 		userDB.StorePlayers(player)
@@ -178,11 +178,14 @@ func room(conn *websocket.Conn, player string) {
 			"previousPlayers": userDB.PlayersTab(),
 			"playerJoined":    player,
 		}
+		fmt.Printf("data goRoom send to client: %v\n", data)
 		err := conn.WriteJSON(data)
 		if err != nil {
 			fmt.Println("Error WriteJSON function room:")
-			log.Fatal(err)
+			panic(err)
 		}
+
+		println("Go Room")
 	}
 }
 

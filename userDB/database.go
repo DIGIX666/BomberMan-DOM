@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	"bomberman/structure"
 
@@ -11,6 +12,8 @@ import (
 )
 
 var Db *sql.DB
+
+const databasePath = "bombermanDB.db"
 
 func CreateDataBase() {
 	var err error
@@ -37,7 +40,7 @@ func StorePlayers(player string) {
 	_, err := Db.Exec("INSERT INTO players (username) VALUES (?)", player)
 	if err != nil {
 		fmt.Println("Error in players table Function Exec didn't work in dataBase:")
-		log.Fatal(err)
+		panic(err)
 	}
 }
 
@@ -169,4 +172,13 @@ func FindPlayer(player string) string {
 	} else {
 		return ""
 	}
+}
+
+func DropDB() {
+	err := os.Remove(databasePath)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Printf("Base de données SQLite %s supprimée avec succès.", databasePath)
 }

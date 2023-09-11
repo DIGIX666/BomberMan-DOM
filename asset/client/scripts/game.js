@@ -1,14 +1,16 @@
-import { stringify } from "querystring";
 import { socket } from "../connect.js";
 
 
 ////////////////Player//////////////////
 class Player {
-    namePlayer = ""
-    adress = ""
-    direction = ""
-    lives = 3
-    bombe = false
+    constructor(namePlayer,adress,direction,lives,bombe){
+
+        this.namePlayer = namePlayer = ""
+        this.adress = adress = ""
+        this.direction = direction = ""
+        this.lives = lives = 3
+        this.bombe = bombe = false
+    }
 }
 ///////////////////////////////////////
 
@@ -44,8 +46,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const characterLeft = parseInt(characterStyle.left);
     const characterTop = parseInt(characterStyle.top);
 
-    let direction = new Player(direction)
-    let currentLife = new Player(lives)
+    const player = new Player
+    let Direction = player.direction
+    let currentLife = player.lives
+    let playerName = player.namePlayer
+    let adress = player.namePlayer
     let newLeft = 0
     let newTop = 0
 
@@ -69,8 +74,8 @@ document.addEventListener('DOMContentLoaded', () => {
             P2.innerHTML = Players[1]
             P3.innerHTML = Players[2]
             P4.innerHTML = Players[3]
-            const playerName = new Player(namePlayer) = Server.data.name
-            const playerAdress = new Player(adress) = Server.data.clientAdress
+            playerName = Server.data.name
+            adress = Server.data.clientAdress
 
         }
     }
@@ -106,20 +111,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (ServerMovement.data.name === playerName) {
                     if (ServerMovement.data.direction === "Right" || ServerMovement.data.direction === "Left") {
-                        direction = ServerMovement.data.direction
+                        Direction = ServerMovement.data.direction
                         newLeft = characterLeft
                         newLeft += ServerMovement.data.direction 
                     }
 
                     if (ServerMovement.data.direction === "Up" || ServerMovement.data.direction === "Down") {
-                        direction = ServerMovement.data.direction
+                        Direction = ServerMovement.data.direction
                         newTop = characterTop
                         newTop += ServerMovement.data.direction 
                     }
                 }
-            }
-            
-            
+            }  
         }
         
         // Gérer le mouvement du personnage avec les flèches du clavier
@@ -134,12 +137,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (event.key === 'ArrowRight') {
                 newLeft += 10;
-                direction = Player(direction) = "Right"
+                Direction = "Right"
                 socket.send(JSON.stringify({
                     Type: "PlayerMoving",
                     data: {
-                        direction: direction,
-                        player: playerAdress,
+                        direction: Direction,
+                        player: adress,
                         name: playerName,
 
 
@@ -147,26 +150,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 }))
             } else if (event.key === 'ArrowLeft') {
                 newLeft -= 10;
-                direction = Player(direction) = "Left"
+                Direction = "Left"
 
                 socket.send(JSON.stringify({
                     Type: "PlayerMoving",
                     data: {
-                        direction: direction,
-                        player: playerAdress,
+                        direction: Direction,
+                        player: adress,
                         name: playerName
 
                     }
                 }))
             } else if (event.key === 'ArrowUp') {
                 newTop -= 10;
-                direction = Player(direction) = "Up"
+                Direction  = "Up"
 
                 socket.send(JSON.stringify({
                     Type: "PlayerMoving",
                     data: {
-                        direction: direction,
-                        player: playerAdress,
+                        direction: Direction,
+                        player: adress,
                         name: playerName
 
 
@@ -174,13 +177,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }))
             } else if (event.key === 'ArrowDown') {
                 newTop += 10;
-                direction = Player(direction) = "Down"
+                Direction = "Down"
 
                 socket.send(JSON.stringify({
                     Type: "PlayerMoving",
                     data: {
-                        direction: direction,
-                        player: playerAdress,
+                        direction: Direction,
+                        player: adress,
                         name: playerName
 
                     }
@@ -319,7 +322,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 //////////////////////////////// FIN JEU ////////////////////////////////
-
-export { Moving, createMap, dropBomb, reduceLife, mapData }
-
 

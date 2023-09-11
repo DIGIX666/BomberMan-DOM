@@ -36,9 +36,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   socket.onmessage = function (event) {
     let dataServer = JSON.parse(event.data)
+    displayRoom()
     console.log("dataServer:", dataServer)
-    if (dataServer.type == "goRoom") {
-      displayRoom()
+    if (dataServer.Type == "goRoom") {
       console.log("after displayRoom")
       if (dataServer.data.name != "" && !playersIn.includes(dataServer.data.previousPlayers)) {
 
@@ -82,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     }
 
-    if (dataServer.type == "newPlayersList") {
+    if (dataServer.type === "newPlayersList") {
 
       if (!playersIn.includes(dataServer.data.lastPlayer)) {
         playersIn.push(dataServer.data.lastPlayer)
@@ -125,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         // startTimer(40)
       }
-      // console.log("time passed:", dataServer.data.time)
+      console.log("time passed:", dataServer.data.time)
       if (dataServer.data.readyGame) {
         // console.log("NB PLAYERS in timesUP :", nbPlayers)
         console.log("READY GAME")
@@ -137,9 +137,11 @@ document.addEventListener("DOMContentLoaded", () => {
         startTimerGame(dataServer.data.duration)
        
       }
-      // if (timeLeft === 0) {
-      //   clearInterval(timerInterval)
-      // }
+      if (timeLeft === 0) {
+        clearInterval(timerInterval)
+        startTimerGame(dataServer.data.duration)
+
+      }
     }
     if (dataServer.type === "Game") {
       console.log("GO TO GAME")
@@ -197,7 +199,6 @@ function startTimerGame(timeLimit) {
   }, 1000);
   if (timeLeft === 0) {
     clearInterval(timerInterval)
-
   }
 
 }
