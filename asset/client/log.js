@@ -2,7 +2,7 @@
 import { socket } from "./connect.js";
 import { masquerElementsParClasse } from "./scripts/setting-page.js";
 
-window.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
 
     let button = document.getElementById("button")
     let input = document.querySelector(".input")
