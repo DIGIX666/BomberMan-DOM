@@ -23,23 +23,15 @@ window.addEventListener("DOMContentLoaded", () => {
                 }
             }))
         }
-        // userName = ""
     })
-
-    // socket.onmessage = function (event) {
-    //     let data = JSON.parse(event.data)
-
-    //     if (data.type == "room") {
-
-    //         navigateTo(data.type)
-
-    //     }
-    // }
 })
 
 function navigateTo(route) {
     history.pushState(null, null, route);
     loadPage(route);
 }
+
+
+
 
 /****************************/
