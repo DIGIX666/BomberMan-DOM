@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("CLEAR ID:", dataServer.data.ID)
         console.log("IN Ready game duration:", dataServer.data.duration)
         startTimerGame(dataServer.data.duration)
-       
+
       }
       // if (timeLeft === 0) {
       //   clearInterval(timerInterval)
@@ -164,43 +164,22 @@ function onTimesUp(timerInterval) {
 function startTimer(timeLimit) {
 
   timerInterval = setInterval(() => {
-    // timePassed = timePassed += 1;
     timeLeft = timeLimit - timePassed;
-    // document.getElementById("base-timer-label").innerHTML = formatTime(
-    //   timeLeft
-    // );
     document.getElementById("base-timer-label").innerHTML = timeLeft;
     setCircleDasharray(timeLimit);
     setRemainingPathColor(timeLeft);
 
-    // console.log("time Left:", timeLeft)
+    if (timeLeft === 0) {
+      clearInterval(timerInterval)
+      displayGame()
+    }
+    console.log("time Left:", timeLeft)
 
   }, 1000);
 
   return timerInterval
 }
 
-function startTimerGame(timeLimit) {
-
-  timerInterval = setInterval(() => {
-    // timePassed = timePassed += 1;
-    timeLeft = timeLimit - timePassed;
-    // document.getElementById("base-timer-label").innerHTML = formatTime(
-    //   timeLeft
-    // );
-    document.getElementById("base-timer-label").innerHTML = timeLeft;
-    setCircleDasharray(timeLimit);
-    setRemainingPathColor(timeLeft);
-
-    // console.log("time Left:", timeLeft)
-
-  }, 1000);
-  if (timeLeft === 0) {
-    clearInterval(timerInterval)
-
-  }
-
-}
 
 function formatTime(time) {
   const minutes = Math.floor(time / 60);
@@ -244,3 +223,49 @@ function setCircleDasharray(timeLimit) {
     .getElementById("base-timer-path-remaining")
     .setAttribute("stroke-dasharray", circleDasharray);
 }
+
+
+
+socket.onmessage = function (event) {
+  let data = JSON.parse(event.data);
+
+  if (data.type == "room") {
+    // Naviguer vers la salle (ou tout autre traitement nécessaire)
+    navigateTo(data.type);
+
+    // Appel à la fonction pour récupérer les pseudonymes depuis la base de données
+    socket.send(JSON.stringify({
+      type: "GetPlayers" // Définissez un type pour demander les pseudonymes
+    }));
+  }
+
+  if (data.type == "GetPlayersResponse") {
+    // Récupérez les pseudonymes depuis data.data (supposons que les pseudonymes sont dans data.data.names)
+    let names = data.data.names;
+
+    // Mettez à jour les éléments HTML avec la classe "quantity" en utilisant les pseudonymes
+    updateHTMLWithNames(names);
+
+    console.log("names:", names)
+  }
+};
+
+function updateHTMLWithNames(names) {
+  // Sélectionnez tous les éléments avec la classe "quantity"
+  let quantityElements = document.querySelectorAll(".quantity");
+
+  // Parcourez les éléments et mettez à jour leur contenu avec les pseudonymes
+  for (let i = 0; i < quantityElements.length; i++) {
+    let quantityElement = quantityElements[i];
+
+    // Assurez-vous que vous avez suffisamment de pseudonymes pour chaque élément
+    if (i < names.length) {
+      quantityElement.textContent = names[i];
+    } else {
+      // Vous pouvez gérer le cas où il n'y a pas assez de pseudonymes si nécessaire
+      quantityElement.textContent = "Pseudonyme non disponible";
+    }
+  }
+}
+
+
