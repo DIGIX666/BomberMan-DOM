@@ -1,5 +1,6 @@
 /* BackEnd Logic of the page */
 import { socket } from "./connect.js";
+import {loadPage} from "./route.js"
 import { masquerElementsParClasse } from "./scripts/setting-page.js";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -11,6 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("value in input", input.value)
         
         if (input.value != "") {
+            masquerElementsParClasse('log')
 
             socket.send(JSON.stringify({
                 type: "UserLog",
@@ -18,10 +20,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     name: input.value,
                 }
             }))
-            masquerElementsParClasse('log')
         }
     })
 })
+
+
+function navigateTo(route) {
+    history.pushState(null, null, route);
+    loadPage(route);
+}
 
 
 

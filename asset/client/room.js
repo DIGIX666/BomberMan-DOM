@@ -34,6 +34,7 @@ let compteur = 0
 
 document.addEventListener("DOMContentLoaded", () => {
 
+
   socket.onmessage = function (event) {
     let dataServer = JSON.parse(event.data)
     console.log("dataServer:", dataServer)
