@@ -1,4 +1,4 @@
-import { socket } from "./connect.js";
+import { socket } from "./connexion.js";
 import { displayGame, displayRoom, masquerElementsParClasse } from "./scripts/setting-page.js";
 
 let playersIn = []
@@ -33,7 +33,7 @@ let count = 0
 let compteur = 0
 
 document.addEventListener("DOMContentLoaded", () => {
-
+  console.log("socket:", socket)
 
   socket.onmessage = function (event) {
     let dataServer = JSON.parse(event.data)

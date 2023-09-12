@@ -1,5 +1,5 @@
 /* BackEnd Logic of the page */
-import { socket } from "./connect.js";
+import { socket } from "./connexion.js";
 import {loadPage} from "./route.js"
 import { masquerElementsParClasse } from "./scripts/setting-page.js";
 
@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
 })
 
 
-function navigateTo(route) {
+export function navigateTo(route) {
     history.pushState(null, null, route);
     loadPage(route);
 }

@@ -1,4 +1,4 @@
-import { socket } from "./connect.js";
+import { socket } from "./connexion.js";
 
 
 ////////////////Player//////////////////
