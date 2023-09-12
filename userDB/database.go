@@ -143,7 +143,6 @@ func PlayersTab() []string {
 		fmt.Println("Error in PlayersTab Function Query didn't work in dataBase:")
 		log.Fatal(err)
 	}
-	// defer rows.Close()
 
 	for rows.Next() {
 
@@ -181,4 +180,30 @@ func DropDB() {
 	}
 
 	log.Printf("Base de données SQLite %s supprimée avec succès.", databasePath)
+
+}
+
+func GetPlayersFromDB() []string {
+	var players []string
+
+	rows, err := Db.Query("SELECT username FROM players")
+	if err != nil {
+		fmt.Println("Erreur lors de la récupération des joueurs depuis la base de données:", err)
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var player string
+
+		err := rows.Scan(&player)
+		if err != nil {
+			fmt.Println("Erreur lors de la lecture des joueurs depuis la base de données:", err)
+			log.Fatal(err)
+		}
+
+		players = append(players, player)
+	}
+
+	return players
 }

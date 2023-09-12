@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -152,6 +153,19 @@ func playerMoving(conn *websocket.Conn, data map[string]interface{}) {
 }
 
 ///////////////////////////////////////////////////
+
+func GetPlayersHandler(w http.ResponseWriter, r *http.Request) {
+	players := userDB.GetPlayersFromDB() // Utilisez la nouvelle fonction pour récupérer les pseudonymes
+
+	response := struct {
+		Names []string `json:"names"`
+	}{
+		Names: players,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
+}
 
 func manageTimerID(conn *websocket.Conn, data map[string]interface{}) {
 	fmt.Println("Data TimerID:", data)

@@ -21,8 +21,10 @@ document.addEventListener("DOMContentLoaded", () => {
             masquerElementsParClasse('log')
         }
     })
-
 })
+
+
+
 
 
 
