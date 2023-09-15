@@ -1,5 +1,10 @@
-import { socket } from "../connexion.js";
-import { displayGame, displayRoom } from "./setting-page.js";
+import {
+  socket
+} from "../connexion.js";
+import {
+  displayGame,
+  displayRoom
+} from "./setting-page.js";
 
 let timePassed = 0;
 const FULL_DASH_ARRAY = 283;
@@ -25,19 +30,21 @@ const COLOR_CODES = {
 let remainingPathColor = COLOR_CODES.info.color;
 let clientAdress = null
 let clientPlayer = null
-let count = 0
+let count,cpt = 0
 
 export function GoRoom(dataServer, socket) {
-  
+
+
+
   let playersIn = []
-  
+
   // let timeLeft = TIME_LIMIT;
-  
+
   if (dataServer.type == "goRoom") {
     displayRoom()
     count = 0
     if (dataServer.data.name != "" && !playersIn.includes(dataServer.data.previousPlayers)) {
-      
+
       playersIn.push(dataServer.data.previousPlayers)
     }
     playersIn = dataServer.data["previousPlayers"]
@@ -89,16 +96,18 @@ export function GoRoom(dataServer, socket) {
 
   if (dataServer.type == "Chrono") {
 
-    console.log("nombre de player:", dataServer.data.nbPlayers)
     timePassed = dataServer.data.time
+   
     if (dataServer.data.nbPlayers >= 2 && dataServer.data.nbPlayers <= 4) {
-      console.log("count:", count)
       if (count == 0) {
+        console.log("count:", count)
 
         timerInterval = startTimer(dataServer.data.duration)
-        console.log("duration:", dataServer.data.duration)
-        console.log("client Adress:",clientAdress)
+        count++
+        console.log("client Adress:", clientAdress)
         console.log("client Player:", clientPlayer)
+        console.log("duration:", dataServer.data.duration)
+
         socket.send(JSON.stringify({
           type: "timerID",
           data: {
@@ -107,36 +116,30 @@ export function GoRoom(dataServer, socket) {
             ID: timerInterval,
           }
         }))
-        count++
       }
-      // startTimer(40)
     }
-    // console.log("time passed:", dataServer.data.time)
-    if (dataServer.data.readyGame) {
-      // console.log("NB PLAYERS in timesUP :", nbPlayers)
-      console.log("READY GAME")
-      // timePassed = dataServer.data.time
+  }
+  if (dataServer.type == "Chrono2") {
 
+    if (dataServer.data.readyGame) {
+      console.log("READY GAME")
       clearInterval(dataServer.data.ID)
       console.log("CLEAR ID:", dataServer.data.ID)
       console.log("IN Ready game duration:", dataServer.data.duration)
+      if(cpt==0){
+        timePassed = 0
+        cpt++
+      }
+      timePassed = dataServer.data.time
       startTimerGame(dataServer.data.duration)
 
     }
-    // if (timeLeft === 0) {
-    //   clearInterval(timerInterval)
-    // }
   }
+  // if (timeLeft === 0) {
+  //   clearInterval(timerInterval)
+  // }
 
 }
-
-
-// document.addEventListener("DOMContentLoaded", () => {
-
-//   // socket.onmessage = function (event) {
-//   //   let dataServer = JSON.parse(event.data)
-//   // }
-// })
 
 function onTimesUp(timerInterval) {
   setTimeout(() => {
@@ -155,6 +158,10 @@ export function startTimer(timeLimit) {
 
     if (timeLeft == 0) {
       clearInterval(timerInterval)
+      socket.send(JSON.stringify({
+        Type: "roomChronoStop",
+        Data: null,
+      }))
     }
     console.log("time Left:", timeLeft)
 
@@ -192,7 +199,11 @@ export function formatTime(time) {
 }
 
 export function setRemainingPathColor(timeLeft) {
-  const { alert, warning, info } = COLOR_CODES;
+  const {
+    alert,
+    warning,
+    info
+  } = COLOR_CODES;
   if (timeLeft <= alert.threshold) {
     document
       .getElementById("base-timer-path-remaining")
@@ -223,5 +234,3 @@ export function setCircleDasharray(timeLimit) {
     .getElementById("base-timer-path-remaining")
     .setAttribute("stroke-dasharray", circleDasharray);
 }
-
-

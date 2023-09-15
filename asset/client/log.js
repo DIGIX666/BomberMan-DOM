@@ -3,7 +3,7 @@ import { socket } from "./connexion.js";
 import { loadPage } from "./route.js";
 import { masquerElementsParClasse } from "./scripts/setting-page.js";
 
-window.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
 
     let userName = ""
     let button = document.getElementById("button")
@@ -14,6 +14,7 @@ window.addEventListener("DOMContentLoaded", () => {
         
         if (input.value != "") {
             userName = input.value;
+            masquerElementsParClasse('log')
 
             socket.send(JSON.stringify({
                 type: "UserLog",
@@ -21,7 +22,7 @@ window.addEventListener("DOMContentLoaded", () => {
                     name: userName,
                 }
             }))
-            masquerElementsParClasse('log')
+            input.value = "";
         }
     })
 })
