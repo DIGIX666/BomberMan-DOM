@@ -135,9 +135,6 @@ export function GoRoom(dataServer, socket) {
 
     }
   }
-  // if (timeLeft === 0) {
-  //   clearInterval(timerInterval)
-  // }
 
 }
 

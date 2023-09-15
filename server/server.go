@@ -46,19 +46,19 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 
 	var data structure.DataParam
 
-	if len(activeConnections) > 4 {
-		activeConnections = make(map[string]*websocket.Conn)
-		timerID = []map[string]interface{}{}
-
-	}
-	if len(activeClients) > 4 {
-		activeClients = make(map[string]*websocket.Conn)
-		timerID = []map[string]interface{}{}
-	}
 	// activeClients = make(map[string]*websocket.Conn)
 
 	// Boucle de gestion des messages du client
 	for {
+		if len(activeConnections) > 4 {
+			activeConnections = make(map[string]*websocket.Conn)
+			timerID = []map[string]interface{}{}
+
+		}
+		if len(activeClients) > 4 {
+			activeClients = make(map[string]*websocket.Conn)
+			timerID = []map[string]interface{}{}
+		}
 
 		fmt.Printf("data: %v\n", data)
 		err = conn.ReadJSON(&data)
@@ -70,13 +70,9 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 		switch data.Type {
 		case "UserLog":
 
-			if len(activeConnections) <= 4 {
-				// fmt.Printf("activeClients: %v\n", activeClients)
-				activeClients[conn.RemoteAddr().String()] = conn
-				activeConnections[data.Data["name"].(string)] = conn
-				room(conn, data.Data["name"].(string))
-
-			}
+			activeClients[conn.RemoteAddr().String()] = conn
+			activeConnections[data.Data["name"].(string)] = conn
+			room(conn, data.Data["name"].(string))
 
 		case "clientInfo":
 			manageClientInfo(conn, data)
@@ -169,13 +165,6 @@ func room(conn *websocket.Conn, player string) {
 			count++
 
 		}
-
-		// if len(activeConnections) >= 2 && count > 0 {
-		// 	fmt.Println("DURATION 10 !!!!!!!!!")
-		// 	startTime = time.Now()
-		// 	TimerGame(conn, activeConnections, 10)
-
-		// }
 	}
 }
 
@@ -211,11 +200,11 @@ func manageClientInfo(conn *websocket.Conn, dataReceive structure.DataParam) {
 
 func TimerRoom(conn *websocket.Conn, activeConnections map[string]*websocket.Conn, duration int, stopLoop chan bool) {
 	go func(activeConnections map[string]*websocket.Conn, conn *websocket.Conn, duration int) {
-		for elapsed < duration && len(activeConnections) < 4 {
+		for elapsed < duration {
 			select {
 
 			case <-stopLoop:
-				fmt.Println("stoopLoop:%v", stopLoop)
+				fmt.Println("stoopLoop:", stopLoop)
 				println("Loop TimerRoom has stopped")
 				return
 
@@ -275,7 +264,6 @@ func TimerGame(conn *websocket.Conn, activeClients map[string]*websocket.Conn, d
 							fmt.Println("Error WriteJSON in TimerManager Last loop")
 							log.Fatal(err)
 						}
-						break
 					}
 				}
 			}
@@ -319,7 +307,6 @@ func TimerGame(conn *websocket.Conn, activeClients map[string]*websocket.Conn, d
 
 				}
 			}
-
 		}
 	}(activeClients, conn, duration)
 }
