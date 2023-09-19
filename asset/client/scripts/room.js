@@ -1,7 +1,11 @@
 import { socket } from "../connect.js";
 import { displayGame, displayRoom, masquerElementsParClasse } from "./setting-page.js";
 
-let playersIn = []
+let playersIn = [];
+
+
+// Tableau pour stocker les pseudonymes des joueurs
+var playerNames = [];
 
 const FULL_DASH_ARRAY = 283;
 const WARNING_THRESHOLD = 10;
@@ -137,27 +141,23 @@ document.addEventListener("DOMContentLoaded", () => {
         startTimerGame(dataServer.data.duration)
 
       }
-      // if (timeLeft === 0) {
-      //   clearInterval(timerInterval)
-      // }
     }
     if (dataServer.type === "Game") {
       console.log("GO TO GAME")
       masquerElementsParClasse('room')
       displayGame()
     }
-      // Vérifiez si le type de données est "newPlayersList"
-      if (serverData.type === "newPlayersList") {
-        var lastPlayerFromServer = serverData.data.lastPlayer;
+    // Vérifiez si le type de données est "newPlayersList"
+    if (serverData.type === "newPlayersList") {
+      var lastPlayerFromServer = serverData.data.lastPlayer;
 
-        // Ajoutez le pseudonyme au tableau des pseudonymes des joueurs
-        playerNames.push(lastPlayerFromServer);
-
-        // Mettez à jour les éléments HTML correspondants avec les pseudonymes
-        for (var i = 0; i < playerNames.length; i++) {
-          updatePlayerName(i, playerNames[i]);
-        }
-      }
+      // Ajoutez le pseudonyme au tableau des pseudonymes des joueurs
+      playerNames.push(lastPlayerFromServer);
+    }
+    // Mettez à jour les éléments HTML correspondants avec les pseudonymes
+    for (var i = 0; i < playerNames.length; i++) {
+      updatePlayerName(i, playerNames[i]);
+    }
   }
 })
 
@@ -239,6 +239,3 @@ function updatePlayerName(index, name) {
     playerNameElement.textContent = name;
   }
 }
-
-// Tableau pour stocker les pseudonymes des joueurs
-var playerNames = [];
