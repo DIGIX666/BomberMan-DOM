@@ -23,7 +23,8 @@ var (
 	activeConnections = make(map[string]*websocket.Conn)
 	activeClients     = make(map[string]*websocket.Conn)
 	startTime         time.Time
-	stopLoop          = make(chan bool)
+	stopLoopRoom      = make(chan bool)
+	stopLoopGame      = make(chan bool)
 	timerID           = []map[string]interface{}{}
 	elapsed           = 0
 	newMap            = make(map[string]interface{})
@@ -82,11 +83,31 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 
 		case "roomChronoStop":
 			startTime = time.Now()
-			TimerGame(conn, activeClients, 10, stopLoop)
+			TimerGame(conn, activeClients, 10)
 
-		case "roomTimesUp":
-			fmt.Println("Times Up Data:", data.Data["usersReady2Play"])
+		case "Start Game":
+			goGame(conn)
 
+		case "PlayerMoving":
+			println("Player moving .....")
+			MovingPlayer(data)
+
+		}
+	}
+}
+
+func MovingPlayer(data structure.DataParam) {
+	data2Client := structure.DataParam{
+		Type: "PlayerMoved",
+		Data: map[string]interface{}{
+			"dataInfo": data,
+		},
+	}
+
+	for _, c := range activeConnections {
+		err := c.WriteJSON(data2Client)
+		if err != nil {
+			log.Panicf("Error WriteJson function MovingPlayer:%v\n", err)
 		}
 	}
 }
@@ -161,7 +182,7 @@ func room(conn *websocket.Conn, player string) {
 			fmt.Printf("len(activeConnections): %v\n", len(activeConnections))
 			fmt.Printf("activeConnections: %v\n", activeConnections)
 			startTime = time.Now()
-			TimerRoom(conn, activeConnections, 20, stopLoop)
+			TimerRoom(conn, activeConnections, 20, stopLoopRoom)
 			count++
 
 		}
@@ -203,7 +224,7 @@ func TimerRoom(conn *websocket.Conn, activeConnections map[string]*websocket.Con
 		for elapsed < duration {
 			select {
 
-			case <-stopLoop:
+			case <-stopLoopRoom:
 				fmt.Println("stoopLoop:", stopLoop)
 				println("Loop TimerRoom has stopped")
 				return
@@ -234,8 +255,8 @@ func TimerRoom(conn *websocket.Conn, activeConnections map[string]*websocket.Con
 	}(activeConnections, conn, duration)
 }
 
-func TimerGame(conn *websocket.Conn, activeClients map[string]*websocket.Conn, duration int, stopLoop chan bool) {
-	stopLoop <- true
+func TimerGame(conn *websocket.Conn, activeClients map[string]*websocket.Conn, duration int) {
+	stopLoopRoom <- true
 	go func(activeClients map[string]*websocket.Conn, conn *websocket.Conn, duration int) {
 		// elapsed = 0
 
@@ -270,45 +291,69 @@ func TimerGame(conn *websocket.Conn, activeClients map[string]*websocket.Conn, d
 		}
 
 		for elapsed < duration {
+			select {
 
-			elapsed := int(time.Since(startTime).Seconds())
+			case <-stopLoopGame:
+				fmt.Println("stoopLoop:", stopLoopGame)
+				println("Loop TimerRoom has stopped")
+				return
 
-			dataT := structure.DataParam{
-				Type: "Chrono2",
-				Data: map[string]interface{}{
-					"readyGame": true,
-					"duration":  duration,
-					"time":      elapsed,
-					"nbPlayers": userDB.NumberOfPlayers(),
-				},
-			}
-			for _, c := range activeConnections {
+			default:
 
-				err := c.WriteJSON(dataT)
-				if err != nil {
-					fmt.Println("Error in WriteJSON in TimerManager:")
-					log.Fatal(err)
+				elapsed := int(time.Since(startTime).Seconds())
+
+				dataT := structure.DataParam{
+					Type: "Chrono2",
+					Data: map[string]interface{}{
+						"readyGame": true,
+						"duration":  duration,
+						"time":      elapsed,
+						"nbPlayers": userDB.NumberOfPlayers(),
+					},
 				}
+				for _, c := range activeConnections {
+
+					err := c.WriteJSON(dataT)
+					if err != nil {
+						fmt.Println("Error in WriteJSON in TimerManager:")
+						log.Fatal(err)
+					}
+				}
+				time.Sleep(1 * time.Second)
 			}
-			time.Sleep(1 * time.Second)
 		}
 
-		if elapsed == duration {
-			donnee := structure.DataParam{
-				Type: "Game",
-				Data: nil,
-			}
-			for _, c := range activeConnections {
+		// if elapsed == duration {
+		// 	donnee := structure.DataParam{
+		// 		Type: "Game",
+		// 		Data: nil,
+		// 	}
+		// 	for _, c := range activeConnections {
 
-				err := c.WriteJSON(donnee)
-				if err != nil {
-					fmt.Println("Error in WriteJSON in TimerManager:")
-					log.Fatal(err)
-
-				}
-			}
-		}
+		// 		err := c.WriteJSON(donnee)
+		// 		if err != nil {
+		// 			fmt.Println("Error in WriteJSON in TimerManager:")
+		// 			log.Fatal(err)
+		// 		}
+		// 	}
+		// }
 	}(activeClients, conn, duration)
+}
+
+func goGame(conn *websocket.Conn) {
+	stopLoopGame <- true
+	donnee := structure.DataParam{
+		Type: "Game",
+		Data: nil,
+	}
+	for _, c := range activeConnections {
+
+		err := c.WriteJSON(donnee)
+		if err != nil {
+			fmt.Println("Error in WriteJSON in goGame:")
+			log.Fatal(err)
+		}
+	}
 }
 
 func FindKeyByValueInterface(m map[string]interface{}, valueToFind string) (string, bool) {

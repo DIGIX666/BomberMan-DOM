@@ -169,18 +169,21 @@ export function startTimer(timeLimit) {
 
 export function startTimerGame(timeLimit) {
 
-  let timerInterval = setInterval(() => {
+  const IDInterval = setInterval(() => {
     timeLeft = timeLimit - timePassed;
     document.getElementById("base-timer-label").innerHTML = timeLeft;
     setCircleDasharray(timeLimit);
     setRemainingPathColor(timeLeft);
 
-    if (timeLeft === 0) {
-      clearInterval(timerInterval)
-      displayGame()
-    }
     console.log("time Left:", timeLeft)
-
+    
+    if (timeLeft == 0) {
+      socket.send(JSON.stringify({
+        Type: "Start Game",
+        data: null
+      }))
+      clearInterval(IDInterval)
+    }
   }, 1000);
 }
 
