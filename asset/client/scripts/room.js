@@ -1,7 +1,11 @@
 import { socket } from "../connect.js";
 import { displayGame,displayRoom, masquerElementsParClasse } from "./setting-page.js";
 
-let playersIn = []
+let playersIn = [];
+
+
+// Tableau pour stocker les pseudonymes des joueurs
+var playerNames = [];
 
 const FULL_DASH_ARRAY = 283;
 const WARNING_THRESHOLD = 10;
@@ -36,6 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   socket.onmessage = function (event) {
     let dataServer = JSON.parse(event.data)
+    let serverData = JSON.parse(event.data);
     console.log("dataServer:", dataServer)
     if (dataServer.type == "goRoom") {
       displayRoom()
@@ -130,16 +135,13 @@ document.addEventListener("DOMContentLoaded", () => {
         // console.log("NB PLAYERS in timesUP :", nbPlayers)
         console.log("READY GAME")
         // timePassed = dataServer.data.time
-
+      
         clearInterval(dataServer.data.ID)
         console.log("CLEAR ID:", dataServer.data.ID)
         console.log("IN Ready game duration:", dataServer.data.duration)
         startTimerGame(dataServer.data.duration)
 
       }
-      // if (timeLeft === 0) {
-      //   clearInterval(timerInterval)
-      // }
     }
     if (dataServer.type === "Game") {
       console.log("GO TO GAME")
@@ -151,8 +153,20 @@ document.addEventListener("DOMContentLoaded", () => {
               data: null,
       }))
     }
+    // Vérifiez si le type de données est "newPlayersList"
+    if (serverData.type === "newPlayersList") {
+      var lastPlayerFromServer = serverData.data.lastPlayer;
+
+      // Ajoutez le pseudonyme au tableau des pseudonymes des joueurs
+      playerNames.push(lastPlayerFromServer);
+    }
+    // Mettez à jour les éléments HTML correspondants avec les pseudonymes
+    for (var i = 0; i < playerNames.length; i++) {
+      updatePlayerName(i, playerNames[i]);
+    }
   }
 })
+
 
 function onTimesUp(timerInterval) {
   setTimeout(() => {
@@ -172,6 +186,19 @@ function startTimer(timeLimit) {
     if (timeLeft === 0) {
       clearInterval(timerInterval)
       displayGame()
+        // Récupérez les pseudos des joueurs de la section "Room"
+    const player1Name = document.getElementById("player1").textContent;
+    const player2Name = document.getElementById("player2").textContent;
+    const player3Name = document.getElementById("player3").textContent;
+    const player4Name = document.getElementById("player4").textContent;
+
+    console.log(player1Name);
+    console.log(player2Name);
+    // Injectez les pseudos récupérés dans les éléments de la section "Game"
+    document.getElementById("player1Input").textContent = player1Name;
+    document.getElementById("player2Input").textContent = player2Name;
+    document.getElementById("player3Input").textContent = player3Name;
+    document.getElementById("player4Input").textContent = player4Name;
     }
     console.log("time Left:", timeLeft)
 
@@ -224,48 +251,11 @@ function setCircleDasharray(timeLimit) {
     .setAttribute("stroke-dasharray", circleDasharray);
 }
 
-
-
-socket.onmessage = function (event) {
-  let data = JSON.parse(event.data);
-
-  if (data.type == "room") {
-    // Naviguer vers la salle (ou tout autre traitement nécessaire)
-    navigateTo(data.type);
-
-    // Appel à la fonction pour récupérer les pseudonymes depuis la base de données
-    socket.send(JSON.stringify({
-      type: "GetPlayers" // Définissez un type pour demander les pseudonymes
-    }));
-  }
-
-  if (data.type == "GetPlayersResponse") {
-    // Récupérez les pseudonymes depuis data.data (supposons que les pseudonymes sont dans data.data.names)
-    let names = data.data.names;
-
-    // Mettez à jour les éléments HTML avec la classe "quantity" en utilisant les pseudonymes
-    updateHTMLWithNames(names);
-
-    console.log("names:", names)
-  }
-};
-
-function updateHTMLWithNames(names) {
-  // Sélectionnez tous les éléments avec la classe "quantity"
-  let quantityElements = document.querySelectorAll(".quantity");
-
-  // Parcourez les éléments et mettez à jour leur contenu avec les pseudonymes
-  for (let i = 0; i < quantityElements.length; i++) {
-    let quantityElement = quantityElements[i];
-
-    // Assurez-vous que vous avez suffisamment de pseudonymes pour chaque élément
-    if (i < names.length) {
-      quantityElement.textContent = names[i];
-    } else {
-      // Vous pouvez gérer le cas où il n'y a pas assez de pseudonymes si nécessaire
-      quantityElement.textContent = "Pseudonyme non disponible";
-    }
+// Fonction pour mettre à jour l'élément HTML avec un pseudonyme en fonction de l'index
+function updatePlayerName(index, name) {
+  var playerNameElement = document.getElementById("player" + (index + 1));
+  if (playerNameElement) {
+    playerNameElement.textContent = name;
   }
 }
-
 
