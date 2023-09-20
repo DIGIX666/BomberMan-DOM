@@ -89,14 +89,14 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 			goGame(conn)
 
 		case "PlayerMoving":
-			println("Player moving .....")
-			MovingPlayer(data)
+			fmt.Println("Player moving .....")
+			MovingPlayer(conn, data.Data)
 
 		}
 	}
 }
 
-func MovingPlayer(data structure.DataParam) {
+func MovingPlayer(conn *websocket.Conn, data map[string]interface{}) {
 	data2Client := structure.DataParam{
 		Type: "PlayerMoved",
 		Data: map[string]interface{}{
@@ -129,26 +129,8 @@ func manageTimerID(conn *websocket.Conn, data map[string]interface{}) {
 	fmt.Println("Data TimerID:", data)
 	fmt.Println()
 
-	// dejaID := false
-	// deja := false
 	newMap = map[string]interface{}{}
 
-	// for _, v := range timerID {
-	// 	if v["ID"] == data["ID"] {
-	// 		dejaID = true
-	// 		break
-	// 	}
-	// }
-	// for _, v := range timerID {
-	// 	_, f := FindKeyByValueInterface(v, data["playerAdress"].(string))
-	// 	if f {
-	// 		deja = true
-	// 		break
-	// 	}
-
-	// }
-
-	// if data["playerAdress"] != nil && !deja && !dejaID && len(timerID) < len(activeConnections) {
 
 	newMap[data["playerAdress"].(string)] = data["ID"]
 	timerID = append(timerID, newMap)

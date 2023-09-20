@@ -3,7 +3,8 @@ import {
 } from "../connexion.js";
 import {
   displayGame,
-  displayRoom
+  displayRoom,
+  masquerElementsParClasse
 } from "./setting-page.js";
 
 let timePassed = 0;
@@ -30,7 +31,7 @@ const COLOR_CODES = {
 let remainingPathColor = COLOR_CODES.info.color;
 let clientAdress = null
 let clientPlayer = null
-let count,cpt = 0
+let count, cpt = 0
 
 export function GoRoom(dataServer, socket) {
 
@@ -97,7 +98,7 @@ export function GoRoom(dataServer, socket) {
   if (dataServer.type == "Chrono") {
 
     timePassed = dataServer.data.time
-   
+
     if (dataServer.data.nbPlayers >= 2 && dataServer.data.nbPlayers <= 4) {
       if (count == 0) {
         console.log("count:", count)
@@ -126,7 +127,7 @@ export function GoRoom(dataServer, socket) {
       clearInterval(dataServer.data.ID)
       console.log("CLEAR ID:", dataServer.data.ID)
       console.log("IN Ready game duration:", dataServer.data.duration)
-      if(cpt==0){
+      if (cpt == 0) {
         timePassed = 0
         cpt++
       }
@@ -176,13 +177,15 @@ export function startTimerGame(timeLimit) {
     setRemainingPathColor(timeLeft);
 
     console.log("time Left:", timeLeft)
-    
+
     if (timeLeft == 0) {
       socket.send(JSON.stringify({
         Type: "Start Game",
-        data: null
+        Data: null
       }))
       clearInterval(IDInterval)
+      masquerElementsParClasse('room')
+      displayGame()
     }
   }, 1000);
 }
