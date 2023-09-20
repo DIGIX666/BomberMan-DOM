@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // console.log("NB PLAYERS in timesUP :", nbPlayers)
         console.log("READY GAME")
         // timePassed = dataServer.data.time
-
+      
         clearInterval(dataServer.data.ID)
         console.log("CLEAR ID:", dataServer.data.ID)
         console.log("IN Ready game duration:", dataServer.data.duration)
@@ -180,6 +180,19 @@ function startTimer(timeLimit) {
     if (timeLeft === 0) {
       clearInterval(timerInterval)
       displayGame()
+        // Récupérez les pseudos des joueurs de la section "Room"
+    const player1Name = document.getElementById("player1").textContent;
+    const player2Name = document.getElementById("player2").textContent;
+    const player3Name = document.getElementById("player3").textContent;
+    const player4Name = document.getElementById("player4").textContent;
+
+    console.log(player1Name);
+    console.log(player2Name);
+    // Injectez les pseudos récupérés dans les éléments de la section "Game"
+    document.getElementById("player1Input").textContent = player1Name;
+    document.getElementById("player2Input").textContent = player2Name;
+    document.getElementById("player3Input").textContent = player3Name;
+    document.getElementById("player4Input").textContent = player4Name;
     }
     console.log("time Left:", timeLeft)
 
@@ -239,3 +252,4 @@ function updatePlayerName(index, name) {
     playerNameElement.textContent = name;
   }
 }
+

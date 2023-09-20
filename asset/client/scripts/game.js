@@ -16,6 +16,7 @@ const mapData = [
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
+    
     const bomberMan = document.querySelector('.game');
     const characterWidth = 10; // Largeur du personnage
     const characterHeight = 67; // Hauteur du personnage
