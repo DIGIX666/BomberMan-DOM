@@ -11,7 +11,7 @@ let timePassed = 0;
 const FULL_DASH_ARRAY = 283;
 const TIME_LIMIT = 40;
 let timeLeft = null
-let timerInterval = null;
+let timerInterval,IDInterval = null;
 const WARNING_THRESHOLD = 10;
 const ALERT_THRESHOLD = 5;
 
@@ -31,7 +31,7 @@ const COLOR_CODES = {
 let remainingPathColor = COLOR_CODES.info.color;
 let clientAdress = null
 let clientPlayer = null
-let count, cpt = 0
+let count, cpt, count2 = 0
 
 export function GoRoom(dataServer, socket) {
 
@@ -123,6 +123,7 @@ export function GoRoom(dataServer, socket) {
   if (dataServer.type == "Chrono2") {
 
     if (dataServer.data.readyGame) {
+      
       console.log("READY GAME")
       clearInterval(dataServer.data.ID)
       console.log("CLEAR ID:", dataServer.data.ID)
@@ -132,10 +133,31 @@ export function GoRoom(dataServer, socket) {
         cpt++
       }
       timePassed = dataServer.data.time
-      startTimerGame(dataServer.data.duration)
+      if (count2 == 0) {
+        console.log("count:", count)
 
+        timerInterval = startTimerGame(dataServer.data.duration)
+        count2++
+        console.log("client Adress:", clientAdress)
+        console.log("client Player:", clientPlayer)
+        console.log("duration:", dataServer.data.duration)
+
+        socket.send(JSON.stringify({
+          type: "timerID2",
+          data: {
+            playerAdress: clientAdress,
+            playerName: clientPlayer,
+            ID: IDInterval,
+          }
+        }))
+      }
     }
   }
+
+  if (dataServer.type == "StopTimerGame") {
+    clearInterval(IDInterval)
+  }
+
 
 }
 
@@ -170,7 +192,7 @@ export function startTimer(timeLimit) {
 
 export function startTimerGame(timeLimit) {
 
-  const IDInterval = setInterval(() => {
+    IDInterval = setInterval(() => {
     timeLeft = timeLimit - timePassed;
     document.getElementById("base-timer-label").innerHTML = timeLeft;
     setCircleDasharray(timeLimit);
@@ -180,7 +202,7 @@ export function startTimerGame(timeLimit) {
 
     if (timeLeft == 0) {
       socket.send(JSON.stringify({
-        Type: "Start Game",
+        Type: "StartGame",
         Data: null
       }))
       clearInterval(IDInterval)

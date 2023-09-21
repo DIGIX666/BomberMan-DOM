@@ -1,4 +1,4 @@
-// import { socket } from "../connexion.js";
+import { socket } from "../connexion.js";
 import { masquerElementsParClasse, displayGame } from "./setting-page.js";
 
 
@@ -89,6 +89,9 @@ export function GameInit(dataServer, socket) {
 
     //     console.log("data from moving:", data)
     // }
+   
+
+
 
     // Gérer le mouvement du personnage avec les flèches du clavier
     document.addEventListener('keydown', (event) => {
@@ -101,12 +104,13 @@ export function GameInit(dataServer, socket) {
         newTop = characterTop;
         hitPlayer = false;
 
+
         if (event.key === 'ArrowRight') {
             newLeft += 10
             Direction = "Right"
             console.log("send player right")
             socket.send(JSON.stringify({
-                Type: "PlayerMoving",
+                Type: "LOL",
                 Data: {
                     direction: Direction,
                     player: adress,
@@ -126,7 +130,7 @@ export function GameInit(dataServer, socket) {
                     name: playerName
                 }
             }))
-           
+
         } else if (event.key === 'ArrowUp') {
             newTop -= 10
             Direction = "Up"
@@ -139,7 +143,8 @@ export function GameInit(dataServer, socket) {
                     name: playerName
                 }
             }))
-            
+            console.log("AFTER")
+
         } else if (event.key === 'ArrowDown') {
             newTop += 10
             Direction = "Down"
@@ -177,7 +182,6 @@ export function GameInit(dataServer, socket) {
             character.style.left = newLeft + 'px';
             character.style.top = newTop + 'px';
         }
-
 
         // Ajouter la logique pour déposer une bombe avec la touche Espace
         if (event.key === ' ') { // Touche Espace
