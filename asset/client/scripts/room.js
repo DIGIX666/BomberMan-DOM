@@ -158,7 +158,6 @@ export function GoRoom(dataServer, socket) {
     clearInterval(IDInterval)
   }
 
-
 }
 
 function onTimesUp(timerInterval) {

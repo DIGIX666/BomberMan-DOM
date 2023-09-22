@@ -72,6 +72,44 @@
   background-position: -5px -17px;
 }
 
+.character2 {
+  position: absolute;
+  border: solid;
+  top: 120px;
+  left: 130px;
+  width: 60px;
+  height: 96px;
+  background-image: url(../asset/images/character/perso2/idle_rouge.png);
+  /* Ajustez les valeurs de background-position pour afficher la première image */
+  background-position: -5px -17px;
+}
+
+.character3 {
+  position: absolute;
+  border: solid;
+  top: 120px;
+  left: 130px;
+  width: 60px;
+  height: 96px;
+  background-image: url(../asset/images/character/perso3/idle_jaune.png);
+  /* Ajustez les valeurs de background-position pour afficher la première image */
+  background-position: -5px -17px;
+}
+
+.character4 {
+  position: absolute;
+  border: solid;
+  top: 120px;
+  left: 130px;
+  width: 60px;
+  height: 96px;
+  background-image: url(../asset/images/character/perso4/idle_magenta.png);
+  /* Ajustez les valeurs de background-position pour afficher la première image */
+  background-position: -5px -17px;
+}
+
+
+
 .bombe {
   position: absolute;
   overflow: hidden;

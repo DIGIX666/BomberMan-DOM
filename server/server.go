@@ -22,14 +22,15 @@ var upgrader = websocket.Upgrader{
 var (
 	activeConnections = make(map[string]*websocket.Conn)
 	activeClients     = make(map[string]*websocket.Conn)
-	startTime         time.Time
 	stopLoopRoom      = make(chan bool)
 	stopLoopGame      = make(chan bool)
+	startTime         time.Time
 	timerID           = []map[string]interface{}{}
 	elapsed           = 0
 	newMap            = make(map[string]interface{})
-	count             = 0
 	sortir            = make(chan bool)
+	count             = 0
+	ans               = []map[string]interface{}{}
 	wg                sync.WaitGroup
 )
 
@@ -106,11 +107,34 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Player moving .....")
 			MovingPlayer(conn, data.Data)
 
-		case "LOL":
-
-			println("GOOOOD !!!")
+		case "GameSet":
+			StartGameplay(conn)
 
 		}
+	}
+}
+
+func StartGameplay(conn *websocket.Conn) {
+	nameAdress := map[string]interface{}{}
+
+	for k2, c2 := range activeConnections {
+		nameAdress[k2] = c2.RemoteAddr().String()
+	}
+
+	name, _ := FindKeyByValueInterface(nameAdress, conn.RemoteAddr().String())
+
+	donnee := structure.DataParam{
+		Type: "Play",
+		Data: map[string]interface{}{
+			"info": map[string]string{
+				"adress": conn.RemoteAddr().String(),
+				"name":   name,
+			},
+		},
+	}
+	err := conn.WriteJSON(donnee)
+	if err != nil {
+		log.Panicf("Error WriteJSON function StartGameplay:%v", err)
 	}
 }
 
@@ -363,10 +387,12 @@ func goGame(conn *websocket.Conn) {
 			}
 		}
 	}
+
 	donnee := structure.DataParam{
 		Type: "Game",
 		Data: nil,
 	}
+
 	err := conn.WriteJSON(donnee)
 	if err != nil {
 		fmt.Println("Error in WriteJSON in goGame:")

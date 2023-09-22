@@ -1,67 +1,53 @@
 import { socket } from "../connexion.js";
-import { masquerElementsParClasse, displayGame } from "./setting-page.js";
 
+
+const bomberMan = document.querySelector('.game');
+const character = document.createElement('div');
+
+character.classList.add('character');
+bomberMan.appendChild(character);
+
+let docCharacter = document.querySelector(".character")
+
+const characterStyle = getComputedStyle(docCharacter);
+const characterLeft = parseInt(characterStyle.left.replace("px", ""));
+const characterTop = parseInt(characterStyle.top.replace("px", ""));
+
+const characterWidth = 10; // Largeur du personnage
+const characterHeight = 67; // Hauteur du personnage
 
 
 export class Player {
-    constructor(namePlayer, adress, direction, lives, bombe) {
+    constructor(namePlayer, adress, direction, lives, bombe, positionLeft,positionTop,hitPlayer) {
 
         this.namePlayer = namePlayer = ""
         this.adress = adress = ""
         this.direction = direction = ""
         this.lives = lives = 3
         this.bombe = bombe = false
+        this.positionLeft = positionLeft = characterLeft
+        this.positionTop = positionTop = characterTop
+        this.hitPlayer = hitPlayer = false
+
     }
 }
 
+export const mapData = [
+    ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
+    ['#', ' ', 'b', ' ', ' ', ' ', ' ', 'b', ' ', '#'],
+    ['#', ' ', '#', ' ', ' ', ' ', ' ', '#', ' ', '#'],
+    ['#', 'b', '#', '#', 'b', 'b', '#', '#', 'b', '#'],
+    ['#', ' ', 'b', ' ', ' ', ' ', ' ', 'b', ' ', '#'],
+    ['#', 'b', '#', '#', 'b', 'b', '#', '#', 'b', '#'],
+    ['#', ' ', 'b', ' ', ' ', ' ', ' ', 'b', ' ', '#'],
+    ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#']
+];
 
-export function GameInit(dataServer, socket) {
+let count = 0
 
-    ////////////////Player//////////////////
-    ///////////////////////////////////////
-    // document.addEventListener('DOMContentLoaded', () => {
-
-
-
-
-    //////////////////////// CREATE MAP //////////////
-    const mapData = [
-        ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
-        ['#', ' ', 'b', ' ', ' ', ' ', ' ', 'b', ' ', '#'],
-        ['#', ' ', '#', ' ', ' ', ' ', ' ', '#', ' ', '#'],
-        ['#', 'b', '#', '#', 'b', 'b', '#', '#', 'b', '#'],
-        ['#', ' ', 'b', ' ', ' ', ' ', ' ', 'b', ' ', '#'],
-        ['#', 'b', '#', '#', 'b', 'b', '#', '#', 'b', '#'],
-        ['#', ' ', 'b', ' ', ' ', ' ', ' ', 'b', ' ', '#'],
-        ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#']
-    ];
-    //////////////////////////////////////////////////////////////////////////////////
-    const bomberMan = document.querySelector('.game');
-    const character = document.createElement('div');
-
-    const characterWidth = 10; // Largeur du personnage
-    const characterHeight = 67; // Hauteur du personnage
-    let hitPlayer = false;
-
-    const characterStyle = getComputedStyle(character);
-    const characterLeft = parseInt(characterStyle.left);
-    const characterTop = parseInt(characterStyle.top);
+export function GameInit(mapData) {
 
 
-    const player = new Player
-    let Direction = player.direction
-    let currentLife = player.lives
-    let playerName = player.namePlayer
-    let adress = player.namePlayer
-    let newLeft = 0
-    let newTop = 0
-
-    let goDown, goLeft, goRight, goUp = false
-
-
-    // Créer les personnages
-    character.classList.add('character');
-    bomberMan.appendChild(character);
 
 
     for (let row = 0; row < mapData.length; row++) {
@@ -71,6 +57,7 @@ export function GameInit(dataServer, socket) {
 
             if (mapData[row][col] === '#') {
                 cell.classList.add('wall');
+
             } else if (mapData[row][col] === 'b') {
                 cell.setAttribute('data-row', row); // Ajouter l'attribut de données pour la ligne
                 cell.setAttribute('data-col', col); // Ajouter l'attribut de données pour la colonne
@@ -80,90 +67,160 @@ export function GameInit(dataServer, socket) {
         }
     }
 
-    hitPlayer = false;
+    //Send to server that the Initialization it's done
+    socket.send(JSON.stringify({
+        Type: "GameSet",
+        Data: null,
+    }))
+}
 
+export function GetNameAndAdress(activeCo) {
 
+    const result = {
+        Name: activeCo.name,
+        Adress: activeCo.adress,
+    }
 
-    // if (dataServer.type === "PlayerMoved") {
-    //     let data = dataServer.data.data
+    return result
+}
 
-    //     console.log("data from moving:", data)
-    // }
+export function PlayerMoved(socket, player, data, mapData) {
    
+    let currentLife = player.lives
+    let playerName = player.namePlayer
 
 
+    console.log("data from moving:", data)
+
+
+    // Gérer le mouvement du personnage avec les flèches du clavier
+
+    if (data.direction == "Up") {
+        console.log("Enter UP")
+        player.positionTop = data.position - 10
+    } else if (data.direction == "Down") {
+        console.log("Enter Down")
+        player.positionTop = data.position + 10
+    } else if (data.direction == "Left") {
+        console.log("Enter Left")
+        player.positionLeft = data.position - 10
+    } else if (data.direction == "Right") {
+        console.log("Enter Right")
+        player.positionLeft = data.position + 10
+    }
+
+    // Vérifier les collisions avec les murs et les briques
+    const newRow = Math.floor(player.positionTop / 100);
+    const newCol = Math.floor(player.positionLeft / 98);
+    const bottomRow = Math.floor((player.positionTop + characterHeight) / 100);
+    const rightCol = Math.floor((player.positionLeft + characterWidth) / 98);
+
+    // Vérifier si le mouvement est possible
+    let canMove = true;
+
+    if (
+        newRow >= 0 && newCol >= 0 && bottomRow < mapData.length && rightCol < mapData[0].length &&
+        mapData[newRow][newCol] !== '#' &&
+        mapData[newRow][rightCol] !== '#' &&
+        mapData[bottomRow][newCol] !== '#' &&
+        mapData[bottomRow][rightCol] !== '#' &&
+        mapData[newRow][newCol] !== 'b' &&
+        mapData[newRow][rightCol] !== 'b' &&
+        mapData[bottomRow][newCol] !== 'b' &&
+        mapData[bottomRow][rightCol] !== 'b'
+    ) {
+        character.style.left = player.positionLeft + 'px';
+        character.style.top = player.positionTop + 'px';
+    }
+    document.addEventListener('keydown', (event) => {
+
+
+        // Ajouter la logique pour déposer une bombe avec la touche Espace
+        if (event.key === ' ') { // Touche Espace
+            dropBomb(character, characterLeft + characterWidth / 2, characterTop + characterHeight / 2, currentLife, player.hitPlayer);
+            socket.send(JSON.stringify({
+                Type: "Player Dropped Bomb",
+                data: {
+                    name: playerName,
+                    adress: playerAdress,
+                    x: characterLeft + characterWidth / 2,
+                    y: characterTop + characterHeight / 2,
+                    currentLife: currentLife
+
+                }
+            }))
+        }
+    });
+}
+
+export function GamePlay(socket, player, mapData) {
+
+    let currentLife = player.lives
+    let newLeft = 0
+    let newTop = 0
 
     // Gérer le mouvement du personnage avec les flèches du clavier
     document.addEventListener('keydown', (event) => {
 
-        const characterStyle = getComputedStyle(character);
-        const characterLeft = parseInt(characterStyle.left);
-        const characterTop = parseInt(characterStyle.top);
-
-        newLeft = characterLeft;
-        newTop = characterTop;
-        hitPlayer = false;
-
-
         if (event.key === 'ArrowRight') {
-            newLeft += 10
-            Direction = "Right"
+            player.positionLeft += 10
             console.log("send player right")
             socket.send(JSON.stringify({
-                Type: "LOL",
+                Type: "PlayerMoving",
                 Data: {
-                    direction: Direction,
-                    player: adress,
-                    name: playerName
+                    direction: "Right",
+                    player: player.adress,
+                    name: player.playerName,
+                    position: player.positionLeft
                 }
             }))
-            
+
         } else if (event.key === 'ArrowLeft') {
-            newLeft -= 10
-            Direction = "Left"
+            player.position -= 10 
             console.log("send player left")
             socket.send(JSON.stringify({
                 Type: "PlayerMoving",
                 Data: {
-                    direction: Direction,
-                    player: adress,
-                    name: playerName
+                    direction: "Left",
+                    player: player.adress,
+                    name: player.playerName,
+                    position: player.positionLeft
                 }
             }))
 
         } else if (event.key === 'ArrowUp') {
-            newTop -= 10
-            Direction = "Up"
+            player.position -= 10
             console.log("send player up")
             socket.send(JSON.stringify({
                 Type: "PlayerMoving",
                 Data: {
-                    direction: Direction,
-                    player: adress,
-                    name: playerName
+                    direction: "Up",
+                    player: player.adress,
+                    name: player.playerName,
+                    position: player.positionTop
+
                 }
             }))
-            console.log("AFTER")
 
         } else if (event.key === 'ArrowDown') {
-            newTop += 10
-            Direction = "Down"
+            player.position += 10
             console.log("send player down")
             socket.send(JSON.stringify({
                 Type: "PlayerMoving",
                 Data: {
-                    direction: Direction,
-                    player: adress,
-                    name: playerName
+                    direction: "Down",
+                    player: player.adress,
+                    name: player.playerName,
+                    position: player.positionTop
                 }
             }))
         }
 
         // Vérifier les collisions avec les murs et les briques
-        const newRow = Math.floor(newTop / 100);
-        const newCol = Math.floor(newLeft / 98);
-        const bottomRow = Math.floor((newTop + characterHeight) / 100);
-        const rightCol = Math.floor((newLeft + characterWidth) / 98);
+        const newRow = Math.floor(player.positionTop / 100);
+        const newCol = Math.floor(player.positionLeft / 98);
+        const bottomRow = Math.floor((player.positionTop + characterHeight) / 100);
+        const rightCol = Math.floor((player.positionLeft + characterWidth) / 98);
 
         // Vérifier si le mouvement est possible
         let canMove = true;
@@ -179,13 +236,13 @@ export function GameInit(dataServer, socket) {
             mapData[bottomRow][newCol] !== 'b' &&
             mapData[bottomRow][rightCol] !== 'b'
         ) {
-            character.style.left = newLeft + 'px';
-            character.style.top = newTop + 'px';
+            character.style.left = player.positionLeft + 'px';
+            character.style.top = player.positionTop + 'px';
         }
 
         // Ajouter la logique pour déposer une bombe avec la touche Espace
         if (event.key === ' ') { // Touche Espace
-            dropBomb(character, characterLeft + characterWidth / 2, characterTop + characterHeight / 2, currentLife, hitPlayer);
+            dropBomb(character, characterLeft + characterWidth / 2, characterTop + characterHeight / 2, currentLife, player.hitPlayer);
             socket.send(JSON.stringify({
                 Type: "Player Dropped Bomb",
                 data: {
@@ -199,12 +256,11 @@ export function GameInit(dataServer, socket) {
             }))
         }
     });
-    // });
 
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function dropBomb(character, x, y, currentLife, hitPlayer) {
+function dropBomb(character, x, y, currentLife, player) {
     const bomb = document.createElement('div');
     bomb.classList.add('bombe');
     bomb.style.left = x + 'px';
@@ -234,10 +290,10 @@ function dropBomb(character, x, y, currentLife, hitPlayer) {
                 mapData[brickRow][brickCol] = ' '; // Mettre à jour le modèle de données
                 if (
                     checkCollision(explosion, character) &&
-                    !hitPlayer
+                    !player.hitPlayer
                 ) {
-                    hitPlayer = true; // Marquer que le joueur a été touché
-                    reduceLife(currentLife); // Appeler la fonction pour réduire la vie du joueur
+                    player.hitPlayer = true; // Marquer que le joueur a été touché
+                    reduceLife(currentLife,player); // Appeler la fonction pour réduire la vie du joueur
                     console.log("vie perdu");
                 }
             }
@@ -250,7 +306,7 @@ function dropBomb(character, x, y, currentLife, hitPlayer) {
     }, 2000); // 3 secondes
 }
 
-function reduceLife(currentLife) {
+function reduceLife(currentLife,player) {
     const lifeElement = document.querySelector('.life');
     currentLife = parseInt(lifeElement.textContent);
 
@@ -265,8 +321,8 @@ function reduceLife(currentLife) {
             socket.send(JSON.stringify({
                 Type: "GAME OVER",
                 Data: {
-                    name: namePlayer,
-                    adress: playerAdress,
+                    name: player.namePlayer,
+                    adress: player.playerAdress,
                 }
             }))
         }
