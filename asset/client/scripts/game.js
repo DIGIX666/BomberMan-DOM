@@ -18,7 +18,7 @@ const characterHeight = 67; // Hauteur du personnage
 
 
 export class Player {
-    constructor(namePlayer, adress, direction, lives, bombe, positionLeft,positionTop,hitPlayer) {
+    constructor(namePlayer, adress, direction, lives, bombe, positionLeft, positionTop, hitPlayer, canMove) {
 
         this.namePlayer = namePlayer = ""
         this.adress = adress = ""
@@ -28,6 +28,7 @@ export class Player {
         this.positionLeft = positionLeft = characterLeft
         this.positionTop = positionTop = characterTop
         this.hitPlayer = hitPlayer = false
+        this.canMove = canMove = false
 
     }
 }
@@ -46,8 +47,6 @@ export const mapData = [
 let count = 0
 
 export function GameInit(mapData) {
-
-
 
 
     for (let row = 0; row < mapData.length; row++) {
@@ -70,7 +69,7 @@ export function GameInit(mapData) {
     //Send to server that the Initialization it's done
     socket.send(JSON.stringify({
         Type: "GameSet",
-        Data: null,
+        Data: null
     }))
 }
 
@@ -85,7 +84,7 @@ export function GetNameAndAdress(activeCo) {
 }
 
 export function PlayerMoved(socket, player, data, mapData) {
-   
+
     let currentLife = player.lives
     let playerName = player.namePlayer
 
@@ -95,19 +94,6 @@ export function PlayerMoved(socket, player, data, mapData) {
 
     // Gérer le mouvement du personnage avec les flèches du clavier
 
-    if (data.direction == "Up") {
-        console.log("Enter UP")
-        player.positionTop = data.position - 10
-    } else if (data.direction == "Down") {
-        console.log("Enter Down")
-        player.positionTop = data.position + 10
-    } else if (data.direction == "Left") {
-        console.log("Enter Left")
-        player.positionLeft = data.position - 10
-    } else if (data.direction == "Right") {
-        console.log("Enter Right")
-        player.positionLeft = data.position + 10
-    }
 
     // Vérifier les collisions avec les murs et les briques
     const newRow = Math.floor(player.positionTop / 100);
@@ -116,10 +102,9 @@ export function PlayerMoved(socket, player, data, mapData) {
     const rightCol = Math.floor((player.positionLeft + characterWidth) / 98);
 
     // Vérifier si le mouvement est possible
-    let canMove = true;
 
     if (
-        newRow >= 0 && newCol >= 0 && bottomRow < mapData.length && rightCol < mapData[0].length &&
+        newRow >= 0 && newCol >= 0 && bottomRow <= mapData.length && rightCol <= mapData[0].length &&
         mapData[newRow][newCol] !== '#' &&
         mapData[newRow][rightCol] !== '#' &&
         mapData[bottomRow][newCol] !== '#' &&
@@ -129,6 +114,19 @@ export function PlayerMoved(socket, player, data, mapData) {
         mapData[bottomRow][newCol] !== 'b' &&
         mapData[bottomRow][rightCol] !== 'b'
     ) {
+        if (data.direction == "Up") {
+            console.log("Enter UP")
+            player.positionTop = data.position - 10
+        } else if (data.direction == "Down") {
+            console.log("Enter Down")
+            player.positionTop = data.position + 10
+        } else if (data.direction == "Left") {
+            console.log("Enter Left")
+            player.positionLeft = data.position - 10
+        } else if (data.direction == "Right") {
+            console.log("Enter Right")
+            player.positionLeft = data.position + 10
+        }
         character.style.left = player.positionLeft + 'px';
         character.style.top = player.positionTop + 'px';
     }
@@ -156,107 +154,249 @@ export function PlayerMoved(socket, player, data, mapData) {
 export function GamePlay(socket, player, mapData) {
 
     let currentLife = player.lives
-    let newLeft = 0
-    let newTop = 0
 
-    // Gérer le mouvement du personnage avec les flèches du clavier
     document.addEventListener('keydown', (event) => {
+        // Vérifier les collisions avec les murs et les briques
 
-        if (event.key === 'ArrowRight') {
-            player.positionLeft += 10
-            console.log("send player right")
-            socket.send(JSON.stringify({
-                Type: "PlayerMoving",
-                Data: {
-                    direction: "Right",
-                    player: player.adress,
-                    name: player.playerName,
-                    position: player.positionLeft
-                }
-            }))
+        // const newRow = Math.floor(player.positionTop / 100);
+        // const newCol = Math.floor(player.positionLeft / 98);
+        // const bottomRow = Math.floor((player.positionTop + characterHeight) / 100);
+        // const rightCol = Math.floor((player.positionLeft + characterWidth) / 98);
 
-        } else if (event.key === 'ArrowLeft') {
-            player.position -= 10 
-            console.log("send player left")
-            socket.send(JSON.stringify({
-                Type: "PlayerMoving",
-                Data: {
-                    direction: "Left",
-                    player: player.adress,
-                    name: player.playerName,
-                    position: player.positionLeft
-                }
-            }))
+        const characterBox = character.getBoundingClientRect()
 
-        } else if (event.key === 'ArrowUp') {
-            player.position -= 10
-            console.log("send player up")
-            socket.send(JSON.stringify({
-                Type: "PlayerMoving",
-                Data: {
-                    direction: "Up",
-                    player: player.adress,
-                    name: player.playerName,
-                    position: player.positionTop
+        const charWidth = characterBox.width = characterWidth
+        const charHeight = characterBox.height = characterHeight
+        const charTop = characterBox.top
+        const charBottom = characterBox.bottom
+        const charLeft = characterBox.left
+        const charRight = characterBox.right
 
-                }
-            }))
+        let brickBox = []
+        // let brickBottom = []
+        // let brickTop = []
+        // let brickLeft = []
+        // let brickRight = []
 
-        } else if (event.key === 'ArrowDown') {
-            player.position += 10
-            console.log("send player down")
-            socket.send(JSON.stringify({
-                Type: "PlayerMoving",
-                Data: {
-                    direction: "Down",
-                    player: player.adress,
-                    name: player.playerName,
-                    position: player.positionTop
-                }
-            }))
+        let wallBox = []
+        // let wallBottom = []
+        // let wallTop = []
+        // let wallLeft = []
+        // let wallRight = []
+
+        let coordWall = {
+            bottom: [],
+            top: [],
+            left: [],
+            right: []
         }
 
-        // Vérifier les collisions avec les murs et les briques
-        const newRow = Math.floor(player.positionTop / 100);
-        const newCol = Math.floor(player.positionLeft / 98);
-        const bottomRow = Math.floor((player.positionTop + characterHeight) / 100);
-        const rightCol = Math.floor((player.positionLeft + characterWidth) / 98);
+        let coordBrick = {
+            bottom: [],
+            top: [],
+            left: [],
+            right: []
+        }
 
-        // Vérifier si le mouvement est possible
-        let canMove = true;
+        let checkFreeSpaceBrick = []
+        let checkFreeSpaceWall = []
 
-        if (
-            newRow >= 0 && newCol >= 0 && bottomRow < mapData.length && rightCol < mapData[0].length &&
-            mapData[newRow][newCol] !== '#' &&
-            mapData[newRow][rightCol] !== '#' &&
-            mapData[bottomRow][newCol] !== '#' &&
-            mapData[bottomRow][rightCol] !== '#' &&
-            mapData[newRow][newCol] !== 'b' &&
-            mapData[newRow][rightCol] !== 'b' &&
-            mapData[bottomRow][newCol] !== 'b' &&
-            mapData[bottomRow][rightCol] !== 'b'
-        ) {
+
+        document.querySelectorAll(".brick").forEach((element) => {
+            brickBox.push(element.getBoundingClientRect())
+
+
+        })
+        document.querySelectorAll(".wall").forEach((element) => {
+            wallBox.push(element.getBoundingClientRect())
+
+        })
+        console.log("brickBox:", brickBox)
+        console.log("wallBox:", wallBox)
+
+        // wallBox.forEach((element)=>{
+        //     coordWall.bottom.push(element.bottom)
+        //     coordWall.left.push(element.left)
+        //     coordWall.right.push(element.right)
+        //     coordWall.top.push(element.top)
+        // })
+
+        // brickBox.forEach((element)=>{
+        //     coordBrick.bottom.push(element.bottom)
+        //     coordBrick.left.push(element.left)
+        //     coordBrick.right.push(element.right)
+        //     coordBrick.top.push(element.top)
+        // })
+
+        // console.log("coordWall:",coordWall)
+        // console.log("coordBrick:",coordBrick)
+
+        let j = 0
+        let i = 0
+
+        while (i < brickBox.length) {
+
+            if (charTop>= brickBox[i].bottom) {
+                checkFreeSpaceBrick.push(1)
+
+            }else if (charBottom<=brickBox[i].top) {
+                checkFreeSpaceBrick.push(1)
+
+            }else if (charLeft >= brickBox[i].right) {
+                checkFreeSpaceBrick.push(1)
+
+            }else if (charRight <= brickBox[i].left) {
+                checkFreeSpaceBrick.push(1)
+
+            }
+
+            i++
+        }
+        while (j < wallBox.length) {
+            console.log("bottom:", wallBox[j].bottom)
+            console.log("charTop:",charTop)
+         
+
+            if (charTop>= wallBox[j].bottom) {
+                checkFreeSpaceWall.push(1)
+
+            }else if (charBottom<=wallBox[j].top) {
+                checkFreeSpaceWall.push(1)
+
+            }else if (charLeft >= wallBox[j].right) {
+                checkFreeSpaceWall.push(1)
+
+            }else if (charRight <= wallBox[j].left) {
+                checkFreeSpaceWall.push(1)
+
+            }
+
+            j++
+        }
+
+        console.log("Free Wall:", checkFreeSpaceWall)
+        console.log("Free Brick:", checkFreeSpaceBrick)
+
+        if (checkFreeSpaceBrick.length == brickBox.length && checkFreeSpaceWall.length == wallBox.length) {
+            player.canMove = true
+        } else {
+            player.canMove = false
+        }
+
+        // if (
+        //     newRow >= 0 && newCol >= 0 && bottomRow < mapData.length && rightCol < mapData[0].length &&
+        //     mapData[newRow][newCol] !== '#' &&
+        //     mapData[newRow][rightCol] !== '#' &&
+        //     mapData[bottomRow][newCol] !== '#' &&
+        //     mapData[bottomRow][rightCol] !== '#' &&
+        //     mapData[newRow][newCol] !== 'b' &&
+        //     mapData[newRow][rightCol] !== 'b' &&
+        //     mapData[bottomRow][newCol] !== 'b' &&
+        //     mapData[bottomRow][rightCol] !== 'b'
+        // ) {
+
+        //     player.canMove = true
+        // }else{
+        //     player.canMove = false
+        // }
+
+        // if (
+        //     newRow >= 0 && newCol >= 0 && bottomRow < mapData.length && rightCol < mapData[0].length &&
+        //     mapData[newRow][newCol] !== '#' &&
+        //     mapData[newRow][rightCol] !== '#' &&
+        //     mapData[bottomRow][newCol] !== '#' &&
+        //     mapData[bottomRow][rightCol] !== '#' &&
+        //     mapData[newRow][newCol] !== 'b' &&
+        //     mapData[newRow][rightCol] !== 'b' &&
+        //     mapData[bottomRow][newCol] !== 'b' &&
+        //     mapData[bottomRow][rightCol] !== 'b'
+        // ) {
+
+        //     player.canMove = true
+        // }
+
+        if (player.canMove) {
+
+            if (event.key === 'ArrowRight') {
+                player.positionLeft += 10
+                console.log("send player right")
+                socket.send(JSON.stringify({
+                    Type: "PlayerMoving",
+                    Data: {
+                        direction: "Right",
+                        player: player.adress,
+                        name: player.playerName,
+                        position: player.positionLeft
+                    }
+                }))
+
+            } else if (event.key === 'ArrowLeft') {
+                player.positionLeft -= 10
+                console.log("send player left")
+                socket.send(JSON.stringify({
+                    Type: "PlayerMoving",
+                    Data: {
+                        direction: "Left",
+                        player: player.adress,
+                        name: player.playerName,
+                        position: player.positionLeft
+                    }
+                }))
+
+            } else if (event.key === 'ArrowUp') {
+                player.positionTop -= 10
+                console.log("send player up")
+                socket.send(JSON.stringify({
+                    Type: "PlayerMoving",
+                    Data: {
+                        direction: "Up",
+                        player: player.adress,
+                        name: player.playerName,
+                        position: player.positionTop
+
+                    }
+                }))
+
+            } else if (event.key === 'ArrowDown') {
+                player.positionTop += 10
+                console.log("send player down")
+                socket.send(JSON.stringify({
+                    Type: "PlayerMoving",
+                    Data: {
+                        direction: "Down",
+                        player: player.adress,
+                        name: player.playerName,
+                        position: player.positionTop
+                    }
+                }))
+            }
+
+            checkFreeSpaceBrick = []
+            checkFreeSpaceWall = []
+
+            // Vérifier si le mouvement est possible
+
+            // Gérer le mouvement du personnage avec les flèches du clavier
+
             character.style.left = player.positionLeft + 'px';
             character.style.top = player.positionTop + 'px';
-        }
+            // Ajouter la logique pour déposer une bombe avec la touche Espace
+            if (event.key === ' ') { // Touche Espace
+                dropBomb(character, characterLeft + characterWidth / 2, characterTop + characterHeight / 2, currentLife, player.hitPlayer);
+                socket.send(JSON.stringify({
+                    Type: "Player Dropped Bomb",
+                    data: {
+                        name: playerName,
+                        adress: playerAdress,
+                        x: characterLeft + characterWidth / 2,
+                        y: characterTop + characterHeight / 2,
+                        currentLife: currentLife
 
-        // Ajouter la logique pour déposer une bombe avec la touche Espace
-        if (event.key === ' ') { // Touche Espace
-            dropBomb(character, characterLeft + characterWidth / 2, characterTop + characterHeight / 2, currentLife, player.hitPlayer);
-            socket.send(JSON.stringify({
-                Type: "Player Dropped Bomb",
-                data: {
-                    name: playerName,
-                    adress: playerAdress,
-                    x: characterLeft + characterWidth / 2,
-                    y: characterTop + characterHeight / 2,
-                    currentLife: currentLife
-
-                }
-            }))
+                    }
+                }))
+            }
         }
     });
-
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -293,7 +433,7 @@ function dropBomb(character, x, y, currentLife, player) {
                     !player.hitPlayer
                 ) {
                     player.hitPlayer = true; // Marquer que le joueur a été touché
-                    reduceLife(currentLife,player); // Appeler la fonction pour réduire la vie du joueur
+                    reduceLife(currentLife, player); // Appeler la fonction pour réduire la vie du joueur
                     console.log("vie perdu");
                 }
             }
@@ -306,7 +446,7 @@ function dropBomb(character, x, y, currentLife, player) {
     }, 2000); // 3 secondes
 }
 
-function reduceLife(currentLife,player) {
+function reduceLife(currentLife, player) {
     const lifeElement = document.querySelector('.life');
     currentLife = parseInt(lifeElement.textContent);
 
