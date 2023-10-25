@@ -16,7 +16,6 @@ const characterTop = parseInt(characterStyle.top.replace("px", ""));
 const characterWidth = 10; // Largeur du personnage
 const characterHeight = 67; // Hauteur du personnage
 
-
 export class Player {
     constructor(namePlayer, adress, direction, lives, bombe, positionLeft, positionTop, hitPlayer, canMove) {
 
@@ -47,7 +46,6 @@ export const mapData = [
 let count = 0
 
 export function GameInit(mapData) {
-
 
     for (let row = 0; row < mapData.length; row++) {
         for (let col = 0; col < mapData[row].length; col++) {
@@ -103,35 +101,68 @@ export function PlayerMoved(socket, player, data, mapData) {
 
     // Vérifier si le mouvement est possible
 
-    if (
-        newRow >= 0 && newCol >= 0 && bottomRow <= mapData.length && rightCol <= mapData[0].length &&
-        mapData[newRow][newCol] !== '#' &&
-        mapData[newRow][rightCol] !== '#' &&
-        mapData[bottomRow][newCol] !== '#' &&
-        mapData[bottomRow][rightCol] !== '#' &&
-        mapData[newRow][newCol] !== 'b' &&
-        mapData[newRow][rightCol] !== 'b' &&
-        mapData[bottomRow][newCol] !== 'b' &&
-        mapData[bottomRow][rightCol] !== 'b'
-    ) {
-        if (data.direction == "Up") {
-            console.log("Enter UP")
-            player.positionTop = data.position - 10
-        } else if (data.direction == "Down") {
-            console.log("Enter Down")
-            player.positionTop = data.position + 10
-        } else if (data.direction == "Left") {
-            console.log("Enter Left")
-            player.positionLeft = data.position - 10
-        } else if (data.direction == "Right") {
-            console.log("Enter Right")
-            player.positionLeft = data.position + 10
-        }
-        character.style.left = player.positionLeft + 'px';
-        character.style.top = player.positionTop + 'px';
-    }
-    document.addEventListener('keydown', (event) => {
+    // if (
+    //     newRow >= 0 && newCol >= 0 && bottomRow <= mapData.length && rightCol <= mapData[0].length &&
+    //     mapData[newRow][newCol] !== '#' &&
+    //     mapData[newRow][rightCol] !== '#' &&
+    //     mapData[bottomRow][newCol] !== '#' &&
+    //     mapData[bottomRow][rightCol] !== '#' &&
+    //     mapData[newRow][newCol] !== 'b' &&
+    //     mapData[newRow][rightCol] !== 'b' &&
+    //     mapData[bottomRow][newCol] !== 'b' &&
+    //     mapData[bottomRow][rightCol] !== 'b'
+    // ) {
+    //     if (data.direction == "Up") {
+    //         console.log("Enter UP")
+    //         player.positionTop = data.position - 10
+    //     } else if (data.direction == "Down") {
+    //         console.log("Enter Down")
+    //         player.positionTop = data.position + 10
+    //     } else if (data.direction == "Left") {
+    //         console.log("Enter Left")
+    //         player.positionLeft = data.position - 10
+    //     } else if (data.direction == "Right") {
+    //         console.log("Enter Right")
+    //         player.positionLeft = data.position + 10
+    //     }
+    //     character.style.left = player.positionLeft + 'px';
+    //     character.style.top = player.positionTop + 'px';
+    // } else {
 
+    //     if (data.direction == "Up") {
+    //         console.log("Enter UP")
+    //         player.positionTop = data.position + 10
+    //     } else if (data.direction == "Down") {
+    //         console.log("Enter Down")
+    //         player.positionTop = data.position - 10
+    //     } else if (data.direction == "Left") {
+    //         console.log("Enter Left")
+    //         player.positionLeft = data.position + 10
+    //     } else if (data.direction == "Right") {
+    //         console.log("Enter Right")
+    //         player.positionLeft = data.position - 10
+    //     }
+    //     character.style.left = player.positionLeft + 'px';
+    //     character.style.top = player.positionTop + 'px';
+
+
+    // }
+    if (data.direction == "Up") {
+        console.log("Enter UP")
+        player.positionTop = data.position - 10
+    } else if (data.direction == "Down") {
+        console.log("Enter Down")
+        player.positionTop = data.position + 10
+    } else if (data.direction == "Left") {
+        console.log("Enter Left")
+        player.positionLeft = data.position - 10
+    } else if (data.direction == "Right") {
+        console.log("Enter Right")
+        player.positionLeft = data.position + 10
+    }
+    character.style.left = player.positionLeft + 'px';
+    character.style.top = player.positionTop + 'px';
+    document.addEventListener('keydown', (event) => {
 
         // Ajouter la logique pour déposer une bombe avec la touche Espace
         if (event.key === ' ') { // Touche Espace
@@ -155,170 +186,101 @@ export function GamePlay(socket, player, mapData) {
 
     let currentLife = player.lives
 
+    // Vérifier les collisions avec les murs et les briques
+
+    // const newRow = Math.floor(player.positionTop / 100);
+    // const newCol = Math.floor(player.positionLeft / 98);
+    // const bottomRow = Math.floor((player.positionTop + characterHeight) / 100);
+    // const rightCol = Math.floor((player.positionLeft + characterWidth) / 98);
+
+    const characterBox = character.getBoundingClientRect()
+
+    const charWidth = characterBox.width = characterWidth
+    const charHeight = characterBox.height = characterHeight
+    const charTop = characterBox.top
+    const charBottom = characterBox.bottom
+    const charLeft = characterBox.left
+    const charRight = characterBox.right
+
+    let brickBox = []
+    let wallBox = []
+
+
+    let coordWall = {
+        bottom: [],
+        top: [],
+        left: [],
+        right: []
+    }
+
+    let coordBrick = {
+        bottom: [],
+        top: [],
+        left: [],
+        right: []
+    }
+
+    let checkFreeSpaceBrick = []
+    let checkFreeSpaceWall = []
+
+    let walls = null
+    let bricks = null
+
+    mapData.forEach((row, rowIndex) => {
+        row.forEach((col, colIndex) => {
+            if (col === "#") {
+                coordWall.bottom.push(rowIndex * 100)
+                coordWall.top.push(rowIndex * 100 + 100)
+                coordWall.left.push(colIndex * 98)
+                coordWall.right.push(colIndex * 98 + 98)
+            } else if (col === "b") {
+                coordBrick.bottom.push(rowIndex * 100)
+                coordBrick.top.push(rowIndex * 100 + 100)
+                coordBrick.left.push(colIndex * 98)
+                coordBrick.right.push(colIndex * 98 + 98)
+            }
+        })
+    })
+
+
+    document.querySelectorAll(".brick").forEach((element) => {
+        element.getBoundingClientRect()
+        bricks = element.getBoundingClientRect()
+        brickBox.push(bricks)
+    })
+    document.querySelectorAll(".wall").forEach((element) => {
+        element.getBoundingClientRect()
+        walls = element.getBoundingClientRect()
+        wallBox.push(walls)
+    })
+
+    console.log("brickBox", brickBox.length)
+    console.log("wallBox", wallBox.length)
+
+
     document.addEventListener('keydown', (event) => {
-        // Vérifier les collisions avec les murs et les briques
 
-        // const newRow = Math.floor(player.positionTop / 100);
-        // const newCol = Math.floor(player.positionLeft / 98);
-        // const bottomRow = Math.floor((player.positionTop + characterHeight) / 100);
-        // const rightCol = Math.floor((player.positionLeft + characterWidth) / 98);
-
-        const characterBox = character.getBoundingClientRect()
-
-        const charWidth = characterBox.width = characterWidth
-        const charHeight = characterBox.height = characterHeight
-        const charTop = characterBox.top
-        const charBottom = characterBox.bottom
-        const charLeft = characterBox.left
-        const charRight = characterBox.right
-
-        let brickBox = []
-        // let brickBottom = []
-        // let brickTop = []
-        // let brickLeft = []
-        // let brickRight = []
-
-        let wallBox = []
-        // let wallBottom = []
-        // let wallTop = []
-        // let wallLeft = []
-        // let wallRight = []
-
-        let coordWall = {
-            bottom: [],
-            top: [],
-            left: [],
-            right: []
-        }
-
-        let coordBrick = {
-            bottom: [],
-            top: [],
-            left: [],
-            right: []
-        }
-
-        let checkFreeSpaceBrick = []
-        let checkFreeSpaceWall = []
-
-
-        document.querySelectorAll(".brick").forEach((element) => {
-            brickBox.push(element.getBoundingClientRect())
-
-
-        })
-        document.querySelectorAll(".wall").forEach((element) => {
-            wallBox.push(element.getBoundingClientRect())
-
-        })
-        console.log("brickBox:", brickBox)
-        console.log("wallBox:", wallBox)
-
-        // wallBox.forEach((element)=>{
-        //     coordWall.bottom.push(element.bottom)
-        //     coordWall.left.push(element.left)
-        //     coordWall.right.push(element.right)
-        //     coordWall.top.push(element.top)
-        // })
-
-        // brickBox.forEach((element)=>{
-        //     coordBrick.bottom.push(element.bottom)
-        //     coordBrick.left.push(element.left)
-        //     coordBrick.right.push(element.right)
-        //     coordBrick.top.push(element.top)
-        // })
-
-        // console.log("coordWall:",coordWall)
-        // console.log("coordBrick:",coordBrick)
-
-        let j = 0
         let i = 0
+        let j = 0
 
-        while (i < brickBox.length) {
 
-            if (charTop>= brickBox[i].bottom) {
-                checkFreeSpaceBrick.push(1)
+        if (event.key === 'ArrowRight') {
+            i = 0
+            j = 0
+            while (i < wallBox.length || j < brickBox.length) {
 
-            }else if (charBottom<=brickBox[i].top) {
-                checkFreeSpaceBrick.push(1)
+                if (player.positionLeft < wallBox[i].left || player.positionLeft < brickBox[j].left) {
+                    player.canMove = true
+                    break
 
-            }else if (charLeft >= brickBox[i].right) {
-                checkFreeSpaceBrick.push(1)
-
-            }else if (charRight <= brickBox[i].left) {
-                checkFreeSpaceBrick.push(1)
-
+                }
+                i++
+                j++
             }
 
-            i++
-        }
-        while (j < wallBox.length) {
-            console.log("bottom:", wallBox[j].bottom)
-            console.log("charTop:",charTop)
-         
-
-            if (charTop>= wallBox[j].bottom) {
-                checkFreeSpaceWall.push(1)
-
-            }else if (charBottom<=wallBox[j].top) {
-                checkFreeSpaceWall.push(1)
-
-            }else if (charLeft >= wallBox[j].right) {
-                checkFreeSpaceWall.push(1)
-
-            }else if (charRight <= wallBox[j].left) {
-                checkFreeSpaceWall.push(1)
-
-            }
-
-            j++
-        }
-
-        console.log("Free Wall:", checkFreeSpaceWall)
-        console.log("Free Brick:", checkFreeSpaceBrick)
-
-        if (checkFreeSpaceBrick.length == brickBox.length && checkFreeSpaceWall.length == wallBox.length) {
-            player.canMove = true
-        } else {
-            player.canMove = false
-        }
-
-        // if (
-        //     newRow >= 0 && newCol >= 0 && bottomRow < mapData.length && rightCol < mapData[0].length &&
-        //     mapData[newRow][newCol] !== '#' &&
-        //     mapData[newRow][rightCol] !== '#' &&
-        //     mapData[bottomRow][newCol] !== '#' &&
-        //     mapData[bottomRow][rightCol] !== '#' &&
-        //     mapData[newRow][newCol] !== 'b' &&
-        //     mapData[newRow][rightCol] !== 'b' &&
-        //     mapData[bottomRow][newCol] !== 'b' &&
-        //     mapData[bottomRow][rightCol] !== 'b'
-        // ) {
-
-        //     player.canMove = true
-        // }else{
-        //     player.canMove = false
-        // }
-
-        // if (
-        //     newRow >= 0 && newCol >= 0 && bottomRow < mapData.length && rightCol < mapData[0].length &&
-        //     mapData[newRow][newCol] !== '#' &&
-        //     mapData[newRow][rightCol] !== '#' &&
-        //     mapData[bottomRow][newCol] !== '#' &&
-        //     mapData[bottomRow][rightCol] !== '#' &&
-        //     mapData[newRow][newCol] !== 'b' &&
-        //     mapData[newRow][rightCol] !== 'b' &&
-        //     mapData[bottomRow][newCol] !== 'b' &&
-        //     mapData[bottomRow][rightCol] !== 'b'
-        // ) {
-
-        //     player.canMove = true
-        // }
-
-        if (player.canMove) {
-
-            if (event.key === 'ArrowRight') {
+            if (player.canMove) {
                 player.positionLeft += 10
+                character.style.left = player.positionLeft + 'px';
                 console.log("send player right")
                 socket.send(JSON.stringify({
                     Type: "PlayerMoving",
@@ -329,9 +291,24 @@ export function GamePlay(socket, player, mapData) {
                         position: player.positionLeft
                     }
                 }))
+            }
+        }
+        if (event.key === 'ArrowLeft') {
+            i = 0
+            j = 0
+            while (i < wallBox.length || j < brickBox.length) {
 
-            } else if (event.key === 'ArrowLeft') {
+                if (player.positionLeft > wallBox[i].right || player.positionLeft > brickBox[j].right) {
+                    player.canMove = true
+                    break
+                }
+                i++
+                j++
+            }
+
+            if (player.canMove) {
                 player.positionLeft -= 10
+                character.style.left = player.positionLeft + 'px';
                 console.log("send player left")
                 socket.send(JSON.stringify({
                     Type: "PlayerMoving",
@@ -342,9 +319,25 @@ export function GamePlay(socket, player, mapData) {
                         position: player.positionLeft
                     }
                 }))
+            }
+        }
+        if (event.key === 'ArrowUp') {
+            i = 0
+            j = 0
+            while (i < wallBox.length || j < brickBox.length) {
 
-            } else if (event.key === 'ArrowUp') {
+                if (player.positionTop > wallBox[i].bottom || player.positionTop > brickBox[j].bottom) {
+                    player.canMove = true
+                    break
+
+                }
+                i++
+                j++
+            }
+
+            if (player.canMove) {
                 player.positionTop -= 10
+                character.style.top = player.positionTop + 'px';
                 console.log("send player up")
                 socket.send(JSON.stringify({
                     Type: "PlayerMoving",
@@ -353,12 +346,27 @@ export function GamePlay(socket, player, mapData) {
                         player: player.adress,
                         name: player.playerName,
                         position: player.positionTop
-
                     }
                 }))
+            }
+        }
+        if (event.key === 'ArrowDown') {
+            i = 0
+            j = 0
+            while (i < wallBox.length || j < brickBox.length) {
 
-            } else if (event.key === 'ArrowDown') {
+                if (player.positionTop < wallBox[i].top || player.positionTop < brickBox[j].top) {
+                    player.canMove = true
+                    break
+
+                }
+                i++
+                j++
+            }
+
+            if (player.canMove) {
                 player.positionTop += 10
+                character.style.top = player.positionTop + 'px';
                 console.log("send player down")
                 socket.send(JSON.stringify({
                     Type: "PlayerMoving",
@@ -370,32 +378,33 @@ export function GamePlay(socket, player, mapData) {
                     }
                 }))
             }
-
-            checkFreeSpaceBrick = []
-            checkFreeSpaceWall = []
-
-            // Vérifier si le mouvement est possible
-
-            // Gérer le mouvement du personnage avec les flèches du clavier
-
-            character.style.left = player.positionLeft + 'px';
-            character.style.top = player.positionTop + 'px';
-            // Ajouter la logique pour déposer une bombe avec la touche Espace
-            if (event.key === ' ') { // Touche Espace
-                dropBomb(character, characterLeft + characterWidth / 2, characterTop + characterHeight / 2, currentLife, player.hitPlayer);
-                socket.send(JSON.stringify({
-                    Type: "Player Dropped Bomb",
-                    data: {
-                        name: playerName,
-                        adress: playerAdress,
-                        x: characterLeft + characterWidth / 2,
-                        y: characterTop + characterHeight / 2,
-                        currentLife: currentLife
-
-                    }
-                }))
-            }
         }
+
+        checkFreeSpaceBrick = []
+        checkFreeSpaceWall = []
+
+        // Vérifier si le mouvement est possible
+
+        // Gérer le mouvement du personnage avec les flèches du clavier
+
+
+
+        // Ajouter la logique pour déposer une bombe avec la touche Espace
+        if (event.key === ' ') { // Touche Espace
+            dropBomb(character, characterLeft + characterWidth / 2, characterTop + characterHeight / 2, currentLife, player.hitPlayer);
+            socket.send(JSON.stringify({
+                Type: "Player Dropped Bomb",
+                data: {
+                    name: playerName,
+                    adress: playerAdress,
+                    x: characterLeft + characterWidth / 2,
+                    y: characterTop + characterHeight / 2,
+                    currentLife: currentLife
+
+                }
+            }))
+        }
+        // } 
     });
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -481,8 +490,30 @@ function checkCollision(element1, element2) {
     );
 }
 
+function Collision(positionLeft, positionTop, mapData) {
 
+    let newRow = Math.floor(positionTop / 100);
+    let newCol = Math.floor(positionLeft / 98);
+    let bottomRow = Math.floor((positionTop + characterHeight) / 100);
+    let rightCol = Math.floor((positionLeft + characterWidth) / 98);
 
-
+    if (
+        newRow >= 0 && newCol >= 0 &&
+        bottomRow < mapData.length &&
+        rightCol < mapData[0].length &&
+        mapData[newRow][newCol] !== '#' &&
+        mapData[newRow][rightCol] !== '#' &&
+        mapData[bottomRow][newCol] !== '#' &&
+        mapData[bottomRow][rightCol] !== '#' &&
+        mapData[newRow][newCol] !== 'b' &&
+        mapData[newRow][rightCol] !== 'b' &&
+        mapData[bottomRow][newCol] !== 'b' &&
+        mapData[bottomRow][rightCol] !== 'b'
+    ) {
+        return true
+    } else {
+        return false
+    }
+}
 
 //////////////////////////////// FIN JEU ////////////////////////////////
