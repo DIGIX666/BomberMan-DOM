@@ -65,6 +65,8 @@
   border: solid;
   top: 120px;
   left: 130px;
+  bottom: 120px;
+  right: 130px;
   width: 60px;
   height: 96px;
   background-image: url(../asset/images/character/perso1/perso1-marche.png);

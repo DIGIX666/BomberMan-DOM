@@ -12,12 +12,14 @@ let docCharacter = document.querySelector(".character")
 const characterStyle = getComputedStyle(docCharacter);
 const characterLeft = parseInt(characterStyle.left.replace("px", ""));
 const characterTop = parseInt(characterStyle.top.replace("px", ""));
+const characterBottom = parseInt(characterStyle.bottom.replace("px", ""));
+const characterRight = parseInt(characterStyle.right.replace("px", ""));
 
 const characterWidth = 10; // Largeur du personnage
 const characterHeight = 67; // Hauteur du personnage
 
 export class Player {
-    constructor(namePlayer, adress, direction, lives, bombe, positionLeft, positionTop, hitPlayer, canMove) {
+    constructor(namePlayer, adress, direction, lives, bombe, positionLeft,positionRight,positionBottom, positionTop, hitPlayer, canMove) {
 
         this.namePlayer = namePlayer = ""
         this.adress = adress = ""
@@ -26,6 +28,8 @@ export class Player {
         this.bombe = bombe = false
         this.positionLeft = positionLeft = characterLeft
         this.positionTop = positionTop = characterTop
+        this.positikonRight = positionRight = characterRight
+        this.positionBottom = positionBottom = characterBottom
         this.hitPlayer = hitPlayer = false
         this.canMove = canMove = false
 
@@ -226,21 +230,21 @@ export function GamePlay(socket, player, mapData) {
     let walls = null
     let bricks = null
 
-    mapData.forEach((row, rowIndex) => {
-        row.forEach((col, colIndex) => {
-            if (col === "#") {
-                coordWall.bottom.push(rowIndex * 100)
-                coordWall.top.push(rowIndex * 100 + 100)
-                coordWall.left.push(colIndex * 98)
-                coordWall.right.push(colIndex * 98 + 98)
-            } else if (col === "b") {
-                coordBrick.bottom.push(rowIndex * 100)
-                coordBrick.top.push(rowIndex * 100 + 100)
-                coordBrick.left.push(colIndex * 98)
-                coordBrick.right.push(colIndex * 98 + 98)
-            }
-        })
-    })
+    // mapData.forEach((row, rowIndex) => {
+    //     row.forEach((col, colIndex) => {
+    //         if (col === "#") {
+    //             coordWall.bottom.push(rowIndex * 100)
+    //             coordWall.top.push(rowIndex * 100 + 100)
+    //             coordWall.left.push(colIndex * 98)
+    //             coordWall.right.push(colIndex * 98 + 98)
+    //         } else if (col === "b") {
+    //             coordBrick.bottom.push(rowIndex * 100)
+    //             coordBrick.top.push(rowIndex * 100 + 100)
+    //             coordBrick.left.push(colIndex * 98)
+    //             coordBrick.right.push(colIndex * 98 + 98)
+    //         }
+    //     })
+    // })
 
 
     document.querySelectorAll(".brick").forEach((element) => {
@@ -257,30 +261,29 @@ export function GamePlay(socket, player, mapData) {
     console.log("brickBox", brickBox.length)
     console.log("wallBox", wallBox.length)
 
-
+    let i = 0
+    let j = 0
     document.addEventListener('keydown', (event) => {
-
-        let i = 0
-        let j = 0
 
 
         if (event.key === 'ArrowRight') {
             i = 0
             j = 0
+
             while (i < wallBox.length || j < brickBox.length) {
 
-                if (player.positionLeft < wallBox[i].left || player.positionLeft < brickBox[j].left) {
+                if (player.positionRight < wallBox[i].left || player.positionRight < brickBox[j].left) {
                     player.canMove = true
                     break
-
                 }
                 i++
                 j++
             }
 
             if (player.canMove) {
-                player.positionLeft += 10
-                character.style.left = player.positionLeft + 'px';
+
+                player.positionRight += 10
+                character.style.right = player.positionRight + 'px';
                 console.log("send player right")
                 socket.send(JSON.stringify({
                     Type: "PlayerMoving",
@@ -288,11 +291,12 @@ export function GamePlay(socket, player, mapData) {
                         direction: "Right",
                         player: player.adress,
                         name: player.playerName,
-                        position: player.positionLeft
+                        position: player.positionRight
                     }
                 }))
             }
         }
+
         if (event.key === 'ArrowLeft') {
             i = 0
             j = 0
@@ -355,18 +359,17 @@ export function GamePlay(socket, player, mapData) {
             j = 0
             while (i < wallBox.length || j < brickBox.length) {
 
-                if (player.positionTop < wallBox[i].top || player.positionTop < brickBox[j].top) {
+                if (player.positionBottom < wallBox[i].top || player.positionBottom < brickBox[j].top) {
                     player.canMove = true
                     break
-
                 }
                 i++
                 j++
             }
 
             if (player.canMove) {
-                player.positionTop += 10
-                character.style.top = player.positionTop + 'px';
+                player.positionBottom += 10
+                character.style.bottom = player.positionBottom + 'px';
                 console.log("send player down")
                 socket.send(JSON.stringify({
                     Type: "PlayerMoving",
@@ -374,7 +377,7 @@ export function GamePlay(socket, player, mapData) {
                         direction: "Down",
                         player: player.adress,
                         name: player.playerName,
-                        position: player.positionTop
+                        position: player.positionBottom
                     }
                 }))
             }
@@ -386,8 +389,6 @@ export function GamePlay(socket, player, mapData) {
         // Vérifier si le mouvement est possible
 
         // Gérer le mouvement du personnage avec les flèches du clavier
-
-
 
         // Ajouter la logique pour déposer une bombe avec la touche Espace
         if (event.key === ' ') { // Touche Espace
