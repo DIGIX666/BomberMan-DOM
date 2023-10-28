@@ -2,7 +2,8 @@
 /* styles.css */
 @import url("https://fonts.googleapis.com/css2?family=Handjet:wght@300&display=swap");
 .game {
-  margin: 20px;
+  /* position: absolute; */
+  /* margin: 20px; */
   display: grid;
   grid-template-columns: repeat(10, 100px);
   grid-template-rows: repeat(8, 100px);
@@ -65,8 +66,8 @@
   border: solid;
   top: 120px;
   left: 130px;
-  bottom: 120px;
-  right: 130px;
+  /* bottom: 216px;
+  right: 190px; */
   width: 60px;
   height: 96px;
   background-image: url(../asset/images/character/perso1/perso1-marche.png);
