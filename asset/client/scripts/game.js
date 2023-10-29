@@ -8,6 +8,12 @@ character.classList.add('character');
 bomberMan.appendChild(character);
 
 const characterBox = character.getBoundingClientRect();
+const characterWidth = 10; // Largeur du personnage
+const characterHeight = 67; // Hauteur du personnage
+const charWidth = characterWidth;
+const charHeight = characterHeight;
+let charTop = characterBox.top;
+let charLeft = characterBox.left;
 
 let docCharacter = document.querySelector(".character")
 
@@ -20,8 +26,22 @@ const characterTop = parseInt(characterStyle.top.replace("px", ""));
 let brickBox = []
 let wallBox = []
 
-const characterWidth = 10; // Largeur du personnage
-const characterHeight = 67; // Hauteur du personnage
+document.querySelectorAll(".wall").forEach((element) => {
+    // let x = element.getBoundingClientRect().x;
+    // let y = element.getBoundingClientRect().y;
+    let left = element.getBoundingClientRect().left;
+    let right = element.getBoundingClientRect().right;
+    let bottom = element.getBoundingClientRect().bottom;
+    let top = element.getBoundingClientRect().top;
+    // let gauche = x / left;
+    // let haut = y / top;
+    wallBox.push(left);
+    wallBox.push(top);
+    wallBox.push(bottom);
+    wallBox.push(right);
+});
+
+
 
 export class Player {
     constructor(namePlayer, adress, direction, lives, bombe, positionLeft, positionRight, positionBottom, positionTop, hitPlayer, canMove) {
@@ -41,31 +61,21 @@ export class Player {
     }
 }
 
-export class Bomb {
-    constructor(positionLeft, positionTop, positionRight, positionBottom, currentLife) {
 
-        this.positionLeft = positionLeft = 0
-        this.positionTop = positionTop = 0
-        this.positionRight = positionRight = 0
-        this.positionBottom = positionBottom = 0
-        this.currentLife = currentLife = 0
-    }
-}
-
-export const mapData = [
-    ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
-    ['#', ' ', 'b', ' ', ' ', ' ', ' ', 'b', ' ', '#'],
-    ['#', ' ', '#', ' ', ' ', ' ', ' ', '#', ' ', '#'],
-    ['#', 'b', '#', '#', 'b', 'b', '#', '#', 'b', '#'],
-    ['#', ' ', 'b', ' ', ' ', ' ', ' ', 'b', ' ', '#'],
-    ['#', 'b', '#', '#', 'b', 'b', '#', '#', 'b', '#'],
-    ['#', ' ', 'b', ' ', ' ', ' ', ' ', 'b', ' ', '#'],
-    ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#']
-];
 
 let count = 0
 
-export function GameInit(mapData) {
+export function GameInit() {
+    let mapData = [
+        ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
+        ['#', ' ', 'b', ' ', ' ', ' ', ' ', 'b', ' ', '#'],
+        ['#', ' ', '#', ' ', ' ', ' ', ' ', '#', ' ', '#'],
+        ['#', 'b', '#', '#', 'b', 'b', '#', '#', 'b', '#'],
+        ['#', ' ', 'b', ' ', ' ', ' ', ' ', 'b', ' ', '#'],
+        ['#', 'b', '#', '#', 'b', 'b', '#', '#', 'b', '#'],
+        ['#', ' ', 'b', ' ', ' ', ' ', ' ', 'b', ' ', '#'],
+        ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#']
+    ];
 
     for (let row = 0; row < mapData.length; row++) {
         for (let col = 0; col < mapData[row].length; col++) {
@@ -87,7 +97,9 @@ export function GameInit(mapData) {
     //Send to server that the Initialization it's done
     socket.send(JSON.stringify({
         Type: "GameSet",
-        Data: null
+        Data: {
+            map: mapData
+        }
     }))
 }
 
@@ -107,7 +119,9 @@ export function PlayerMoved(socket, player, data, mapData) {
     let playerName = player.namePlayer
 
 
-    console.log("data from moving:", data)
+    console.log("data from moving:", data);
+
+    console.log("mapData from moving:", mapData);
 
 
     // Gérer le mouvement du personnage avec les flèches du clavier
@@ -121,34 +135,38 @@ export function PlayerMoved(socket, player, data, mapData) {
 
     // Vérifier si le mouvement est possible
 
-
     if (data.direction == "Up" && data.move) {
         if (Collision(player.positionLeft, data.position - 10, mapData)) {
             player.positionTop = data.position - 10;
             character.style.top = player.positionTop + 'px';
         }
+
+
     } else if (data.direction == "Down" && data.move) {
         if (Collision(player.positionLeft, data.position + 10, mapData)) {
             player.positionTop = data.position + 10;
             character.style.top = player.positionTop + 'px';
         }
+
+
     } else if (data.direction == "Left" && data.move) {
         if (Collision(data.position - 10, player.positionTop, mapData)) {
             player.positionLeft = data.position - 10;
             character.style.left = player.positionLeft + 'px';
-        } 
+        }
+
+
     } else if (data.direction == "Right" && data.move) {
         if (Collision(data.position + 10, player.positionTop, mapData)) {
             player.positionLeft = data.position + 10;
             character.style.left = player.positionLeft + 'px';
         }
+
     }
 
     if (player.bomb) {
-        console.log("bomb dropped") 
-        console.log("bomb.x:", data.data.x)
-        console.log("bomb.y:", data.data.y)
-        dropBomb(character, data.data.x, data.data.y, currentLife, player)
+        
+        dropBomb(character, data.data.x, data.data.y, currentLife, player, mapData)
         UpdateBricks()
         player.bomb = false
     }
@@ -177,38 +195,19 @@ export function PlayerMoved(socket, player, data, mapData) {
 export function GamePlay(socket, player, mapData) {
     let currentLife = player.lives;
 
-    const charWidth = characterWidth;
-    const charHeight = characterHeight;
-    let charTop = characterBox.top;
-    let charLeft = characterBox.left;
+    const charX = characterBox.x;
+    const charY = characterBox.y;
 
-    
-    //let wallBox = [];
-
-    UpdateBricks()
-
-    document.querySelectorAll(".wall").forEach((element) => {
-        // let x = element.getBoundingClientRect().x;
-        // let y = element.getBoundingClientRect().y;
-        let left = element.getBoundingClientRect().left;
-        let right = element.getBoundingClientRect().right;
-        let bottom = element.getBoundingClientRect().bottom;
-        let top = element.getBoundingClientRect().top;
-        // let gauche = x / left;
-        // let haut = y / top;
-        wallBox.push(left);
-        wallBox.push(top);
-        wallBox.push(bottom);
-        wallBox.push(right);
-    });
 
     document.addEventListener('keydown', (event) => {
-        const walls = wallBox.sort();
-        const bricks = brickBox.sort();
+        // const walls = wallBox.sort();
+        // const bricks = brickBox.sort();
+        UpdateBricks()
 
         if (event.key === 'ArrowRight') {
-            if (Collision(charLeft + 10, charTop, mapData) && !walls.includes(charLeft + 10) && !bricks.includes(charLeft + 10)) {
+            if (Collision(charLeft + 10, charTop, mapData)) {
                 charLeft += 10
+                player.positionLeft = charLeft
                 character.style.left = charLeft + 'px'
                 // Envoyez la position mise à jour au serveur
                 socket.send(JSON.stringify({
@@ -217,14 +216,17 @@ export function GamePlay(socket, player, mapData) {
                         direction: "Right",
                         player: player.adress,
                         name: player.playerName,
-                        position: player.positionLeft,
-                        move: true
+                        position: charLeft,
+                        move: true,
+                        map: mapData
+
                     }
                 }))
             }
         } else if (event.key === 'ArrowLeft') {
-            if (Collision(charLeft - 10, charTop, mapData) && !walls.includes(charLeft - 10) && !bricks.includes(charLeft - 10)) {
+            if (Collision(charLeft - 10, charTop, mapData)) {
                 charLeft -= 10;
+                player.positionLeft = charLeft
                 character.style.left = charLeft + 'px';
                 // Envoyez la position mise à jour au serveur
                 socket.send(JSON.stringify({
@@ -233,14 +235,16 @@ export function GamePlay(socket, player, mapData) {
                         direction: "Left",
                         player: player.adress,
                         name: player.playerName,
-                        position: player.positionLeft,
-                        move: true
+                        position: charLeft,
+                        move: true,
+                        map: mapData
                     }
                 }))
             }
         } else if (event.key === 'ArrowUp') {
-            if (Collision(charLeft, charTop - 10, mapData) && !walls.includes(charTop - 10) && !bricks.includes(charTop - 10)) {
+            if (Collision(charLeft, charTop - 10, mapData)) {
                 charTop -= 10;
+                player.positionTop = charTop
                 character.style.top = charTop + 'px';
                 // Envoyez la position mise à jour au serveur
                 socket.send(JSON.stringify({
@@ -249,14 +253,16 @@ export function GamePlay(socket, player, mapData) {
                         direction: "Up",
                         player: player.adress,
                         name: player.playerName,
-                        position: player.positionTop,
-                        move: true
+                        position: charTop,
+                        move: true,
+                        map: mapData
                     }
                 }))
             }
         } else if (event.key === 'ArrowDown') {
-            if (Collision(charLeft, charTop + 10, mapData) && !walls.includes(charTop + 10) && !bricks.includes(charTop + 10)) {
+            if (Collision(charLeft, charTop + 10, mapData)) {
                 charTop += 10;
+                player.positionTop = charTop
                 character.style.top = charTop + 'px';
                 // Envoyez la position mise à jour au serveur
                 socket.send(JSON.stringify({
@@ -265,15 +271,16 @@ export function GamePlay(socket, player, mapData) {
                         direction: "Down",
                         player: player.adress,
                         name: player.playerName,
-                        position: player.positionTop,
-                        move: true
+                        position: charTop,
+                        move: true,
+                        map: mapData
                     }
                 }))
             }
         }
         // Ajouter la logique pour déposer une bombe avec la touche Espace
         if (event.key === ' ') { // Touche Espace
-            dropBomb(character, charLeft + charWidth / 2, charTop + charHeight / 2, currentLife, player);
+            dropBomb(character, charLeft + charWidth / 2, charTop + charHeight / 2, currentLife, player, mapData);
             UpdateBricks();
             socket.send(JSON.stringify({
                 Type: "Player Dropped Bomb",
@@ -282,17 +289,17 @@ export function GamePlay(socket, player, mapData) {
                     adress: player.playerAdress,
                     x: charLeft + charWidth / 2,
                     y: charTop + charHeight / 2,
-                    currentLife: currentLife
+                    currentLife: currentLife,
+                    updateMap: mapData
                 }
             }));
         }
     });
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function dropBomb(character, x, y, currentLife,player) {
+function dropBomb(character, x, y, currentLife, player, mapData) {
     const bomb = document.createElement('div');
     bomb.classList.add('bombe');
     bomb.style.left = x + 'px';
@@ -401,17 +408,25 @@ function Collision(positionLeft, positionTop, mapData) {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function UpdateBricks(){
+function UpdateBricks() {
     brickBox = []
     document.querySelectorAll(".brick").forEach((element) => {
+        let x = element.getBoundingClientRect().x;
+        let y = element.getBoundingClientRect().y;
         let left = element.getBoundingClientRect().left;
         let right = element.getBoundingClientRect().right;
         let bottom = element.getBoundingClientRect().bottom;
         let top = element.getBoundingClientRect().top;
+
+        let gauche = x / left;
+        let haut = y / top;
+
         brickBox.push(left);
         brickBox.push(top);
         brickBox.push(bottom);
         brickBox.push(right);
     });
     console.log(brickBox);
+
+    return brickBox
 }

@@ -112,7 +112,7 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 			Bombed(data.Data)
 
 		case "GameSet":
-			StartGameplay(conn)
+			StartGameplay(conn,data.Data)
 
 		}
 	}
@@ -132,7 +132,7 @@ func Bombed(data map[string]interface{}) {
 	}
 }
 
-func StartGameplay(conn *websocket.Conn) {
+func StartGameplay(conn *websocket.Conn, data map[string]interface{}) {
 	nameAdress := map[string]interface{}{}
 
 	for k2, c2 := range activeConnections {
@@ -148,6 +148,7 @@ func StartGameplay(conn *websocket.Conn) {
 				"adress": conn.RemoteAddr().String(),
 				"name":   name,
 			},
+			"map": data["map"],
 		},
 	}
 	err := conn.WriteJSON(donnee)

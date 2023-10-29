@@ -3,7 +3,6 @@ import {
   GamePlay,
   PlayerMoved,
   Player,
-  mapData,
 
 } from "./scripts/game.js";
 
@@ -33,7 +32,7 @@ socket.onmessage = function (event) {
   ///////////////////////////////////////////////////////////////////////////////////
 
   if (dataServer.type == "Game") {
-    GameInit(mapData)
+    GameInit()
 
   }
 
@@ -41,7 +40,7 @@ socket.onmessage = function (event) {
     // GetNameAndAdress(dataServer.data.info)
     player.adress = dataServer.data.info.adress
     player.namePlayer = dataServer.data.info.name
-    GamePlay(socket,player,mapData)
+    GamePlay(socket,player,dataServer.data.map)
 
   }
 
@@ -49,7 +48,7 @@ socket.onmessage = function (event) {
 
     player.bomb = true;
     player.lives = dataServer.data.currentLife;
-    PlayerMoved(socket, player, dataServer, mapData);
+    PlayerMoved(socket, player, dataServer, dataServer.data.updateMap);
 
   }
 
@@ -57,7 +56,7 @@ socket.onmessage = function (event) {
 
     player.position = dataServer.data.dataInfo.position
 
-    PlayerMoved(socket, player, dataServer.data.dataInfo, mapData)
+    PlayerMoved(socket, player, dataServer.data.dataInfo, dataServer.data.dataInfo.map);
   }
   
 };
