@@ -88,7 +88,11 @@ export function GetNameAndAdress(activeCo) {
 
     return result
 }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+
+//// Player Moving ////
 export function PlayerMoved(socket, player, data, mapData) {
 
     let currentLife = player.lives
@@ -151,8 +155,10 @@ export function PlayerMoved(socket, player, data, mapData) {
         }
     });
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////
 
+
+//// GamePlay ////
 export function GamePlay(socket, player, mapData) {
     let currentLife = player.lives;
 
@@ -279,10 +285,10 @@ export function GamePlay(socket, player, mapData) {
         }
     });
 }
+////////////////////////
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+//// Drop Bomb ////
 function dropBomb(character, x, y, currentLife, player) {
     const bomb = document.createElement('div');
     bomb.classList.add('bombe');
@@ -328,8 +334,10 @@ function dropBomb(character, x, y, currentLife, player) {
         }, 1000); // Supprimer l'explosion après 1 seconde
     }, 2000); // 3 secondes
 }
-/////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////
 
+
+//// Reduce Life ////
 function reduceLife(currentLife, player) {
     const lifeElement = document.querySelector('.life');
     currentLife = parseInt(lifeElement.textContent);
@@ -352,8 +360,10 @@ function reduceLife(currentLife, player) {
         }
     }
 }
-/////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////
 
+
+//// Check Collision ////
 function checkCollision(element1, element2) {
     const rect1 = element1.getBoundingClientRect();
     const rect2 = element2.getBoundingClientRect();
@@ -364,7 +374,10 @@ function checkCollision(element1, element2) {
         rect1.bottom > rect2.top
     );
 }
+/////////////////////////
 
+
+//// Collision ////
 function Collision(positionLeft, positionTop, mapData) {
 
     let newRow = Math.floor(positionTop / 100);
@@ -390,4 +403,4 @@ function Collision(positionLeft, positionTop, mapData) {
         return false
     }
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////
