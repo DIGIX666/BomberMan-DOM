@@ -61,10 +61,6 @@ export class Player {
     }
 }
 
-
-
-let count = 0
-
 export function GameInit() {
     let mapData = [
         ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
@@ -123,16 +119,6 @@ export function PlayerMoved(socket, player, data, mapData) {
 
     console.log("mapData from moving:", mapData);
 
-
-    // Gérer le mouvement du personnage avec les flèches du clavier
-
-
-    // Vérifier les collisions avec les murs et les briques
-    const newRow = Math.floor(player.positionTop / 100);
-    const newCol = Math.floor(player.positionLeft / 98);
-    const bottomRow = Math.floor((player.positionTop + characterHeight) / 100);
-    const rightCol = Math.floor((player.positionLeft + characterWidth) / 98);
-
     // Vérifier si le mouvement est possible
 
     if (data.direction == "Up" && data.move) {
@@ -170,25 +156,6 @@ export function PlayerMoved(socket, player, data, mapData) {
         UpdateBricks()
         player.bomb = false
     }
-
-    // document.addEventListener('keydown', (event) => {
-
-    //     // Ajouter la logique pour déposer une bombe avec la touche Espace
-    //     if (event.key === ' ') { // Touche Espace
-    //         dropBomb(character, characterLeft + characterWidth / 2, characterTop + characterHeight / 2, currentLife, player)
-    //         UpdateBricks()
-    //         socket.send(JSON.stringify({
-    //             Type: "Player Dropped Bomb",
-    //             data: {
-    //                 name: player.playerName,
-    //                 adress: player.playerAdress,
-    //                 x: characterLeft + characterWidth / 2,
-    //                 y: characterTop + characterHeight / 2,
-    //                 currentLife: currentLife
-    //             }
-    //         }))
-    //     }
-    // });
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -197,7 +164,6 @@ export function GamePlay(socket, player, mapData) {
 
     const charX = characterBox.x;
     const charY = characterBox.y;
-
 
     document.addEventListener('keydown', (event) => {
         // const walls = wallBox.sort();
@@ -280,15 +246,15 @@ export function GamePlay(socket, player, mapData) {
         }
         // Ajouter la logique pour déposer une bombe avec la touche Espace
         if (event.key === ' ') { // Touche Espace
-            dropBomb(character, charLeft + charWidth / 2, charTop + charHeight / 2, currentLife, player, mapData);
+            dropBomb(character, charLeft + charWidth/2, charTop + charHeight/2, currentLife, player, mapData);
             UpdateBricks();
             socket.send(JSON.stringify({
                 Type: "Player Dropped Bomb",
                 data: {
                     name: player.playerName,
                     adress: player.playerAdress,
-                    x: charLeft + charWidth / 2,
-                    y: charTop + charHeight / 2,
+                    x: charLeft + charWidth/2,
+                    y: charTop + charHeight/2,
                     currentLife: currentLife,
                     updateMap: mapData
                 }
