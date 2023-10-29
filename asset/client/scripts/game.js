@@ -41,6 +41,17 @@ export class Player {
     }
 }
 
+export class Bomb {
+    constructor(positionLeft, positionTop, positionRight, positionBottom, currentLife) {
+
+        this.positionLeft = positionLeft = 0
+        this.positionTop = positionTop = 0
+        this.positionRight = positionRight = 0
+        this.positionBottom = positionBottom = 0
+        this.currentLife = currentLife = 0
+    }
+}
+
 export const mapData = [
     ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
     ['#', ' ', 'b', ' ', ' ', ' ', ' ', 'b', ' ', '#'],
@@ -133,24 +144,33 @@ export function PlayerMoved(socket, player, data, mapData) {
         }
     }
 
-    document.addEventListener('keydown', (event) => {
+    if (player.bomb) {
+        console.log("bomb dropped") 
+        console.log("bomb.x:", data.data.x)
+        console.log("bomb.y:", data.data.y)
+        dropBomb(character, data.data.x, data.data.y, currentLife, player)
+        UpdateBricks()
+        player.bomb = false
+    }
 
-        // Ajouter la logique pour déposer une bombe avec la touche Espace
-        if (event.key === ' ') { // Touche Espace
-            dropBomb(character, characterLeft + characterWidth / 2, characterTop + characterHeight / 2, currentLife, player.hitPlayer);
-            socket.send(JSON.stringify({
-                Type: "Player Dropped Bomb",
-                data: {
-                    name: playerName,
-                    adress: playerAdress,
-                    x: characterLeft + characterWidth / 2,
-                    y: characterTop + characterHeight / 2,
-                    currentLife: currentLife
+    // document.addEventListener('keydown', (event) => {
 
-                }
-            }))
-        }
-    });
+    //     // Ajouter la logique pour déposer une bombe avec la touche Espace
+    //     if (event.key === ' ') { // Touche Espace
+    //         dropBomb(character, characterLeft + characterWidth / 2, characterTop + characterHeight / 2, currentLife, player)
+    //         UpdateBricks()
+    //         socket.send(JSON.stringify({
+    //             Type: "Player Dropped Bomb",
+    //             data: {
+    //                 name: player.playerName,
+    //                 adress: player.playerAdress,
+    //                 x: characterLeft + characterWidth / 2,
+    //                 y: characterTop + characterHeight / 2,
+    //                 currentLife: currentLife
+    //             }
+    //         }))
+    //     }
+    // });
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -162,35 +182,22 @@ export function GamePlay(socket, player, mapData) {
     let charTop = characterBox.top;
     let charLeft = characterBox.left;
 
-    let brickBox = [];
-    let wallBox = [];
+    
+    //let wallBox = [];
 
-    document.querySelectorAll(".brick").forEach((element) => {
-        let x = element.getBoundingClientRect().x;
-        let y = element.getBoundingClientRect().y;
-        let left = element.getBoundingClientRect().left;
-        let right = element.getBoundingClientRect().right;
-        let bottom = element.getBoundingClientRect().bottom;
-        let top = element.getBoundingClientRect().top;
-        let gauche = x / left;
-        let haut = y / top;
-        brickBox.push(gauche);
-        brickBox.push(haut);
-        brickBox.push(bottom);
-        brickBox.push(right);
-    });
+    UpdateBricks()
 
     document.querySelectorAll(".wall").forEach((element) => {
-        let x = element.getBoundingClientRect().x;
-        let y = element.getBoundingClientRect().y;
+        // let x = element.getBoundingClientRect().x;
+        // let y = element.getBoundingClientRect().y;
         let left = element.getBoundingClientRect().left;
         let right = element.getBoundingClientRect().right;
         let bottom = element.getBoundingClientRect().bottom;
         let top = element.getBoundingClientRect().top;
-        let gauche = x / left;
-        let haut = y / top;
-        wallBox.push(gauche);
-        wallBox.push(haut);
+        // let gauche = x / left;
+        // let haut = y / top;
+        wallBox.push(left);
+        wallBox.push(top);
         wallBox.push(bottom);
         wallBox.push(right);
     });
@@ -201,8 +208,8 @@ export function GamePlay(socket, player, mapData) {
 
         if (event.key === 'ArrowRight') {
             if (Collision(charLeft + 10, charTop, mapData) && !walls.includes(charLeft + 10) && !bricks.includes(charLeft + 10)) {
-                charLeft += 10;
-                character.style.left = charLeft + 'px';
+                charLeft += 10
+                character.style.left = charLeft + 'px'
                 // Envoyez la position mise à jour au serveur
                 socket.send(JSON.stringify({
                     Type: "PlayerMoving",
@@ -266,12 +273,13 @@ export function GamePlay(socket, player, mapData) {
         }
         // Ajouter la logique pour déposer une bombe avec la touche Espace
         if (event.key === ' ') { // Touche Espace
-            dropBomb(character, charLeft + charWidth / 2, charTop + charHeight / 2, currentLife, player.hitPlayer);
+            dropBomb(character, charLeft + charWidth / 2, charTop + charHeight / 2, currentLife, player);
+            UpdateBricks();
             socket.send(JSON.stringify({
                 Type: "Player Dropped Bomb",
                 data: {
-                    name: playerName,
-                    adress: playerAdress,
+                    name: player.playerName,
+                    adress: player.playerAdress,
                     x: charLeft + charWidth / 2,
                     y: charTop + charHeight / 2,
                     currentLife: currentLife
@@ -284,7 +292,7 @@ export function GamePlay(socket, player, mapData) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function dropBomb(character, x, y, currentLife, player) {
+function dropBomb(character, x, y, currentLife,player) {
     const bomb = document.createElement('div');
     bomb.classList.add('bombe');
     bomb.style.left = x + 'px';
@@ -316,7 +324,7 @@ function dropBomb(character, x, y, currentLife, player) {
                     checkCollision(explosion, character) &&
                     !player.hitPlayer
                 ) {
-                    player.hitPlayer = true; // Marquer que le joueur a été touché
+                    player.hitPlayer = true // Marquer que le joueur a été touché
                     reduceLife(currentLife, player); // Appeler la fonction pour réduire la vie du joueur
                     console.log("vie perdu");
                 }
@@ -392,3 +400,18 @@ function Collision(positionLeft, positionTop, mapData) {
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function UpdateBricks(){
+    brickBox = []
+    document.querySelectorAll(".brick").forEach((element) => {
+        let left = element.getBoundingClientRect().left;
+        let right = element.getBoundingClientRect().right;
+        let bottom = element.getBoundingClientRect().bottom;
+        let top = element.getBoundingClientRect().top;
+        brickBox.push(left);
+        brickBox.push(top);
+        brickBox.push(bottom);
+        brickBox.push(right);
+    });
+    console.log(brickBox);
+}

@@ -45,6 +45,14 @@ socket.onmessage = function (event) {
 
   }
 
+  if (dataServer.type == "Bombed") {
+
+    player.bomb = true;
+    player.lives = dataServer.data.currentLife;
+    PlayerMoved(socket, player, dataServer, mapData);
+
+  }
+
   if (dataServer.type == "PlayerMoved") {
 
     player.position = dataServer.data.dataInfo.position

@@ -107,9 +107,27 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Player moving .....")
 			MovingPlayer(conn, data.Data)
 
+		case "Player Dropped Bomb":
+			println("Player Dropped Bomb")
+			Bombed(data.Data)
+
 		case "GameSet":
 			StartGameplay(conn)
 
+		}
+	}
+}
+
+func Bombed(data map[string]interface{}) {
+	donnee := structure.DataParam{
+		Type: "Bombed",
+		Data: data,
+	}
+	for _, c := range activeConnections {
+		
+		err := c.WriteJSON(donnee)
+		if err != nil {
+			log.Panicf("Error WriteJSON function Bombed:%v", err)
 		}
 	}
 }
