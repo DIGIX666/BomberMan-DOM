@@ -41,7 +41,7 @@ socket.onmessage = function (event) {
     // GetNameAndAdress(dataServer.data.info)
     player.adress = dataServer.data.info.adress
     player.namePlayer = dataServer.data.info.name
-    GamePlay(socket, player,mapData,)
+    GamePlay(socket,player,mapData)
 
   }
 

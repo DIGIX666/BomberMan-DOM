@@ -14,10 +14,11 @@ let docCharacter = document.querySelector(".character")
 const characterStyle = getComputedStyle(docCharacter);
 const characterLeft = parseInt(characterStyle.left.replace("px", ""));
 const characterTop = parseInt(characterStyle.top.replace("px", ""));
-const characterBottom = parseInt(characterStyle.bottom.replace("px", ""));
-const characterRight = parseInt(characterStyle.right.replace("px", ""));
+// const characterBottom = parseInt(characterStyle.bottom.replace("px", ""));
+// const characterRight = parseInt(characterStyle.right.replace("px", ""));
 
-
+let brickBox = []
+let wallBox = []
 
 const characterWidth = 10; // Largeur du personnage
 const characterHeight = 67; // Hauteur du personnage
@@ -32,8 +33,8 @@ export class Player {
         this.bombe = bombe = false
         this.positionLeft = positionLeft = characterLeft
         this.positionTop = positionTop = characterTop
-        this.positionRight = positionRight = characterRight
-        this.positionBottom = positionBottom = characterBottom
+        // this.positionRight = positionRight = characterRight
+        // this.positionBottom = positionBottom = characterBottom
         this.hitPlayer = hitPlayer = false
         this.canMove = canMove = false
 
@@ -251,42 +252,44 @@ export function GamePlay(socket, player, mapData) {
     //     })
     // })
 
-    let brickBox = []
-    let wallBox = []
+
 
     document.querySelectorAll(".brick").forEach((element) => {
 
-        let x = element.getBoundingClientRect().x
-        let y = element.getBoundingClientRect().y
+        // let x = element.getBoundingClientRect().x
+        // let y = element.getBoundingClientRect().y
         let left = element.getBoundingClientRect().left
         let right = element.getBoundingClientRect().right
         let bottom = element.getBoundingClientRect().bottom
         let top = element.getBoundingClientRect().top
 
-        let gauche = x / left
-        let haut = y / top
+        // let gauche = x / left
+        // let haut = y / top
 
-        brickBox.push(gauche)
-        brickBox.push(haut)
+        brickBox.push(left)
+        brickBox.push(top)
         brickBox.push(bottom)
         brickBox.push(right)
 
-
+        brickBox.push(element.getBoundingClientRect())
 
     })
+
     document.querySelectorAll(".wall").forEach((element) => {
-        let x = element.getBoundingClientRect().x
-        let y = element.getBoundingClientRect().y
+        // let x = element.getBoundingClientRect().x
+        // let y = element.getBoundingClientRect().y
         let left = element.getBoundingClientRect().left
         let right = element.getBoundingClientRect().right
         let bottom = element.getBoundingClientRect().bottom
         let top = element.getBoundingClientRect().top
 
-        let gauche = x / left
-        let haut = y / top
+        // let gauche = x / left
+        // let haut = y / top
 
-        wallBox.push(gauche)
-        wallBox.push(haut)
+        //wallBox.push(element.getBoundingClientRect())
+
+        wallBox.push(left)
+        wallBox.push(top)
         wallBox.push(bottom)
         wallBox.push(right)
     })
@@ -295,48 +298,50 @@ export function GamePlay(socket, player, mapData) {
     console.log("wallBox", wallBox)
 
     let i = 0
-    let j = 0
+
     document.addEventListener('keydown', (event) => {
         const walls = wallBox.sort()
         const bricks = brickBox.sort()
+        console.log("walls", walls)
+        console.log("bricks", bricks)
 
 
         if (event.key === 'ArrowRight') {
-            // i = 0
-            // j = 0
+            i = 0
 
-            // while (i < wallBox.length || j < brickBox.length) {
+            // while (i < wallBox.length || i < brickBox.length) {
 
-            //     // console.log("brickBox",brickBox)
-
-            //     if (!wallBox.includes(player.positikonRight) && !brickBox.includes(player.positikonRight)) {
+            //     if (player.positionLeft != wallBox[i].left && player.positionLeft != brickBox[i].left) {
             //         player.canMove = true
-            //         break
+            //     }else{
+            //         player.canMove = false
             //     }
             //     i++
-            //     j++
-
             // }
 
-            if (!walls.includes(player.positionLeft) || !bricks.includes(player.positionLeft)) {
-                player.canMove = true
-                // break
-            } else {
-                player.canMove = false
-            }
 
-            console.log("player.canMove right", player.canMove)
+
+            // if (!walls.includes(player.positionLeft) || !bricks.includes(player.positionLeft)) {
+            //     player.canMove = true
+            //     // break
+            // } else {
+            //     player.canMove = false
+            // }
 
 
             // if (player.canMove) {
 
-            if (player.positionRight >= walls[walls.length - 1]) {
-                player.positionRight = wallBox[walls.length - 1]
-
-                if (player.canMove) {
-                    character.style.left = player.positionLeft + 'px';
+            
+                if (!walls.includes(player.positionLeft) || !bricks.includes(player.positionLeft)) {
+                    
+                    player.positionLeft += 10
+                }else{
+                    player.positionLeft -= 5
                 }
-                // character.style.left = player.positionLeft + 'px';
+                if (Collision(player.positionLeft, player.positionTop, mapData)) {
+                    character.style.left = player.positionLeft + 'px';
+                    // character.style.left = player.positionLeft + 'px';
+                } 
                 console.log("send player right")
                 socket.send(JSON.stringify({
                     Type: "PlayerMoving",
@@ -345,77 +350,47 @@ export function GamePlay(socket, player, mapData) {
                         player: player.adress,
                         name: player.playerName,
                         position: player.positionLeft,
-                        move: player.canMove
+                        move: Collision(player.positionLeft, player.positionTop, mapData)
                     }
                 }))
-            } else {
-
-                player.positionRight += 10
-                if (player.canMove) {
-                    character.style.left = player.positionLeft + 'px';
-                }
-                // character.style.left = player.positionLeft + 'px';
-                console.log("send player right")
-                socket.send(JSON.stringify({
-                    Type: "PlayerMoving",
-                    Data: {
-                        direction: "Right",
-                        player: player.adress,
-                        name: player.playerName,
-                        position: player.positionLeft,
-                        move: player.canMove
-                    }
-                }))
-            }
+            
             // }
         }
 
         if (event.key === 'ArrowLeft') {
-            // i = 0
-            // j = 0
-            // while (i < wallBox.length || j < brickBox.length) {
+            i = 0
 
-            //     if (!wallBox.includes(player.positionLeft) && !brickBox.includes(player.positionLeft)) {
+            // while (i < wallBox.length || i < brickBox.length) {
+
+            //     if (player.positionLeft != wallBox[i].right && player.positionLeft != brickBox[i].right) {
             //         player.canMove = true
-            //         break
+
+            //     }else{
+            //         player.canMove = false
             //     }
             //     i++
-            //     j++
+
             // }
 
-            if (!walls.includes(player.positionLeft) || !bricks.includes(player.positionLeft)) {
-                player.canMove = true
-                // break
-            } else {
-                player.canMove = false
-            }
+            // if (!walls.includes(player.positionLeft) || !bricks.includes(player.positionLeft)) {
+            //     player.canMove = true
+            //     // break
+            // } else {
+            //     player.canMove = false
+            // }
 
             console.log("player.canMove left", player.canMove)
 
             // if (player.canMove) {
 
-            if (player.positionLeft <= walls[0]) {
-                player.positionLeft = wallBox[0]
-                if (player.canMove) {
-                    character.style.left = player.positionLeft + 'px';
+            
+                if (!walls.includes(player.positionLeft) || !bricks.includes(player.positionLeft)) {
+                    
+                    player.positionLeft -= 10
+                }else{
+                    player.positionLeft += 5
                 }
-
-
-                console.log("send player left")
-                socket.send(JSON.stringify({
-                    Type: "PlayerMoving",
-                    Data: {
-                        direction: "Left",
-                        player: player.adress,
-                        name: player.playerName,
-                        position: player.positionLeft,
-                        move: player.canMove
-                    }
-                }))
-
-            } else {
-                player.positionLeft -= 10
-                if (player.canMove) {
+                if (Collision(player.positionLeft, player.positionTop, mapData)) {
                     character.style.left = player.positionLeft + 'px';
                 }
                 console.log("send player left")
@@ -426,60 +401,45 @@ export function GamePlay(socket, player, mapData) {
                         player: player.adress,
                         name: player.playerName,
                         position: player.positionLeft,
-                        move: player.canMove
+                        move: Collision(player.positionLeft, player.positionTop, mapData)
                     }
                 }))
-            }
+            
             // }
         }
         if (event.key === 'ArrowUp') {
-            // i = 0
-            // j = 0
+            i = 0
+
             // while (i < wallBox.length || i < brickBox.length) {
 
-            //     if (!wallBox.includes(player.positionTop) && !brickBox.includes(player.positionTop)) {
+            //     if (player.positionTop!=wallBox[i].bottom && player.positionTop!=brickBox[i].bottom) {
             //         player.canMove = true
-            //         break
 
+
+            //     }else{
+            //         player.canMove = false
             //     }
             //     i++
-            //     j++
+
             // }
 
-            if (!walls.includes(player.positionTop) || !bricks.includes(player.positionTop)) {
-                player.canMove = true
-                // break
-            } else {
-                player.canMove = false
-            }
+            // if (!walls.includes(player.positionTop) || !bricks.includes(player.positionTop)) {
+            //     player.canMove = true
+            //     // break
+            // } else {
+            //     player.canMove = false
+            // }
 
             console.log("player.canMove up", player.canMove)
 
             // if (player.canMove) {
 
-            if (player.positionTop <= 0) {
-
-                player.positionTop = wallBox[0]
-                if (player.canMove) {
-                    character.style.top = player.positionTop + 'px';
+            
+                if (!walls.includes(player.positionTop) || !bricks.includes(player.positionTop)) {
+                    
+                    player.positionTop -= 10
                 }
-
-                
-                // character.style.top = player.positionTop + 'px';
-                console.log("send player up")
-                socket.send(JSON.stringify({
-                    Type: "PlayerMoving",
-                    Data: {
-                        direction: "Up",
-                        player: player.adress,
-                        name: player.playerName,
-                        position: player.positionTop,
-                        move: player.canMove
-                    }
-                }))
-            } else {
-                player.positionTop -= 10
-                if (player.canMove) {
+                if (Collision(player.positionLeft, player.positionTop, mapData)) {
                     character.style.top = player.positionTop + 'px';
                 }
                 console.log("send player up")
@@ -490,63 +450,49 @@ export function GamePlay(socket, player, mapData) {
                         player: player.adress,
                         name: player.playerName,
                         position: player.positionTop,
-                        move: player.canMove
+                        move: Collision(player.positionLeft, player.positionTop, mapData)
                     }
                 }))
-            }
+            
             // }
         }
 
         if (event.key === 'ArrowDown') {
-            // i = 0
-            // j = 0
+            i = 0
+
             // while (i < wallBox.length || i < brickBox.length) {
 
-            //     if (!wallBox.includes(player.positionBottom) && !brickBox.includes(player.positionBottom)) {
+            //     if (player.positionTop!=wallBox[i].top  && player.positionTop!=brickBox[i].top) {
             //         player.canMove = true
             //         break
+            //     }else{
+            //         player.canMove = false
             //     }
             //     i++
-            //     j++
+
             // }
 
-            if (!walls.includes(player.positionTop) || !bricks.includes(player.positionTop)) {
-                player.canMove = true
-                // break
-            } else {
-                player.canMove = false
-            }
+            // if (!walls.includes(player.positionTop) || !bricks.includes(player.positionTop)) {
+            //     player.canMove = true
+            //     // break
+            // } else {
+            //     player.canMove = false
+            // }
 
             console.log("player.canMove down", player.canMove)
 
             // if (player.canMove) {
 
-            if (player.positionBottom >= walls[walls.length - 1]) {
-                player.positionBottom = wallBox[walls.length - 1]
-                if (player.canMove) {
+           
 
-                    character.style.top = player.positionTop + 'px';
-
+                if (!walls.includes(player.positionTop) || !bricks.includes(player.positionTop)) {
+                    
+                    player.positionTop += 10
                 }
 
-                console.log("send player down")
-                socket.send(JSON.stringify({
-                    Type: "PlayerMoving",
-                    Data: {
-                        direction: "Down",
-                        player: player.adress,
-                        name: player.playerName,
-                        position: player.positionBottom,
-                        move: player.canMove
-                    }
-                }))
-
-            } else {
-
-                player.positionBottom += 10
-                if (player.canMove) {
+                if (Collision(player.positionLeft, player.positionTop, mapData)) {
                     character.style.top = player.positionTop + 'px';
-                }
+                } 
                 console.log("send player down")
                 socket.send(JSON.stringify({
                     Type: "PlayerMoving",
@@ -555,10 +501,11 @@ export function GamePlay(socket, player, mapData) {
                         player: player.adress,
                         name: player.playerName,
                         position: player.positionTop,
-                        move: player.canMove
+                        move: Collision(player.positionLeft, player.positionTop, mapData)
                     }
                 }))
-            }
+
+            
             // }
         }
 
