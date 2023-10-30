@@ -35,14 +35,7 @@ let count, cpt, count2 = 0
 
 export function GoRoom(dataServer, socket) {
 
-  socket.onmessage = function (event) {
-    let dataServer = JSON.parse(event.data)
-    let serverData = JSON.parse(event.data);
-    console.log("dataServer:", dataServer)
-    if (dataServer.type == "goRoom") {
-      displayRoom()
-      if (dataServer.data.name != "" && !playersIn.includes(dataServer.data.previousPlayers)) {
-    }
+
 
   let playersIn = []
 
@@ -97,62 +90,8 @@ export function GoRoom(dataServer, socket) {
 
   if (dataServer.type == "newPlayersList") {
 
-      // startTimer();
-      if (dataServer.data.name != "" && !playersIn.includes(dataServer.data.name)) {
-        playersIn.push(dataServer.data.name)
-      }
-    }
-
-    if (dataServer.type == "Chrono") {
-
-      console.log("nombre de player:", dataServer.data.nbPlayers)
-      timePassed = dataServer.data.time
-      if (dataServer.data.nbPlayers >= 2 && dataServer.data.nbPlayers <= 4) {
-
-        if (count == 0) {
-
-          timerInterval = startTimer(dataServer.data.duration)
-          console.log("duration:", dataServer.data.duration)
-          socket.send(JSON.stringify({
-            type: "timerID",
-            data: {
-              playerAdress: clientAdress,
-              playerName: clientPlayer,
-              ID: timerInterval,
-            }
-          }))
-          count++
-        }
-        // startTimer(40)
-      }
-      // console.log("time passed:", dataServer.data.time)
-      if (dataServer.data.readyGame) {
-        // console.log("NB PLAYERS in timesUP :", nbPlayers)
-        console.log("READY GAME")
-        // timePassed = dataServer.data.time
-      
-        clearInterval(dataServer.data.ID)
-        console.log("CLEAR ID:", dataServer.data.ID)
-        console.log("IN Ready game duration:", dataServer.data.duration)
-        startTimerGame(dataServer.data.duration)
-
-      }
-    }
-    if (dataServer.type === "Game") {
-      console.log("GO TO GAME")
-      masquerElementsParClasse('room')
-      displayGame()
-    }
-    // Vérifiez si le type de données est "newPlayersList"
-    if (serverData.type === "newPlayersList") {
-      var lastPlayerFromServer = serverData.data.lastPlayer;
-
-      // Ajoutez le pseudonyme au tableau des pseudonymes des joueurs
-      playerNames.push(lastPlayerFromServer);
-    }
-    // Mettez à jour les éléments HTML correspondants avec les pseudonymes
-    for (var i = 0; i < playerNames.length; i++) {
-      updatePlayerName(i, playerNames[i]);
+    if (!playersIn.includes(dataServer.data.lastPlayer)) {
+      playersIn.push(dataServer.data.lastPlayer)
     }
   }
 
@@ -218,9 +157,8 @@ export function GoRoom(dataServer, socket) {
   if (dataServer.type == "StopTimerGame") {
     clearInterval(IDInterval)
   }
-  }
-}
 
+}
 
 function onTimesUp(timerInterval) {
   setTimeout(() => {
@@ -239,20 +177,10 @@ export function startTimer(timeLimit) {
 
     if (timeLeft == 0) {
       clearInterval(timerInterval)
-      displayGame()
-        // Récupérez les pseudos des joueurs de la section "Room"
-    const player1Name = document.getElementById("player1").textContent;
-    const player2Name = document.getElementById("player2").textContent;
-    const player3Name = document.getElementById("player3").textContent;
-    const player4Name = document.getElementById("player4").textContent;
-
-    console.log(player1Name);
-    console.log(player2Name);
-    // Injectez les pseudos récupérés dans les éléments de la section "Game"
-    document.getElementById("player1Input").textContent = player1Name;
-    document.getElementById("player2Input").textContent = player2Name;
-    document.getElementById("player3Input").textContent = player3Name;
-    document.getElementById("player4Input").textContent = player4Name;
+      socket.send(JSON.stringify({
+        Type: "roomChronoStop",
+        Data: null,
+      }))
     }
     console.log("time Left:", timeLeft)
 
@@ -329,14 +257,4 @@ export function setCircleDasharray(timeLimit) {
   document
     .getElementById("base-timer-path-remaining")
     .setAttribute("stroke-dasharray", circleDasharray);
-}
-
-
-
-// Fonction pour mettre à jour l'élément HTML avec un pseudonyme en fonction de l'index
-function updatePlayerName(index, name) {
-  var playerNameElement = document.getElementById("player" + (index + 1));
-  if (playerNameElement) {
-    playerNameElement.textContent = name;
-  }
 }
