@@ -18,8 +18,8 @@ bomberMan.appendChild(character1);
 // const charecterBox4 = character4.getBoundingClientRect();
 const characterWidth = 10; // Largeur du personnage
 const characterHeight = 67; // Hauteur du personnage
-// const charWidth = characterWidth;
-// const charHeight = characterHeight;
+const charWidth = characterWidth;
+const charHeight = characterHeight;
 // let charTop1 = characterBox1.top;
 // let charLeft1 = characterBox1.left;
 // let charTop2 = charecterBox2.top;
@@ -77,8 +77,8 @@ export class Player {
         this.direction = direction = ""
         this.lives = lives = 3
         this.bombe = bombe = false
-        this.positionLeft = positionLeft = 
-        this.positionTop = positionTop
+        this.positionLeft = positionLeft = 0
+        this.positionTop = positionTop = 0
         this.hitPlayer = hitPlayer = false
         this.canMove = canMove = false
 
@@ -146,11 +146,13 @@ export function GetNameAndAdress(activeCo) {
     return result
 }
 
-export function PlayerMoved(socket, player, data, mapData,i) {
+export function PlayerMoved(socket, player, data, mapData) {
 
     let currentLife = player.lives
     let playerName = player.namePlayer
-    let character = document.querySelector(".character" + ((i+1).toString()))
+    console.log("data.who:", data.who)
+    let character = document.querySelector(".character" + ((data.who+1).toString()))
+    console.log("character:", character);
     let charLeft = character.getBoundingClientRect().left;
     let charTop = character.getBoundingClientRect().top;
 
@@ -160,36 +162,43 @@ export function PlayerMoved(socket, player, data, mapData,i) {
     // Vérifier si le mouvement est possible
 
     if (data.direction == "Up" && data.move) {
-        if (Collision(player.positionLeft, data.position - 10, mapData)) {
-            player.positionTop = data.position - 10;
-
-            character.style.top = player.positionTop + 'px';
+        if (Collision(charLeft, data.position - 10, mapData)) {
+            // player.positionTop = data.position - 10;
+            // character.style.top = player.positionTop + 'px';
+            charTop  = data.position - 10;
+            character.style.top = charTop + 'px';
         }
 
     } else if (data.direction == "Down" && data.move) {
-        if (Collision(player.positionLeft, data.position + 10, mapData)) {
-            player.positionTop = data.position + 10;
-            character.style.top = player.positionTop + 'px';
+        if (Collision(charLeft, data.position + 10, mapData)) {
+            // player.positionTop = data.position + 10;
+            // character.style.top = player.positionTop + 'px';
+            charTop  = data.position + 10;
+            character.style.top = charTop + 'px';
         }
 
 
     } else if (data.direction == "Left" && data.move) {
-        if (Collision(data.position - 10, player.positionTop, mapData)) {
-            player.positionLeft = data.position - 10;
-            character.style.left = player.positionLeft + 'px';
+        if (Collision(data.position - 10, charTop, mapData)) {
+            // player.positionLeft = data.position - 10;
+            // character.style.left = player.positionLeft + 'px';
+            charLeft  = data.position - 10;
+            character.style.left = charLeft + 'px';
         }
 
 
     } else if (data.direction == "Right" && data.move) {
-        if (Collision(data.position + 10, player.positionTop, mapData)) {
-            player.positionLeft = data.position + 10;
-            character.style.left = player.positionLeft + 'px';
+        if (Collision(data.position + 10, charTop, mapData)) {
+            // player.positionLeft = data.position + 10;
+            // character.style.left = player.positionLeft + 'px';
+            charLeft  = data.position + 10;
+            character.style.left = charLeft + 'px';
         }
     }
 
     if (player.bomb) {
         
-        dropBomb(character, data.data.x, data.data.y, currentLife, player, mapData)
+        dropBomb(character, data.x, data.y, currentLife, player, mapData)
         UpdateBricks()
         player.bomb = false
     }
@@ -203,10 +212,8 @@ export function GamePlay(socket, player, mapData,i) {
     let charLeft = character.getBoundingClientRect().left;
     let charTop = character.getBoundingClientRect().top;
 
-
     document.addEventListener('keydown', (event) => {
-        // const walls = wallBox.sort();
-        // const bricks = brickBox.sort();
+        // Vérifier si le mouvement est possible
         UpdateBricks()
 
         if (event.key === 'ArrowRight') {
@@ -223,7 +230,8 @@ export function GamePlay(socket, player, mapData,i) {
                         name: player.playerName,
                         position: charLeft,
                         move: true,
-                        map: mapData
+                        map: mapData,
+                        who: i
 
                     }
                 }))
@@ -242,7 +250,8 @@ export function GamePlay(socket, player, mapData,i) {
                         name: player.playerName,
                         position: charLeft,
                         move: true,
-                        map: mapData
+                        map: mapData,
+                        who: i
                     }
                 }))
             }
@@ -260,7 +269,8 @@ export function GamePlay(socket, player, mapData,i) {
                         name: player.playerName,
                         position: charTop,
                         move: true,
-                        map: mapData
+                        map: mapData,
+                        who: i
                     }
                 }))
             }
@@ -278,7 +288,8 @@ export function GamePlay(socket, player, mapData,i) {
                         name: player.playerName,
                         position: charTop,
                         move: true,
-                        map: mapData
+                        map: mapData,
+                        who: i
                     }
                 }))
             }
@@ -430,7 +441,6 @@ function UpdateBricks() {
         brickBox.push(bottom);
         brickBox.push(right);
     });
-    console.log(brickBox);
 
     return brickBox
 }
