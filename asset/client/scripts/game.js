@@ -1,30 +1,55 @@
 import { socket } from "../connexion.js";
 
 const bomberMan = document.querySelector('.game');
-const character = document.createElement('div');
+const character1 = document.createElement('div');
 const character2 = document.createElement('div');
 const character3 = document.createElement('div');
 const character4 = document.createElement('div');
 
-character.classList.add('character');
+character1.classList.add('character1');
 character2.classList.add('character2');
 character3.classList.add('character3');
 character4.classList.add('character4');
-bomberMan.appendChild(character);
+bomberMan.appendChild(character1);
 
-const characterBox = character.getBoundingClientRect();
+// const characterBox1 = character1.getBoundingClientRect();
+// const charecterBox2 = character2.getBoundingClientRect();
+// const charecterBox3 = character3.getBoundingClientRect();
+// const charecterBox4 = character4.getBoundingClientRect();
 const characterWidth = 10; // Largeur du personnage
 const characterHeight = 67; // Hauteur du personnage
-const charWidth = characterWidth;
-const charHeight = characterHeight;
-let charTop = characterBox.top;
-let charLeft = characterBox.left;
+// const charWidth = characterWidth;
+// const charHeight = characterHeight;
+// let charTop1 = characterBox1.top;
+// let charLeft1 = characterBox1.left;
+// let charTop2 = charecterBox2.top;
+// let charLeft2 = charecterBox2.left;
+// let charTop3 = charecterBox3.top;
+// let charLeft3 = charecterBox3.left;
+// let charTop4 = charecterBox4.top;
+// let charLeft4 = charecterBox4.left;
 
-let docCharacter = document.querySelector(".character")
 
-const characterStyle = getComputedStyle(docCharacter);
-const characterLeft = parseInt(characterStyle.left.replace("px", ""));
-const characterTop = parseInt(characterStyle.top.replace("px", ""));
+// let docCharacter1 = document.querySelector(".character1")
+// let docCharacter2 = document.querySelector(".character2")
+// let docCharacter3 = document.querySelector(".character3")
+// let docCharacter4 = document.querySelector(".character4")
+
+
+// const characterStyle1 = getComputedStyle(docCharacter1);
+// const characterLeft1 = parseInt(characterStyle1.left.replace("px", ""));
+// const characterTop1 = parseInt(characterStyle1.top.replace("px", ""));
+
+// const characterStyle2 = getComputedStyle(docCharacter2);
+// const characterLeft2 = parseInt(characterStyle2.left.replace("px", ""));
+// const characterTop2 = parseInt(characterStyle2.top.replace("px", ""));
+// const characterStyle3 = getComputedStyle(docCharacter3);
+// const characterLeft3 = parseInt(characterStyle3.left.replace("px", ""));
+// const characterTop3 = parseInt(characterStyle3.top.replace("px", ""));
+// const characterStyle4 = getComputedStyle(docCharacter4);
+// const characterLeft4 = parseInt(characterStyle4.left.replace("px", ""));
+// const characterTop4 = parseInt(characterStyle4.top.replace("px", ""));
+
 
 let brickBox = []
 let wallBox = []
@@ -45,17 +70,15 @@ document.querySelectorAll(".wall").forEach((element) => {
 
 
 export class Player {
-    constructor(namePlayer, adress, direction, lives, bombe, positionLeft, positionRight, positionBottom, positionTop, hitPlayer, canMove) {
+    constructor(namePlayer, adress, direction, lives, bombe, positionLeft, positionTop, hitPlayer, canMove) {
 
         this.namePlayer = namePlayer = ""
         this.adress = adress = ""
         this.direction = direction = ""
         this.lives = lives = 3
         this.bombe = bombe = false
-        this.positionLeft = positionLeft = characterLeft
-        this.positionTop = positionTop = characterTop
-        // this.positionRight = positionRight = characterRight
-        // this.positionBottom = positionBottom = characterBottom
+        this.positionLeft = positionLeft = 
+        this.positionTop = positionTop
         this.hitPlayer = hitPlayer = false
         this.canMove = canMove = false
 
@@ -104,7 +127,6 @@ export function GameInit(players) {
         bomberMan.appendChild(character4);
     }
 
-
     //Send to server that the Initialization it's done
     socket.send(JSON.stringify({
         Type: "GameSet",
@@ -124,14 +146,15 @@ export function GetNameAndAdress(activeCo) {
     return result
 }
 
-export function PlayerMoved(socket, player, data, mapData) {
+export function PlayerMoved(socket, player, data, mapData,i) {
 
     let currentLife = player.lives
     let playerName = player.namePlayer
-
+    let character = document.querySelector(".character" + ((i+1).toString()))
+    let charLeft = character.getBoundingClientRect().left;
+    let charTop = character.getBoundingClientRect().top;
 
     console.log("data from moving:", data);
-
     console.log("mapData from moving:", mapData);
 
     // Vérifier si le mouvement est possible
@@ -139,9 +162,9 @@ export function PlayerMoved(socket, player, data, mapData) {
     if (data.direction == "Up" && data.move) {
         if (Collision(player.positionLeft, data.position - 10, mapData)) {
             player.positionTop = data.position - 10;
+
             character.style.top = player.positionTop + 'px';
         }
-
 
     } else if (data.direction == "Down" && data.move) {
         if (Collision(player.positionLeft, data.position + 10, mapData)) {
@@ -173,9 +196,12 @@ export function PlayerMoved(socket, player, data, mapData) {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export function GamePlay(socket, player, mapData) {
+export function GamePlay(socket, player, mapData,i) {
     let currentLife = player.lives;
 
+    let character = document.querySelector(".character" + ((i+1).toString()))
+    let charLeft = character.getBoundingClientRect().left;
+    let charTop = character.getBoundingClientRect().top;
 
 
     document.addEventListener('keydown', (event) => {
@@ -275,7 +301,6 @@ export function GamePlay(socket, player, mapData) {
         }
     });
 }
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function dropBomb(character, x, y, currentLife, player, mapData) {

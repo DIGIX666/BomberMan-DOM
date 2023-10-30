@@ -112,7 +112,7 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 			Bombed(data.Data)
 
 		case "GameSet":
-			StartGameplay(conn,data.Data)
+			StartGameplay(conn, data.Data)
 
 		}
 	}
@@ -124,7 +124,7 @@ func Bombed(data map[string]interface{}) {
 		Data: data,
 	}
 	for _, c := range activeConnections {
-		
+
 		err := c.WriteJSON(donnee)
 		if err != nil {
 			log.Panicf("Error WriteJSON function Bombed:%v", err)
@@ -411,7 +411,7 @@ func goGame(conn *websocket.Conn) {
 		Type: "Game",
 		Data: map[string]interface{}{
 			"players": userDB.PlayersTab(),
-			
+
 		},
 	}
 
@@ -420,6 +420,19 @@ func goGame(conn *websocket.Conn) {
 		fmt.Println("Error in WriteJSON in goGame:")
 		log.Fatal(err)
 	}
+
+	joueurs := userDB.PlayersTab()
+
+	for i, v := range joueurs {
+		activeConnections[v].WriteJSON(structure.DataParam{
+			Type: "Attribution",
+			Data: map[string]interface{}{
+				"indice":  i,
+				"adress":  activeConnections[v].RemoteAddr().String(),
+			},
+		})
+	}
+
 	// for _, c := range activeConnections {
 	// 	err := c.WriteJSON(donnee)
 	// 	if err != nil {

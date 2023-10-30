@@ -15,6 +15,9 @@ let socket = new WebSocket("ws://localhost:8080/ws")
 
 let player = new Player()
 
+let indice = 0
+
+
 
 socket.onopen = function (_event) {
   console.log('Connexion WebSocket établie !');
@@ -31,16 +34,19 @@ socket.onmessage = function (event) {
 
   ///////////////////////////////////////////////////////////////////////////////////
 
-  if (dataServer.type == "Game") {
-    GameInit(dataServer.data.players)
+  if (dataServer.type == "Attribution") {
+    indice = dataServer.data.indice
 
   }
 
+  if (dataServer.type == "Game") {
+    GameInit(dataServer.data.players)
+  }
+
   if (dataServer.type == "Play") {
-    // GetNameAndAdress(dataServer.data.info)
     player.adress = dataServer.data.info.adress
     player.namePlayer = dataServer.data.info.name
-    GamePlay(socket,player,dataServer.data.map)
+    GamePlay(socket, player, dataServer.data.map, indice)
 
   }
 
@@ -48,7 +54,7 @@ socket.onmessage = function (event) {
 
     player.bomb = true;
     player.lives = dataServer.data.currentLife;
-    PlayerMoved(socket, player, dataServer, dataServer.data.updateMap);
+    PlayerMoved(socket, player, dataServer, dataServer.data.updateMap, indice);
 
   }
 
@@ -56,9 +62,9 @@ socket.onmessage = function (event) {
 
     player.position = dataServer.data.dataInfo.position
 
-    PlayerMoved(socket, player, dataServer.data.dataInfo, dataServer.data.dataInfo.map);
+    PlayerMoved(socket, player, dataServer.data.dataInfo, dataServer.data.dataInfo.map, indice);
   }
-  
+
 };
 
 socket.onclose = function (_event) {
