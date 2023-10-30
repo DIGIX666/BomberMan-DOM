@@ -110,6 +110,9 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 		case "GameSet":
 			StartGameplay(conn)
 
+		case "Bomb":
+			fmt.Println("DropBomb.....")
+			DropBomb(conn, data.Data)
 		}
 	}
 }
@@ -150,6 +153,22 @@ func MovingPlayer(conn *websocket.Conn, data map[string]interface{}) {
 		err := c.WriteJSON(data2Client)
 		if err != nil {
 			log.Panicf("Error WriteJson function MovingPlayer:%v\n", err)
+		}
+	}
+}
+
+func DropBomb(conn *websocket.Conn, data map[string]interface{}) {
+	data2Client := structure.DataParam{
+		Type: "dropBomb",
+		Data: map[string]interface{}{
+			"dataInfo": data,
+		},
+	}
+
+	for _, c := range activeConnections {
+		err := c.WriteJSON(data2Client)
+		if err != nil {
+			log.Panicf("Error WriteJson function DropBomb:%v\n", err)
 		}
 	}
 }

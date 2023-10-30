@@ -4,6 +4,7 @@ import {
   PlayerMoved,
   Player,
   mapData,
+  dropBomb,
 
 } from "./scripts/game.js";
 
@@ -52,6 +53,11 @@ socket.onmessage = function (event) {
     PlayerMoved(socket, player, dataServer.data.dataInfo, mapData)
   }
   
+  if (dataServer.type == "dropBomb") {
+    player.position = dataServer.data.dataInfo.position
+
+    dropBomb(socket, player, dataServer.data.dataInfo, mapData)
+  }
 };
 
 socket.onclose = function (_event) {
