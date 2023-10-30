@@ -32,7 +32,7 @@ socket.onmessage = function (event) {
   ///////////////////////////////////////////////////////////////////////////////////
 
   if (dataServer.type == "Game") {
-    GameInit()
+    GameInit(dataServer.data.players)
 
   }
 

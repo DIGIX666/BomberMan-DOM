@@ -1,10 +1,15 @@
 import { socket } from "../connexion.js";
 
-
 const bomberMan = document.querySelector('.game');
 const character = document.createElement('div');
+const character2 = document.createElement('div');
+const character3 = document.createElement('div');
+const character4 = document.createElement('div');
 
 character.classList.add('character');
+character2.classList.add('character2');
+character3.classList.add('character3');
+character4.classList.add('character4');
 bomberMan.appendChild(character);
 
 const characterBox = character.getBoundingClientRect();
@@ -20,21 +25,17 @@ let docCharacter = document.querySelector(".character")
 const characterStyle = getComputedStyle(docCharacter);
 const characterLeft = parseInt(characterStyle.left.replace("px", ""));
 const characterTop = parseInt(characterStyle.top.replace("px", ""));
-// const characterBottom = parseInt(characterStyle.bottom.replace("px", ""));
-// const characterRight = parseInt(characterStyle.right.replace("px", ""));
 
 let brickBox = []
 let wallBox = []
 
 document.querySelectorAll(".wall").forEach((element) => {
-    // let x = element.getBoundingClientRect().x;
-    // let y = element.getBoundingClientRect().y;
+    
     let left = element.getBoundingClientRect().left;
     let right = element.getBoundingClientRect().right;
     let bottom = element.getBoundingClientRect().bottom;
     let top = element.getBoundingClientRect().top;
-    // let gauche = x / left;
-    // let haut = y / top;
+    
     wallBox.push(left);
     wallBox.push(top);
     wallBox.push(bottom);
@@ -61,7 +62,7 @@ export class Player {
     }
 }
 
-export function GameInit() {
+export function GameInit(players) {
     let mapData = [
         ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
         ['#', ' ', 'b', ' ', ' ', ' ', ' ', 'b', ' ', '#'],
@@ -89,6 +90,20 @@ export function GameInit() {
             bomberMan.appendChild(cell);
         }
     }
+
+    //Ajout des joueurs
+
+    if(players.length == 2){
+        bomberMan.appendChild(character2);
+    }else if(players.length == 3){
+        bomberMan.appendChild(character2);
+        bomberMan.appendChild(character3);
+    }else if(players.length == 4){
+        bomberMan.appendChild(character2);
+        bomberMan.appendChild(character3);
+        bomberMan.appendChild(character4);
+    }
+
 
     //Send to server that the Initialization it's done
     socket.send(JSON.stringify({
@@ -147,7 +162,6 @@ export function PlayerMoved(socket, player, data, mapData) {
             player.positionLeft = data.position + 10;
             character.style.left = player.positionLeft + 'px';
         }
-
     }
 
     if (player.bomb) {
@@ -162,8 +176,7 @@ export function PlayerMoved(socket, player, data, mapData) {
 export function GamePlay(socket, player, mapData) {
     let currentLife = player.lives;
 
-    const charX = characterBox.x;
-    const charY = characterBox.y;
+
 
     document.addEventListener('keydown', (event) => {
         // const walls = wallBox.sort();
@@ -290,7 +303,7 @@ function dropBomb(character, x, y, currentLife, player, mapData) {
                 const brickRow = parseInt(brick.getAttribute('data-row'));
                 const brickCol = parseInt(brick.getAttribute('data-col'));
                 brick.style.visibility = 'hidden'; // Cacher la brique visuellement
-                brick.classList.remove('brick'); // Retirer la classe "brick"
+                brick.classList.remove('brick');  // Retirer la classe "brick"
 
                 mapData[brickRow][brickCol] = ' '; // Mettre à jour le modèle de données
                 if (

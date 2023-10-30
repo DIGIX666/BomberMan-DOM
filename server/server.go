@@ -409,7 +409,10 @@ func goGame(conn *websocket.Conn) {
 
 	donnee := structure.DataParam{
 		Type: "Game",
-		Data: nil,
+		Data: map[string]interface{}{
+			"players": userDB.PlayersTab(),
+			
+		},
 	}
 
 	err := conn.WriteJSON(donnee)
