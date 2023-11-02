@@ -1,67 +1,79 @@
 import { socket } from "../connexion.js";
 
-
 const bomberMan = document.querySelector('.game');
-const character = document.createElement('div');
+const character1 = document.createElement('div');
+const character2 = document.createElement('div');
+const character3 = document.createElement('div');
+const character4 = document.createElement('div');
 
-character.classList.add('character');
-bomberMan.appendChild(character);
+character1.classList.add('character1');
+character2.classList.add('character2');
+character3.classList.add('character3');
+character4.classList.add('character4');
+bomberMan.appendChild(character1);
 
-const characterBox = character.getBoundingClientRect();
+// const characterBox1 = character1.getBoundingClientRect();
+// const charecterBox2 = character2.getBoundingClientRect();
+// const charecterBox3 = character3.getBoundingClientRect();
+// const charecterBox4 = character4.getBoundingClientRect();
 const characterWidth = 10; // Largeur du personnage
 const characterHeight = 67; // Hauteur du personnage
 const charWidth = characterWidth;
 const charHeight = characterHeight;
-let charTop = characterBox.top;
-let charLeft = characterBox.left;
+// let charTop1 = characterBox1.top;
+// let charLeft1 = characterBox1.left;
+// let charTop2 = charecterBox2.top;
+// let charLeft2 = charecterBox2.left;
+// let charTop3 = charecterBox3.top;
+// let charLeft3 = charecterBox3.left;
+// let charTop4 = charecterBox4.top;
+// let charLeft4 = charecterBox4.left;
 
-let docCharacter = document.querySelector(".character")
 
-const characterStyle = getComputedStyle(docCharacter);
-const characterLeft = parseInt(characterStyle.left.replace("px", ""));
-const characterTop = parseInt(characterStyle.top.replace("px", ""));
-// const characterBottom = parseInt(characterStyle.bottom.replace("px", ""));
-// const characterRight = parseInt(characterStyle.right.replace("px", ""));
+// let docCharacter1 = document.querySelector(".character1")
+// let docCharacter2 = document.querySelector(".character2")
+// let docCharacter3 = document.querySelector(".character3")
+// let docCharacter4 = document.querySelector(".character4")
+
+
+// const characterStyle1 = getComputedStyle(docCharacter1);
+// const characterLeft1 = parseInt(characterStyle1.left.replace("px", ""));
+// const characterTop1 = parseInt(characterStyle1.top.replace("px", ""));
+
+// const characterStyle2 = getComputedStyle(docCharacter2);
+// const characterLeft2 = parseInt(characterStyle2.left.replace("px", ""));
+// const characterTop2 = parseInt(characterStyle2.top.replace("px", ""));
+// const characterStyle3 = getComputedStyle(docCharacter3);
+// const characterLeft3 = parseInt(characterStyle3.left.replace("px", ""));
+// const characterTop3 = parseInt(characterStyle3.top.replace("px", ""));
+// const characterStyle4 = getComputedStyle(docCharacter4);
+// const characterLeft4 = parseInt(characterStyle4.left.replace("px", ""));
+// const characterTop4 = parseInt(characterStyle4.top.replace("px", ""));
+
+
 
 let brickBox = []
 let wallBox = []
 
+let character = null
+
 document.querySelectorAll(".wall").forEach((element) => {
-    // let x = element.getBoundingClientRect().x;
-    // let y = element.getBoundingClientRect().y;
+
     let left = element.getBoundingClientRect().left;
     let right = element.getBoundingClientRect().right;
     let bottom = element.getBoundingClientRect().bottom;
     let top = element.getBoundingClientRect().top;
-    // let gauche = x / left;
-    // let haut = y / top;
+
     wallBox.push(left);
     wallBox.push(top);
     wallBox.push(bottom);
     wallBox.push(right);
 });
 
+let charLeft = 0
+let charTop = 0
 
-
-export class Player {
-    constructor(namePlayer, adress, direction, lives, bombe, positionLeft, positionRight, positionBottom, positionTop, hitPlayer, canMove) {
-
-        this.namePlayer = namePlayer = ""
-        this.adress = adress = ""
-        this.direction = direction = ""
-        this.lives = lives = 3
-        this.bombe = bombe = false
-        this.positionLeft = positionLeft = characterLeft
-        this.positionTop = positionTop = characterTop
-        // this.positionRight = positionRight = characterRight
-        // this.positionBottom = positionBottom = characterBottom
-        this.hitPlayer = hitPlayer = false
-        this.canMove = canMove = false
-
-    }
-}
-
-export function GameInit() {
+export function GameInit(players, i) {
     let mapData = [
         ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
         ['#', ' ', 'b', ' ', ' ', ' ', ' ', 'b', ' ', '#'],
@@ -90,6 +102,30 @@ export function GameInit() {
         }
     }
 
+
+    //Ajout des joueurs
+
+    if (players.length == 2) {
+        bomberMan.appendChild(character2);
+    } else if (players.length == 3) {
+        bomberMan.appendChild(character2);
+        bomberMan.appendChild(character3);
+    } else if (players.length == 4) {
+        bomberMan.appendChild(character2);
+        bomberMan.appendChild(character3);
+        bomberMan.appendChild(character4);
+    }
+
+    character = document.querySelector(".character" + ((i + 1).toString()))
+    console.log("indice dans GamePlay:", i)
+
+    let docCharacter = getComputedStyle(character)
+
+    charLeft = parseInt(docCharacter.left.replace("px", ""));
+    charTop = parseInt(docCharacter.top.replace("px", ""));
+
+    //  charLeft = character.getBoundingClientRect().left
+    //  charTop = character.getBoundingClientRect().top
     //Send to server that the Initialization it's done
     socket.send(JSON.stringify({
         Type: "GameSet",
@@ -117,67 +153,94 @@ export function PlayerMoved(socket, player, data, mapData) {
 
     let currentLife = player.lives
     let playerName = player.namePlayer
-
+    console.log("dataServer:", data.who)
+    console.log("data.who:", data.who)
+    character = document.querySelector(".character" + ((data.who + 1).toString()))
+    // console.log("character:", character);
+    let docCharacter = getComputedStyle(character);
+    
+    let left = parseInt(docCharacter.left.replace("px", ""));
+    let top = parseInt(docCharacter.top.replace("px", ""));
 
     console.log("data from moving:", data);
-
     console.log("mapData from moving:", mapData);
 
     // Vérifier si le mouvement est possible
-
     if (data.direction == "Up" && data.move) {
-        if (Collision(player.positionLeft, data.position - 10, mapData)) {
-            player.positionTop = data.position - 10;
-            character.style.top = player.positionTop + 'px';
+        if (Collision(left, data.position - 10, mapData)) {
+            // player.positionTop = data.position - 10;
+            // character.style.top = player.positionTop + 'px';
+            top = data.position - 10;
+            character.style.top = top + 'px';
         }
-
-
-    } else if (data.direction == "Down" && data.move) {
-        if (Collision(player.positionLeft, data.position + 10, mapData)) {
-            player.positionTop = data.position + 10;
-            character.style.top = player.positionTop + 'px';
-        }
-
-
-    } else if (data.direction == "Left" && data.move) {
-        if (Collision(data.position - 10, player.positionTop, mapData)) {
-            player.positionLeft = data.position - 10;
-            character.style.left = player.positionLeft + 'px';
-        }
-
-
-    } else if (data.direction == "Right" && data.move) {
-        if (Collision(data.position + 10, player.positionTop, mapData)) {
-            player.positionLeft = data.position + 10;
-            character.style.left = player.positionLeft + 'px';
+    }
+    if (data.direction == "Down" && data.move) {
+        if (Collision(left, data.position + 10, mapData)) {
+            // player.positionTop = data.position + 10;
+            // character.style.top = player.positionTop + 'px';
+            top = data.position + 10;
+            character.style.top = top + 'px';
         }
 
     }
 
-    if (player.bomb) {
-        
-        dropBomb(character, data.data.x, data.data.y, currentLife, player, mapData)
+    if (data.direction == "Left" && data.move) {
+        if (Collision(data.position - 10, top, mapData)) {
+            // player.positionLeft = data.position - 10;
+            // character.style.left = player.positionLeft + 'px';
+            left = data.position - 10;
+            character.style.left = left + 'px';
+        }
+    }
+
+    if (data.direction == "Right" && data.move) {
+        if (Collision(data.position + 10, top, mapData)) {
+            // player.positionLeft = data.position + 10;
+            // character.style.left = player.positionLeft + 'px';
+            left = data.position + 10;
+            character.style.left = left + 'px';
+        }
+    }
+
+    console.log("character before bomb ws:", character);
+
+    if (player.bomb && character != null) {
+
+        dropBomb(character, data.x, data.y, currentLife, player, mapData)
         UpdateBricks()
         player.bomb = false
     }
 }
 //////////////////////////////////////
 
-
-
-////////// Game Play //////////////
-export function GamePlay(socket, player, mapData) {
+export function GamePlay(socket, player, mapData, i) {
     let currentLife = player.lives;
 
-    const charX = characterBox.x;
-    const charY = characterBox.y;
 
     document.addEventListener('keydown', (event) => {
-        // const walls = wallBox.sort();
-        // const bricks = brickBox.sort();
+
+        // Vérifier si le mouvement est possible
         UpdateBricks()
+        UpdatePlayers()
+
+        character = document.querySelector(".character" + ((i + 1).toString()))
+
+        let docCharacter = getComputedStyle(character);
+
+        charLeft = parseInt(docCharacter.left.replace("px", ""));
+        charTop = parseInt(docCharacter.top.replace("px", ""));
+
+        // charLeft = getComputedStyle(character).left.replace("px", "");
+        // charTop = getComputedStyle(character).top.replace("px", "");
+        // let charLeft = character.getBoundingClientRect().left
+        // let charTop = character.getBoundingClientRect().top
+
 
         if (event.key === 'ArrowRight') {
+            console.log("charLeft:", charLeft)
+            console.log("charTop:", charTop)
+            console.log("character:", character)
+            console.log("Right")
             if (Collision(charLeft + 10, charTop, mapData)) {
                 charLeft += 10
                 player.positionLeft = charLeft
@@ -191,14 +254,18 @@ export function GamePlay(socket, player, mapData) {
                         name: player.playerName,
                         position: charLeft,
                         move: true,
-                        map: mapData
-
+                        map: mapData,
+                        who: i
                     }
                 }))
             }
         } else if (event.key === 'ArrowLeft') {
+            console.log("Left")
+            console.log("charLeft:", charLeft);
+            console.log("charTop:", charTop);
+            console.log("character:", character)
             if (Collision(charLeft - 10, charTop, mapData)) {
-                charLeft -= 10;
+                charLeft -= 10
                 player.positionLeft = charLeft
                 character.style.left = charLeft + 'px';
                 // Envoyez la position mise à jour au serveur
@@ -210,11 +277,16 @@ export function GamePlay(socket, player, mapData) {
                         name: player.playerName,
                         position: charLeft,
                         move: true,
-                        map: mapData
+                        map: mapData,
+                        who: i
                     }
                 }))
             }
         } else if (event.key === 'ArrowUp') {
+            console.log("Up")
+            console.log("charLeft:", charLeft);
+            console.log("charTop:", charTop);
+            console.log("character:", character)
             if (Collision(charLeft, charTop - 10, mapData)) {
                 charTop -= 10;
                 player.positionTop = charTop
@@ -228,11 +300,16 @@ export function GamePlay(socket, player, mapData) {
                         name: player.playerName,
                         position: charTop,
                         move: true,
-                        map: mapData
+                        map: mapData,
+                        who: i
                     }
                 }))
             }
         } else if (event.key === 'ArrowDown') {
+            console.log("Down")
+            console.log("charLeft:", charLeft);
+            console.log("charTop:", charTop);
+            console.log("character:", character)
             if (Collision(charLeft, charTop + 10, mapData)) {
                 charTop += 10;
                 player.positionTop = charTop
@@ -246,31 +323,33 @@ export function GamePlay(socket, player, mapData) {
                         name: player.playerName,
                         position: charTop,
                         move: true,
-                        map: mapData
+                        map: mapData,
+                        who: i
                     }
                 }))
             }
         }
+        console.log("character before bomb:", character);
         // Ajouter la logique pour déposer une bombe avec la touche Espace
-        if (event.key === ' ') { // Touche Espace
-            dropBomb(character, charLeft + charWidth/2, charTop + charHeight/2, currentLife, player, mapData);
+        if (event.key === ' ' && character != null) { // Touche Espace
+            dropBomb(character, charLeft + charWidth / 2, charTop + charHeight / 2, currentLife, player, mapData);
             UpdateBricks();
             socket.send(JSON.stringify({
                 Type: "Player Dropped Bomb",
                 data: {
                     name: player.playerName,
                     adress: player.playerAdress,
-                    x: charLeft + charWidth/2,
-                    y: charTop + charHeight/2,
+                    x: charLeft + charWidth / 2,
+                    y: charTop + charHeight / 2,
                     currentLife: currentLife,
-                    updateMap: mapData
+                    updateMap: mapData,
+                    who: i
                 }
             }));
         }
     });
 }
-
-///////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -300,7 +379,7 @@ function dropBomb(character, x, y, currentLife, player, mapData) {
                 const brickRow = parseInt(brick.getAttribute('data-row'));
                 const brickCol = parseInt(brick.getAttribute('data-col'));
                 brick.style.visibility = 'hidden'; // Cacher la brique visuellement
-                brick.classList.remove('brick'); // Retirer la classe "brick"
+                brick.classList.remove('brick');  // Retirer la classe "brick"
 
                 mapData[brickRow][brickCol] = ' '; // Mettre à jour le modèle de données
                 if (
@@ -411,8 +490,29 @@ function UpdateBricks() {
         brickBox.push(bottom);
         brickBox.push(right);
     });
-    console.log(brickBox);
 
     return brickBox
 }
-//////////////////////////////////////
+
+
+function UpdatePlayers(){
+    let players = []
+    document.querySelectorAll(".character").forEach((element) => {
+        let x = element.getBoundingClientRect().x;
+        let y = element.getBoundingClientRect().y;
+        let left = element.getBoundingClientRect().left;
+        let right = element.getBoundingClientRect().right;
+        let bottom = element.getBoundingClientRect().bottom;
+        let top = element.getBoundingClientRect().top;
+
+        let gauche = x / left;
+        let haut = y / top;
+
+        players.push(left);
+        players.push(top);
+        players.push(bottom);
+        players.push(right);
+    });
+
+    return players
+}

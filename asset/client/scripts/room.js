@@ -7,6 +7,23 @@ import {
   masquerElementsParClasse
 } from "./setting-page.js";
 
+class Player {
+  constructor(namePlayer, adress, direction, lives, bombe, positionLeft, positionTop, hitPlayer, canMove,indice) {
+
+      this.namePlayer = namePlayer = ""
+      this.adress = adress = ""
+      this.direction = direction = ""
+      this.lives = lives = 3
+      this.bombe = bombe = false
+      this.positionLeft = positionLeft = 0
+      this.positionTop = positionTop = 0
+      this.hitPlayer = hitPlayer = false
+      this.canMove = canMove = false
+      this.indice = indice = 0
+
+  }
+}
+
 let timePassed = 0;
 const FULL_DASH_ARRAY = 283;
 const TIME_LIMIT = 40;
@@ -35,6 +52,7 @@ let count, cpt, count2 = 0
 
 let playersIn = []
 
+let player = new Player()
 
 export function GoRoom(dataServer, socket) {
 
@@ -47,6 +65,7 @@ export function GoRoom(dataServer, socket) {
 
       playersIn.push(dataServer.data.previousPlayers)
     }
+    player.adress = dataServer.data.clientAdress
     playersIn = dataServer.data["previousPlayers"]
     clientAdress = dataServer.data.clientAdress
     clientPlayer = dataServer.data.playerJoined
@@ -275,3 +294,4 @@ export function updatePlayerName(index, name) {
     // Ajoutez des logs pour vérifier que les pseudonymes sont mis à jour
     console.log("Mise à jour du joueur " + (index + 1) + " avec le nom : " + name);
 }
+export {player}

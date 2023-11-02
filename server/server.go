@@ -96,7 +96,7 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 
 		case "roomChronoStop":
 			startTime = time.Now()
-			TimerGame(conn, activeClients, 1)
+			TimerGame(conn, activeClients, 20)
 
 		case "StartGame":
 			fmt.Println("GOING goGame")
@@ -224,7 +224,7 @@ func room(conn *websocket.Conn, player string) {
 			fmt.Printf("len(activeConnections): %v\n", len(activeConnections))
 			fmt.Printf("activeConnections: %v\n", activeConnections)
 			startTime = time.Now()
-			TimerRoom(conn, activeConnections, 2, stopLoopRoom)
+			TimerRoom(conn, activeConnections, 10, stopLoopRoom)
 			count++
 
 		}
@@ -402,7 +402,7 @@ func goGame(conn *websocket.Conn) {
 						Data: map[string]interface{}{
 							// "Game":      true,
 							"ID":        int(v.(float64)),
-							"duration":  2,
+							"duration":  10,
 							"nbPlayers": userDB.NumberOfPlayers(),
 						},
 					}
@@ -416,16 +416,35 @@ func goGame(conn *websocket.Conn) {
 		}
 	}
 
-	donnee := structure.DataParam{
-		Type: "Game",
-		Data: nil,
+	joueurs := userDB.PlayersTab()
+	mapJoueurs := []string{}
+
+	for _, v := range joueurs {
+		fmt.Printf("activeConnections[v]: %v\n", activeConnections[v].RemoteAddr().String())
+		mapJoueurs = append(mapJoueurs, activeConnections[v].RemoteAddr().String())
 	}
 
-	err := conn.WriteJSON(donnee)
-	if err != nil {
-		fmt.Println("Error in WriteJSON in goGame:")
-		log.Fatal(err)
-	}
+	conn.WriteJSON(structure.DataParam{
+		Type: "Game",
+		Data: map[string]interface{}{
+			"players": mapJoueurs,
+		},
+	})
+
+	// donnee := structure.DataParam{
+	// 	Type: "Game",
+	// 	Data: map[string]interface{}{
+	// 		"players": userDB.PlayersTab(),
+
+	// 	},
+	// }
+
+	// err := conn.WriteJSON(donnee)
+	// if err != nil {
+	// 	fmt.Println("Error in WriteJSON in goGame:")
+	// 	log.Fatal(err)
+	// }
+
 	// for _, c := range activeConnections {
 	// 	err := c.WriteJSON(donnee)
 	// 	if err != nil {
