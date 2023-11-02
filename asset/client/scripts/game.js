@@ -73,7 +73,7 @@ document.querySelectorAll(".wall").forEach((element) => {
 let charLeft = 0
 let charTop = 0
 
-export function GameInit(players,i) {
+export function GameInit(players, i) {
     let mapData = [
         ['#', '#', '#', '#', '#', '#', '#', '#', '#', '#'],
         ['#', ' ', 'b', ' ', ' ', ' ', ' ', 'b', ' ', '#'],
@@ -102,9 +102,9 @@ export function GameInit(players,i) {
         }
     }
 
-    
+
     //Ajout des joueurs
-    
+
     if (players.length == 2) {
         bomberMan.appendChild(character2);
     } else if (players.length == 3) {
@@ -115,7 +115,7 @@ export function GameInit(players,i) {
         bomberMan.appendChild(character3);
         bomberMan.appendChild(character4);
     }
-    
+
     character = document.querySelector(".character" + ((i + 1).toString()))
     console.log("indice dans GamePlay:", i)
 
@@ -123,7 +123,7 @@ export function GameInit(players,i) {
 
     charLeft = parseInt(docCharacter.left.replace("px", ""));
     charTop = parseInt(docCharacter.top.replace("px", ""));
-     
+
     //  charLeft = character.getBoundingClientRect().left
     //  charTop = character.getBoundingClientRect().top
     //Send to server that the Initialization it's done
@@ -149,10 +149,12 @@ export function PlayerMoved(socket, player, data, mapData) {
 
     let currentLife = player.lives
     let playerName = player.namePlayer
+    console.log("dataServer:", data.who)
     console.log("data.who:", data.who)
     character = document.querySelector(".character" + ((data.who + 1).toString()))
     // console.log("character:", character);
     let docCharacter = getComputedStyle(character);
+    
     let left = parseInt(docCharacter.left.replace("px", ""));
     let top = parseInt(docCharacter.top.replace("px", ""));
 
@@ -167,7 +169,7 @@ export function PlayerMoved(socket, player, data, mapData) {
             top = data.position - 10;
             character.style.top = top + 'px';
         }
-    } 
+    }
     if (data.direction == "Down" && data.move) {
         if (Collision(left, data.position + 10, mapData)) {
             // player.positionTop = data.position + 10;
@@ -176,7 +178,7 @@ export function PlayerMoved(socket, player, data, mapData) {
             character.style.top = top + 'px';
         }
 
-    } 
+    }
 
     if (data.direction == "Left" && data.move) {
         if (Collision(data.position - 10, top, mapData)) {
@@ -185,7 +187,7 @@ export function PlayerMoved(socket, player, data, mapData) {
             left = data.position - 10;
             character.style.left = left + 'px';
         }
-    } 
+    }
 
     if (data.direction == "Right" && data.move) {
         if (Collision(data.position + 10, top, mapData)) {
@@ -195,6 +197,8 @@ export function PlayerMoved(socket, player, data, mapData) {
             character.style.left = left + 'px';
         }
     }
+
+    console.log("character before bomb ws:", character);
 
     if (player.bomb && character != null) {
 
@@ -208,7 +212,7 @@ export function PlayerMoved(socket, player, data, mapData) {
 export function GamePlay(socket, player, mapData, i) {
     let currentLife = player.lives;
 
-    
+
     document.addEventListener('keydown', (event) => {
 
         // Vérifier si le mouvement est possible
@@ -321,6 +325,7 @@ export function GamePlay(socket, player, mapData, i) {
                 }))
             }
         }
+        console.log("character before bomb:", character);
         // Ajouter la logique pour déposer une bombe avec la touche Espace
         if (event.key === ' ' && character != null) { // Touche Espace
             dropBomb(character, charLeft + charWidth / 2, charTop + charHeight / 2, currentLife, player, mapData);
@@ -333,7 +338,8 @@ export function GamePlay(socket, player, mapData, i) {
                     x: charLeft + charWidth / 2,
                     y: charTop + charHeight / 2,
                     currentLife: currentLife,
-                    updateMap: mapData
+                    updateMap: mapData,
+                    who: i
                 }
             }));
         }

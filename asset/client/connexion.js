@@ -75,7 +75,7 @@ socket.onmessage = function (event) {
 
     player.bomb = true;
     player.lives = dataServer.data.currentLife;
-    PlayerMoved(socket, player, dataServer, dataServer.data.updateMap, indice);
+    PlayerMoved(socket, player, dataServer.data, dataServer.data.updateMap);
 
   }
 
