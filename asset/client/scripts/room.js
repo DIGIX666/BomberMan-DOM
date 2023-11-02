@@ -50,10 +50,10 @@ let clientAdress = null
 let clientPlayer = null
 let count, cpt, count2 = 0
 
+
+let player = new Player();
+
 let playersIn = []
-
-let player = new Player()
-
 export function GoRoom(dataServer, socket) {
 
   // let timeLeft = TIME_LIMIT;
@@ -294,4 +294,4 @@ export function updatePlayerName(index, name) {
     // Ajoutez des logs pour vérifier que les pseudonymes sont mis à jour
     console.log("Mise à jour du joueur " + (index + 1) + " avec le nom : " + name);
 }
-export {player}
+export { player };

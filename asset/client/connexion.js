@@ -2,23 +2,20 @@ import {
   GameInit,
   GamePlay,
   PlayerMoved,
-  Player,
 } from "./scripts/game.js";
 
 import {
   GoRoom,
   updatePlayerName,
-  player
+  player,
 } from "./scripts/room.js";
 
 
-let socket = new WebSocket("ws://localhost:8080/ws")
-
-let player = new Player()
-
 let playerNames = [];
-
 console.log("player tableau",playerNames)
+
+
+let socket = new WebSocket("ws://localhost:8080/ws")
 let indice = 0
 let lastTime = 0;
 let frameCount = 0;
@@ -35,7 +32,9 @@ requestAnimationFrame(function (timestamp) {
 
     GoRoom(dataServer, socket)
 
+
     ///////////////////Recevoir les joueurs///////////////////////////////////////////
+    
     // Vérifiez si le type de données est "newPlayersList"
     if (dataServer.type === "newPlayersList") {
       var playersFromServer = dataServer.data.players;
