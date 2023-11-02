@@ -217,6 +217,7 @@ export function GamePlay(socket, player, mapData, i) {
 
         // Vérifier si le mouvement est possible
         UpdateBricks()
+        UpdatePlayers()
 
         character = document.querySelector(".character" + ((i + 1).toString()))
 
@@ -227,7 +228,6 @@ export function GamePlay(socket, player, mapData, i) {
 
         // charLeft = getComputedStyle(character).left.replace("px", "");
         // charTop = getComputedStyle(character).top.replace("px", "");
-
         // let charLeft = character.getBoundingClientRect().left
         // let charTop = character.getBoundingClientRect().top
 
@@ -476,4 +476,27 @@ function UpdateBricks() {
     });
 
     return brickBox
+}
+
+
+function UpdatePlayers(){
+    let players = []
+    document.querySelectorAll(".character").forEach((element) => {
+        let x = element.getBoundingClientRect().x;
+        let y = element.getBoundingClientRect().y;
+        let left = element.getBoundingClientRect().left;
+        let right = element.getBoundingClientRect().right;
+        let bottom = element.getBoundingClientRect().bottom;
+        let top = element.getBoundingClientRect().top;
+
+        let gauche = x / left;
+        let haut = y / top;
+
+        players.push(left);
+        players.push(top);
+        players.push(bottom);
+        players.push(right);
+    });
+
+    return players
 }
