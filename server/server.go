@@ -112,7 +112,7 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 			Bombed(data.Data)
 
 		case "GameSet":
-			StartGameplay(conn,data.Data)
+			StartGameplay(conn, data.Data)
 
 		}
 	}
@@ -124,7 +124,7 @@ func Bombed(data map[string]interface{}) {
 		Data: data,
 	}
 	for _, c := range activeConnections {
-		
+
 		err := c.WriteJSON(donnee)
 		if err != nil {
 			log.Panicf("Error WriteJSON function Bombed:%v", err)
@@ -233,24 +233,33 @@ func room(conn *websocket.Conn, player string) {
 
 func manageClientInfo(conn *websocket.Conn, dataReceive structure.DataParam) {
 	playersRaw := dataReceive.Data["playersUpdate"].([]interface{})
-
-	/////////////Transforme PlayersRaw de type `[]interface{}` en players de type []string/////////////////////////////
+	connectedPlayers := make(map[*websocket.Conn]string)
 
 	players := make([]string, len(playersRaw))
 
 	for i, v := range playersRaw {
 		players[i] = v.(string)
 	}
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// Récupérez le nom du joueur actuel
+	currentPlayerName := userDB.PlayersTab()[len(userDB.PlayersTab())-1]
+
+	// Ajoutez le joueur actuel à la liste des joueurs connectés
+	connectedPlayers[conn] = currentPlayerName
+
+	// Ajoutez le joueur actuel à la liste des clients actifs (activeClients)
+	activeClients[conn.RemoteAddr().String()] = conn
+
 	var playerUpdate2Client structure.DataParam
 
 	playerUpdate2Client.Type = "newPlayersList"
 	playerUpdate2Client.Data = map[string]interface{}{
 		"lastPlayer": userDB.PlayersTab()[len(userDB.PlayersTab())-1],
+		"players":    userDB.PlayersTab(),
 	}
 
 	fmt.Printf("players: %v\n", players)
-	fmt.Printf("last Player in DB: %v\n", userDB.PlayersTab()[len(userDB.PlayersTab())-1])
+	fmt.Printf("last Player in DB: %v\n", currentPlayerName)
 
 	for _, c := range activeClients {
 		err := c.WriteJSON(playerUpdate2Client)

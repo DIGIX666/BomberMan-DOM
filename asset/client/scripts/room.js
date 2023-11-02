@@ -38,7 +38,6 @@ let playersIn = []
 
 export function GoRoom(dataServer, socket) {
 
-
   // let timeLeft = TIME_LIMIT;
 
   if (dataServer.type == "goRoom") {
@@ -85,6 +84,8 @@ export function GoRoom(dataServer, socket) {
 
   }
   console.log("dataServer:", dataServer)
+
+ 
 
 
   if (dataServer.type == "Chrono") {
@@ -265,14 +266,12 @@ export function setCircleDasharray(timeLimit) {
     .setAttribute("stroke-dasharray", circleDasharray);
 }
 
-// Fonction pour mettre à jour l'élément HTML avec un pseudonyme en fonction de l'index
+
 // Dans votre code côté client (connexion.js)
 export function updatePlayerName(index, name) {
   var playerNameElement = document.getElementById("player" + (index + 1));
-  if (playerNameElement) {
     playerNameElement.textContent = name;
 
     // Ajoutez des logs pour vérifier que les pseudonymes sont mis à jour
     console.log("Mise à jour du joueur " + (index + 1) + " avec le nom : " + name);
-  }
 }

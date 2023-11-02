@@ -35,22 +35,22 @@ socket.onmessage = function (event) {
   }
 
 
-  // Vérifiez si le type de données est "newPlayersList"
-  if (dataServer.type === "newPlayersList") {
-    var lastPlayerFromServer = dataServer.data.lastPlayer;
-
-    // Ajoutez le pseudonyme au tableau des pseudonymes des joueurs
-    playerNames.push(lastPlayerFromServer);
-    
-    // Mettez à jour les éléments HTML correspondants avec les pseudonymes
-    for (var i = 0; i < playerNames.length; i++) {
-      updatePlayerName(i, playerNames[i]);
-    }
-  }
- 
 
 
-  
+// Vérifiez si le type de données est "newPlayersList"
+if (dataServer.type === "newPlayersList") {
+  var playersFromServer = dataServer.data.players;
+
+  // Mettez à jour le tableau des pseudonymes des joueurs avec la liste complète
+  playerNames = playersFromServer;
+}
+
+// Mettez à jour les éléments HTML correspondants avec les pseudonymes
+for (var i = 0; i < playerNames.length; i++) {
+  updatePlayerName(i, playerNames[i]);
+}
+
+
 
   if (dataServer.type == "Play") {
     // GetNameAndAdress(dataServer.data.info)
