@@ -407,31 +407,35 @@ func goGame(conn *websocket.Conn) {
 		}
 	}
 
-	donnee := structure.DataParam{
+	joueurs := userDB.PlayersTab()
+	mapJoueurs := []string{}
+	
+	for _, v := range joueurs {
+	 fmt.Printf("activeConnections[v]: %v\n", activeConnections[v].RemoteAddr().String())
+	 mapJoueurs=append(mapJoueurs, activeConnections[v].RemoteAddr().String())
+	}
+
+	conn.WriteJSON(structure.DataParam{
 		Type: "Game",
 		Data: map[string]interface{}{
-			"players": userDB.PlayersTab(),
-
+			"players": mapJoueurs,
 		},
-	}
+	})
 
-	err := conn.WriteJSON(donnee)
-	if err != nil {
-		fmt.Println("Error in WriteJSON in goGame:")
-		log.Fatal(err)
-	}
 
-	joueurs := userDB.PlayersTab()
+	// donnee := structure.DataParam{
+	// 	Type: "Game",
+	// 	Data: map[string]interface{}{
+	// 		"players": userDB.PlayersTab(),
+			
+	// 	},
+	// }
 
-	for i, v := range joueurs {
-		activeConnections[v].WriteJSON(structure.DataParam{
-			Type: "Attribution",
-			Data: map[string]interface{}{
-				"indice":  i,
-				"adress":  activeConnections[v].RemoteAddr().String(),
-			},
-		})
-	}
+	// err := conn.WriteJSON(donnee)
+	// if err != nil {
+	// 	fmt.Println("Error in WriteJSON in goGame:")
+	// 	log.Fatal(err)
+	// }
 
 	// for _, c := range activeConnections {
 	// 	err := c.WriteJSON(donnee)

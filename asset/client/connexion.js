@@ -2,22 +2,17 @@ import {
   GameInit,
   GamePlay,
   PlayerMoved,
-  Player,
 
 } from "./scripts/game.js";
 
 import {
-  GoRoom
+  GoRoom,
+  player
 } from "./scripts/room.js";
 
 
 let socket = new WebSocket("ws://localhost:8080/ws")
-
-let player = new Player()
-
 let indice = 0
-
-
 
 socket.onopen = function (_event) {
   console.log('Connexion WebSocket établie !');
@@ -35,19 +30,45 @@ socket.onmessage = function (event) {
   ///////////////////////////////////////////////////////////////////////////////////
 
   if (dataServer.type == "Attribution") {
-    indice = dataServer.data.indice
 
+    // if (dataServer.data.adress == player.adress) {
+    //   indice = dataServer.data.indice
+    //   console.log("indice:", indice)
+    //   console.log("player:", player)
+    // }
   }
 
   if (dataServer.type == "Game") {
-    GameInit(dataServer.data.players)
+  
+
+    console.log("map players:", dataServer.data.players)
+
+    let arr = dataServer.data.players
+
+    for (let index = 0; index < arr.length; index++) {
+
+      console.log("arr adress:", arr[index]) 
+      if (arr[index] == player.adress) {
+        console.log("index:", index)
+        indice = index
+        GameInit(arr, indice)
+        arr = []
+      
+      }
+    }
+    // if (dataServer.data.adress == player.adress) {
+    //   indice = dataServer.data.indice
+    //   console.log("indice:", indice)
+    //   console.log("player:", player)
+    //   GameInit(dataServer.data.players, indice)
+    // }
   }
 
   if (dataServer.type == "Play") {
+    console.log("indice before GamePlay:", indice)
     player.adress = dataServer.data.info.adress
     player.namePlayer = dataServer.data.info.name
     GamePlay(socket, player, dataServer.data.map, indice)
-
   }
 
   if (dataServer.type == "Bombed") {
