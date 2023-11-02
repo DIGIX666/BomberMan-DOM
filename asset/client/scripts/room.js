@@ -34,7 +34,7 @@ let clientPlayer = null
 let count, cpt, count2 = 0
 
 let playersIn = []
-let playerNames = []
+
 
 export function GoRoom(dataServer, socket) {
 
@@ -58,14 +58,13 @@ export function GoRoom(dataServer, socket) {
         client: dataServer.data.clientAdress
       }
     }))
-    // playersIn = dataServer.data.playersJoined.name
 
     document.getElementById("chrono").innerHTML = `
     <div class="base-timer">
     <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <g class="base-timer__circle">
     <circle class="base-timer__path-elapsed" cx="50" cy="50" r="45"></circle>
-    <path
+    <path 
     id="base-timer-path-remaining"
     stroke-dasharray="283"
     class="base-timer__path-remaining ${remainingPathColor}"
@@ -87,13 +86,6 @@ export function GoRoom(dataServer, socket) {
   }
   console.log("dataServer:", dataServer)
 
-
-  if (dataServer.type == "newPlayersList") {
-
-    if (!playersIn.includes(dataServer.data.lastPlayer)) {
-      playersIn.push(dataServer.data.lastPlayer)
-    }
-  }
 
   if (dataServer.type == "Chrono") {
 
@@ -119,6 +111,7 @@ export function GoRoom(dataServer, socket) {
         }))
       }
     }
+    
   }
   if (dataServer.type == "Chrono2") {
 
@@ -207,7 +200,7 @@ export function startTimerGame(timeLimit) {
       clearInterval(IDInterval)
       masquerElementsParClasse('room')
       displayGame()
-           // Récupérez les pseudos des joueurs de la section "Room"
+    // Récupérez les pseudos des joueurs de la section "Room"
     const player1Name = document.getElementById("player1").textContent;
     const player2Name = document.getElementById("player2").textContent;
     const player3Name = document.getElementById("player3").textContent;
@@ -273,9 +266,13 @@ export function setCircleDasharray(timeLimit) {
 }
 
 // Fonction pour mettre à jour l'élément HTML avec un pseudonyme en fonction de l'index
+// Dans votre code côté client (connexion.js)
 export function updatePlayerName(index, name) {
   var playerNameElement = document.getElementById("player" + (index + 1));
   if (playerNameElement) {
     playerNameElement.textContent = name;
+
+    // Ajoutez des logs pour vérifier que les pseudonymes sont mis à jour
+    console.log("Mise à jour du joueur " + (index + 1) + " avec le nom : " + name);
   }
 }
