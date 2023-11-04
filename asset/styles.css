@@ -49,7 +49,43 @@
   justify-content: center;
 }
 
-.life {
+.life1 {
+  font-size: 25px;
+  font-weight: 600;
+  background-image: url(../asset/images/vie.png);
+  height: 44px;
+  width: 50px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.life2 {
+  font-size: 25px;
+  font-weight: 600;
+  background-image: url(../asset/images/vie.png);
+  height: 44px;
+  width: 50px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.life3 {
+  font-size: 25px;
+  font-weight: 600;
+  background-image: url(../asset/images/vie.png);
+  height: 44px;
+  width: 50px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.life4 {
   font-size: 25px;
   font-weight: 600;
   background-image: url(../asset/images/vie.png);

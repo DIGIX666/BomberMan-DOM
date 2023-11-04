@@ -80,6 +80,7 @@ export function GoRoom(dataServer, socket) {
     }))
     // playersIn = dataServer.data.playersJoined.name
 
+
     document.getElementById("chrono").innerHTML = `
     <div class="base-timer">
     <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -105,7 +106,6 @@ export function GoRoom(dataServer, socket) {
                   `;
 
   }
-  console.log("dataServer:", dataServer)
 
 
   if (dataServer.type == "newPlayersList") {
@@ -121,13 +121,10 @@ export function GoRoom(dataServer, socket) {
 
     if (dataServer.data.nbPlayers >= 2 && dataServer.data.nbPlayers <= 4) {
       if (count == 0) {
-        console.log("count:", count)
 
         timerInterval = startTimer(dataServer.data.duration)
         count++
-        console.log("client Adress:", clientAdress)
-        console.log("client Player:", clientPlayer)
-        console.log("duration:", dataServer.data.duration)
+       
 
         socket.send(JSON.stringify({
           type: "timerID",
@@ -143,11 +140,8 @@ export function GoRoom(dataServer, socket) {
   if (dataServer.type == "Chrono2") {
 
     if (dataServer.data.readyGame) {
-      
-      console.log("READY GAME")
-      clearInterval(dataServer.data.ID)
-      console.log("CLEAR ID:", dataServer.data.ID)
-      console.log("IN Ready game duration:", dataServer.data.duration)
+        clearInterval(dataServer.data.ID)
+
       if (cpt == 0) {
         timePassed = 0
         cpt++
@@ -158,9 +152,6 @@ export function GoRoom(dataServer, socket) {
 
         timerInterval = startTimerGame(dataServer.data.duration)
         count2++
-        console.log("client Adress:", clientAdress)
-        console.log("client Player:", clientPlayer)
-        console.log("duration:", dataServer.data.duration)
 
         socket.send(JSON.stringify({
           type: "timerID2",
@@ -194,6 +185,8 @@ export function startTimer(timeLimit) {
     document.getElementById("base-timer-label").innerHTML = timeLeft;
     setCircleDasharray(timeLimit);
     setRemainingPathColor(timeLeft);
+
+    console.log("time Left:", timeLeft)
 
     if (timeLeft == 0) {
       clearInterval(timerInterval)

@@ -1,4 +1,5 @@
 import { socket } from "../connexion.js";
+import { player } from "./room.js";
 
 const bomberMan = document.querySelector('.game');
 const character1 = document.createElement('div');
@@ -12,43 +13,12 @@ character3.classList.add('character3');
 character4.classList.add('character4');
 bomberMan.appendChild(character1);
 
-// const characterBox1 = character1.getBoundingClientRect();
-// const charecterBox2 = character2.getBoundingClientRect();
-// const charecterBox3 = character3.getBoundingClientRect();
-// const charecterBox4 = character4.getBoundingClientRect();
 const characterWidth = 10; // Largeur du personnage
 const characterHeight = 67; // Hauteur du personnage
 const charWidth = characterWidth;
 const charHeight = characterHeight;
-// let charTop1 = characterBox1.top;
-// let charLeft1 = characterBox1.left;
-// let charTop2 = charecterBox2.top;
-// let charLeft2 = charecterBox2.left;
-// let charTop3 = charecterBox3.top;
-// let charLeft3 = charecterBox3.left;
-// let charTop4 = charecterBox4.top;
-// let charLeft4 = charecterBox4.left;
 
 
-// let docCharacter1 = document.querySelector(".character1")
-// let docCharacter2 = document.querySelector(".character2")
-// let docCharacter3 = document.querySelector(".character3")
-// let docCharacter4 = document.querySelector(".character4")
-
-
-// const characterStyle1 = getComputedStyle(docCharacter1);
-// const characterLeft1 = parseInt(characterStyle1.left.replace("px", ""));
-// const characterTop1 = parseInt(characterStyle1.top.replace("px", ""));
-
-// const characterStyle2 = getComputedStyle(docCharacter2);
-// const characterLeft2 = parseInt(characterStyle2.left.replace("px", ""));
-// const characterTop2 = parseInt(characterStyle2.top.replace("px", ""));
-// const characterStyle3 = getComputedStyle(docCharacter3);
-// const characterLeft3 = parseInt(characterStyle3.left.replace("px", ""));
-// const characterTop3 = parseInt(characterStyle3.top.replace("px", ""));
-// const characterStyle4 = getComputedStyle(docCharacter4);
-// const characterLeft4 = parseInt(characterStyle4.left.replace("px", ""));
-// const characterTop4 = parseInt(characterStyle4.top.replace("px", ""));
 
 
 
@@ -72,6 +42,7 @@ document.querySelectorAll(".wall").forEach((element) => {
 
 let charLeft = 0
 let charTop = 0
+let currentLife = 0;
 
 export function GameInit(players, i) {
     let mapData = [
@@ -101,8 +72,6 @@ export function GameInit(players, i) {
             bomberMan.appendChild(cell);
         }
     }
-
-
     //Ajout des joueurs
 
     if (players.length == 2) {
@@ -116,17 +85,28 @@ export function GameInit(players, i) {
         bomberMan.appendChild(character4);
     }
 
+    for (let i = 1; i <5; i++) {
+        const item = document.querySelector(".item--"+i);
+        const life = document.createElement('span');
+        life.classList.add('life'+i.toString());
+        life.textContent = '3';
+        item.appendChild(life);
+    }
+
     character = document.querySelector(".character" + ((i + 1).toString()))
     console.log("indice dans GamePlay:", i)
 
     let docCharacter = getComputedStyle(character)
 
+    currentLife = player.lives
+
     charLeft = parseInt(docCharacter.left.replace("px", ""));
     charTop = parseInt(docCharacter.top.replace("px", ""));
 
-    //  charLeft = character.getBoundingClientRect().left
-    //  charTop = character.getBoundingClientRect().top
+    //charLeft = character.getBoundingClientRect().left
+    //charTop = character.getBoundingClientRect().top
     //Send to server that the Initialization it's done
+
     socket.send(JSON.stringify({
         Type: "GameSet",
         Data: {
@@ -147,7 +127,7 @@ export function GetNameAndAdress(activeCo) {
 
 export function PlayerMoved(socket, player, data, mapData) {
 
-    let currentLife = player.lives
+    
     let playerName = player.namePlayer
     console.log("dataServer:", data.who)
     console.log("data.who:", data.who)
@@ -202,7 +182,7 @@ export function PlayerMoved(socket, player, data, mapData) {
 
     if (player.bomb && character != null) {
 
-        dropBomb(character, data.x, data.y, currentLife, player, mapData)
+        dropBomb(character, data.x, data.y, currentLife, player, mapData,i)
         UpdateBricks()
         player.bomb = false
     }
@@ -210,8 +190,7 @@ export function PlayerMoved(socket, player, data, mapData) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export function GamePlay(socket, player, mapData, i) {
-    let currentLife = player.lives;
-
+    // let currentLife = player.lives;
 
     document.addEventListener('keydown', (event) => {
 
@@ -328,7 +307,7 @@ export function GamePlay(socket, player, mapData, i) {
         console.log("character before bomb:", character);
         // Ajouter la logique pour déposer une bombe avec la touche Espace
         if (event.key === ' ' && character != null) { // Touche Espace
-            dropBomb(character, charLeft + charWidth / 2, charTop + charHeight / 2, currentLife, player, mapData);
+            dropBomb(character, charLeft + charWidth / 2, charTop + charHeight / 2, currentLife, player, mapData,i);
             UpdateBricks();
             socket.send(JSON.stringify({
                 Type: "Player Dropped Bomb",
@@ -347,7 +326,7 @@ export function GamePlay(socket, player, mapData, i) {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function dropBomb(character, x, y, currentLife, player, mapData) {
+function dropBomb(character, x, y, currentLife, player, mapData,i) {
     const bomb = document.createElement('div');
     bomb.classList.add('bombe');
     bomb.style.left = x + 'px';
@@ -380,7 +359,7 @@ function dropBomb(character, x, y, currentLife, player, mapData) {
                     !player.hitPlayer
                 ) {
                     player.hitPlayer = true // Marquer que le joueur a été touché
-                    reduceLife(currentLife, player); // Appeler la fonction pour réduire la vie du joueur
+                    reduceLife(currentLife, player,i); // Appeler la fonction pour réduire la vie du joueur
                     console.log("vie perdu");
                 }
             }
@@ -394,8 +373,8 @@ function dropBomb(character, x, y, currentLife, player, mapData) {
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
-function reduceLife(currentLife, player) {
-    const lifeElement = document.querySelector('.life');
+function reduceLife(currentLife, player,i) {
+    const lifeElement = document.querySelector('.life'+(i+1).toString());
     currentLife = parseInt(lifeElement.textContent);
 
     if (currentLife > 0) {
@@ -403,7 +382,7 @@ function reduceLife(currentLife, player) {
         lifeElement.textContent = currentLife;
 
         if (currentLife === 0) {
-            const characterLife = document.querySelector('.character');
+            const characterLife = document.querySelector('.character'+(i+1).toString());
             bomberMan.removeChild(characterLife);
             console.log("Game over!");
             socket.send(JSON.stringify({

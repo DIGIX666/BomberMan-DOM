@@ -96,7 +96,7 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 
 		case "roomChronoStop":
 			startTime = time.Now()
-			TimerGame(conn, activeClients, 20)
+			TimerGame(conn, activeClients, 10)
 
 		case "StartGame":
 			fmt.Println("GOING goGame")
@@ -224,7 +224,7 @@ func room(conn *websocket.Conn, player string) {
 			fmt.Printf("len(activeConnections): %v\n", len(activeConnections))
 			fmt.Printf("activeConnections: %v\n", activeConnections)
 			startTime = time.Now()
-			TimerRoom(conn, activeConnections, 10, stopLoopRoom)
+			TimerRoom(conn, activeConnections, 20, stopLoopRoom)
 			count++
 
 		}
@@ -335,7 +335,7 @@ func TimerGame(conn *websocket.Conn, activeClients map[string]*websocket.Conn, d
 			}
 		}
 
-		elapsed = 0
+		// elapsed = 0
 		for elapsed < duration {
 
 			elapsed = int(time.Since(startTime).Seconds())
@@ -393,7 +393,7 @@ func goGame(conn *websocket.Conn) {
 						Data: map[string]interface{}{
 							// "Game":      true,
 							"ID":        int(v.(float64)),
-							"duration":  10,
+							"duration":  20,
 							"nbPlayers": userDB.NumberOfPlayers(),
 						},
 					}
