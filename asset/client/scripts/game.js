@@ -12,43 +12,11 @@ character3.classList.add('character3');
 character4.classList.add('character4');
 bomberMan.appendChild(character1);
 
-// const characterBox1 = character1.getBoundingClientRect();
-// const charecterBox2 = character2.getBoundingClientRect();
-// const charecterBox3 = character3.getBoundingClientRect();
-// const charecterBox4 = character4.getBoundingClientRect();
+
 const characterWidth = 10; // Largeur du personnage
 const characterHeight = 67; // Hauteur du personnage
 const charWidth = characterWidth;
 const charHeight = characterHeight;
-// let charTop1 = characterBox1.top;
-// let charLeft1 = characterBox1.left;
-// let charTop2 = charecterBox2.top;
-// let charLeft2 = charecterBox2.left;
-// let charTop3 = charecterBox3.top;
-// let charLeft3 = charecterBox3.left;
-// let charTop4 = charecterBox4.top;
-// let charLeft4 = charecterBox4.left;
-
-
-// let docCharacter1 = document.querySelector(".character1")
-// let docCharacter2 = document.querySelector(".character2")
-// let docCharacter3 = document.querySelector(".character3")
-// let docCharacter4 = document.querySelector(".character4")
-
-
-// const characterStyle1 = getComputedStyle(docCharacter1);
-// const characterLeft1 = parseInt(characterStyle1.left.replace("px", ""));
-// const characterTop1 = parseInt(characterStyle1.top.replace("px", ""));
-
-// const characterStyle2 = getComputedStyle(docCharacter2);
-// const characterLeft2 = parseInt(characterStyle2.left.replace("px", ""));
-// const characterTop2 = parseInt(characterStyle2.top.replace("px", ""));
-// const characterStyle3 = getComputedStyle(docCharacter3);
-// const characterLeft3 = parseInt(characterStyle3.left.replace("px", ""));
-// const characterTop3 = parseInt(characterStyle3.top.replace("px", ""));
-// const characterStyle4 = getComputedStyle(docCharacter4);
-// const characterLeft4 = parseInt(characterStyle4.left.replace("px", ""));
-// const characterTop4 = parseInt(characterStyle4.top.replace("px", ""));
 
 
 
