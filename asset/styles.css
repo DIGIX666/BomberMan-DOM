@@ -60,14 +60,50 @@
   justify-content: center;
 }
 
-.character {
+.character1 {
   position: absolute;
   border: solid;
   top: 120px;
   left: 130px;
   width: 60px;
   height: 96px;
-  background-image: url(../asset/images/character/perso1/perso1-marche.png);
+  background-image: url(../asset/images/character/perso1/perso1.png);
+  /* Ajustez les valeurs de background-position pour afficher la première image */
+  background-position: -5px -17px;
+}
+
+.character2 {
+  position: absolute;
+  border: solid;
+  top: 120px;
+  left: 830px;
+  width: 60px;
+  height: 96px;
+  background-image: url(../asset/images/character/perso2/perso2.png);
+  /* Ajustez les valeurs de background-position pour afficher la première image */
+  background-position: -5px -17px;
+}
+
+.character3 {
+  position: absolute;
+  border: solid;
+  top: 600px;
+  left: 130px;
+  width: 60px;
+  height: 96px;
+  background-image: url(../asset/images/character/perso3/perso3.png);
+  /* Ajustez les valeurs de background-position pour afficher la première image */
+  background-position: -5px -17px;
+}
+
+.character4 {
+  position: absolute;
+  border: solid;
+  top: 600px;
+  left: 830px;
+  width: 60px;
+  height: 96px;
+  background-image: url(../asset/images/character/perso4/perso4.png);
   /* Ajustez les valeurs de background-position pour afficher la première image */
   background-position: -5px -17px;
 }
