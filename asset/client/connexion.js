@@ -96,7 +96,7 @@ requestAnimationFrame(function (timestamp) {
 
       player.bomb = true;
       player.lives = dataServer.data.currentLife;
-      PlayerMoved(socket, player, dataServer.data, dataServer.data.updateMap);
+      PlayerMoved(socket, player, dataServer.data);
 
     }
 
@@ -104,7 +104,7 @@ requestAnimationFrame(function (timestamp) {
 
       player.position = dataServer.data.dataInfo.position
 
-      PlayerMoved(socket, player, dataServer.data.dataInfo, dataServer.data.dataInfo.map, indice);
+      PlayerMoved(socket, player, dataServer.data.dataInfo);
     }
 
   };

@@ -127,7 +127,7 @@ export function GetNameAndAdress(activeCo) {
 
 
 ////////// Player Moved //////////////
-export function PlayerMoved(socket, player, data, mapData) {
+export function PlayerMoved(socket, player, data) {
 
     
     let playerName = player.namePlayer
@@ -141,11 +141,13 @@ export function PlayerMoved(socket, player, data, mapData) {
     let top = parseInt(docCharacter.top.replace("px", ""));
 
     console.log("data from moving:", data);
-    console.log("mapData from moving:", mapData);
+    console.log("mapData from moving:", data.map);
 
     // Vérifier si le mouvement est possible
     if (data.direction == "Up" && data.move) {
-        if (Collision(left, data.position - 10, mapData)) {
+        UpdateBricks()
+        UpdatePlayers()
+        if (Collision(left, data.position - 10, data.map)) {
             // player.positionTop = data.position - 10;
             // character.style.top = player.positionTop + 'px';
             top = data.position - 10;
@@ -153,7 +155,9 @@ export function PlayerMoved(socket, player, data, mapData) {
         }
     }
     if (data.direction == "Down" && data.move) {
-        if (Collision(left, data.position + 10, mapData)) {
+        UpdateBricks()
+        UpdatePlayers()
+        if (Collision(left, data.position + 10, data.map)) {
             // player.positionTop = data.position + 10;
             // character.style.top = player.positionTop + 'px';
             top = data.position + 10;
@@ -163,7 +167,9 @@ export function PlayerMoved(socket, player, data, mapData) {
     }
 
     if (data.direction == "Left" && data.move) {
-        if (Collision(data.position - 10, top, mapData)) {
+        UpdateBricks()
+        UpdatePlayers()
+        if (Collision(data.position - 10, top, data.map)) {
             // player.positionLeft = data.position - 10;
             // character.style.left = player.positionLeft + 'px';
             left = data.position - 10;
@@ -172,7 +178,9 @@ export function PlayerMoved(socket, player, data, mapData) {
     }
 
     if (data.direction == "Right" && data.move) {
-        if (Collision(data.position + 10, top, mapData)) {
+        UpdateBricks()
+        UpdatePlayers()
+        if (Collision(data.position + 10, top, data.map)) {
             // player.positionLeft = data.position + 10;
             // character.style.left = player.positionLeft + 'px';
             left = data.position + 10;
@@ -185,7 +193,7 @@ export function PlayerMoved(socket, player, data, mapData) {
 
     if (player.bomb && character != null) {
 
-        dropBomb(character, data.x, data.y, data.currentLife, player, mapData,data.who)
+        dropBomb(character, data.x, data.y, data.currentLife, player, data.map,data.who)
         UpdateBricks()
         player.bomb = false
     }
@@ -324,7 +332,7 @@ export function GamePlay(socket, player, mapData, i) {
                     x: charLeft + charWidth / 2,
                     y: charTop + charHeight / 2,
                     currentLife: player.lives,
-                    updateMap: mapData,
+                    map: dropBomb(character, charLeft + charWidth / 2, charTop + charHeight / 2, currentLife, player, mapData,i),
                     who: i,
                 }
             }));
@@ -360,17 +368,24 @@ function dropBomb(character, x, y, currentLife, player, mapData,i) {
             if (checkCollision(explosion, brick)) {
                 const brickRow = parseInt(brick.getAttribute('data-row'));
                 const brickCol = parseInt(brick.getAttribute('data-col'));
-                brick.style.visibility = 'hidden'; // Cacher la brique visuellement
+                // brick.style.visibility = 'hidden'; // Cacher la brique visuellement
                 brick.classList.remove('brick');  // Retirer la classe "brick"
 
                 mapData[brickRow][brickCol] = ' '; // Mettre à jour le modèle de données
+                socket.send(JSON.stringify({
+                    Type: "GameSet",
+                    Data: {
+                        map: mapData
+                    }
+                }))
+
+                UpdateBricks()
             }
         });
         if (
             checkCollision(explosion, character) 
         ) {
             player.hitPlayer = true// Marquer que le joueur a été touché
-            countTouch = 0
             reduceLife(currentLife, player,i); // Appeler la fonction pour réduire la vie du joueur
             console.log("vie perdu");
             
@@ -381,6 +396,7 @@ function dropBomb(character, x, y, currentLife, player, mapData,i) {
             bomberMan.removeChild(explosion);
         }, 1000); // Supprimer l'explosion après 1 seconde
     }, 2000); // 3 secondes
+    return mapData
 }
 ///////////////////////////////////
 
@@ -393,10 +409,10 @@ function reduceLife(currentLife, player,i,countTouch) {
     currentLife = parseInt(lifeElement.textContent);
     
     if (currentLife > 0) {
-        player.lives--;
+        player.lives--
 
-        lifeElement.textContent = currentLife
-        console.log("currentLife:", currentLife);
+        lifeElement.textContent = player.lives;
+        // console.log("currentLife:", currentLife);
 
         if (currentLife === 0) {
             const characterLife = document.querySelector('.character'+(i+1).toString());
