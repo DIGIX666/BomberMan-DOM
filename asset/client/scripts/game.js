@@ -18,10 +18,6 @@ const characterHeight = 67; // Hauteur du personnage
 const charWidth = characterWidth;
 const charHeight = characterHeight;
 
-
-
-
-
 let brickBox = []
 let wallBox = []
 
@@ -42,7 +38,7 @@ document.querySelectorAll(".wall").forEach((element) => {
 
 let charLeft = 0
 let charTop = 0
-let currentLife = 0;
+let currentLife = player.lives;
 
 export function GameInit(players, i) {
     let mapData = [
@@ -85,11 +81,13 @@ export function GameInit(players, i) {
         bomberMan.appendChild(character4);
     }
 
-    for (let i = 1; i <5; i++) {
-        const item = document.querySelector(".item--"+i);
-        const life = document.createElement('span');
-        life.classList.add('life'+i.toString());
-        life.textContent = '3';
+    for (let k = 1; k <=players.length; k++) {
+        const item = document.getElementById("item--"+k.toString());
+        console.log("item:", item);
+        // const textItem = document.getElementsByClassName(".text--"+k.toString());
+        let life = document.createElement('span');
+        life.classList.add('life'+k.toString());
+        life.textContent = "3";
         item.appendChild(life);
     }
 
@@ -98,7 +96,7 @@ export function GameInit(players, i) {
 
     let docCharacter = getComputedStyle(character)
 
-    currentLife = player.lives
+    // currentLife = player.lives
 
     charLeft = parseInt(docCharacter.left.replace("px", ""));
     charTop = parseInt(docCharacter.top.replace("px", ""));
@@ -184,9 +182,10 @@ export function PlayerMoved(socket, player, data, mapData) {
 
     console.log("character before bomb ws:", character);
 
+
     if (player.bomb && character != null) {
 
-        dropBomb(character, data.x, data.y, currentLife, player, mapData,i)
+        dropBomb(character, data.x, data.y, data.currentLife, player, mapData,data.who)
         UpdateBricks()
         player.bomb = false
     }
@@ -194,7 +193,6 @@ export function PlayerMoved(socket, player, data, mapData) {
 //////////////////////////////////////
 
 export function GamePlay(socket, player, mapData, i) {
-    // let currentLife = player.lives;
 
     document.addEventListener('keydown', (event) => {
 
@@ -235,6 +233,7 @@ export function GamePlay(socket, player, mapData, i) {
                         move: true,
                         map: mapData,
                         who: i
+                        // currentLife: currentLife
                     }
                 }))
             }
@@ -258,6 +257,7 @@ export function GamePlay(socket, player, mapData, i) {
                         move: true,
                         map: mapData,
                         who: i
+                        // currentLife: currentLife
                     }
                 }))
             }
@@ -281,6 +281,7 @@ export function GamePlay(socket, player, mapData, i) {
                         move: true,
                         map: mapData,
                         who: i
+                        // currentLife: currentLife
                     }
                 }))
             }
@@ -304,6 +305,7 @@ export function GamePlay(socket, player, mapData, i) {
                         move: true,
                         map: mapData,
                         who: i
+                        // currentLife: currentLife
                     }
                 }))
             }
@@ -313,6 +315,7 @@ export function GamePlay(socket, player, mapData, i) {
         if (event.key === ' ' && character != null) { // Touche Espace
             dropBomb(character, charLeft + charWidth / 2, charTop + charHeight / 2, currentLife, player, mapData,i);
             UpdateBricks();
+          
             socket.send(JSON.stringify({
                 Type: "Player Dropped Bomb",
                 data: {
@@ -320,9 +323,9 @@ export function GamePlay(socket, player, mapData, i) {
                     adress: player.playerAdress,
                     x: charLeft + charWidth / 2,
                     y: charTop + charHeight / 2,
-                    currentLife: currentLife,
+                    currentLife: player.lives,
                     updateMap: mapData,
-                    who: i
+                    who: i,
                 }
             }));
         }
@@ -333,7 +336,7 @@ export function GamePlay(socket, player, mapData, i) {
 
 
 ///////// Drop Bomb ///////////////
-function dropBomb(character, x, y, currentLife, player, mapData) {
+function dropBomb(character, x, y, currentLife, player, mapData,i) {
     const bomb = document.createElement('div');
     bomb.classList.add('bombe');
     bomb.style.left = x + 'px';
@@ -361,16 +364,17 @@ function dropBomb(character, x, y, currentLife, player, mapData) {
                 brick.classList.remove('brick');  // Retirer la classe "brick"
 
                 mapData[brickRow][brickCol] = ' '; // Mettre à jour le modèle de données
-                if (
-                    checkCollision(explosion, character) &&
-                    !player.hitPlayer
-                ) {
-                    player.hitPlayer = true // Marquer que le joueur a été touché
-                    reduceLife(currentLife, player,i); // Appeler la fonction pour réduire la vie du joueur
-                    console.log("vie perdu");
-                }
             }
         });
+        if (
+            checkCollision(explosion, character) 
+        ) {
+            player.hitPlayer = true// Marquer que le joueur a été touché
+            countTouch = 0
+            reduceLife(currentLife, player,i); // Appeler la fonction pour réduire la vie du joueur
+            console.log("vie perdu");
+            
+        }
 
         // Supprimer l'élément d'explosion après un délai
         setTimeout(function () {
@@ -382,13 +386,17 @@ function dropBomb(character, x, y, currentLife, player, mapData) {
 
 
 ///////// Reduce Life //////////////
-function reduceLife(currentLife, player) {
-    const lifeElement = document.querySelector('.life');
+function reduceLife(currentLife, player,i,countTouch) {
+    const lifeElement = document.querySelector('.life'+(i+1).toString());
+    console.log("lifeElement:", lifeElement);
+    console.log("lifeElement.textContent:", lifeElement.textContent);
     currentLife = parseInt(lifeElement.textContent);
-
+    
     if (currentLife > 0) {
-        currentLife--;
-        lifeElement.textContent = currentLife;
+        player.lives--;
+
+        lifeElement.textContent = currentLife
+        console.log("currentLife:", currentLife);
 
         if (currentLife === 0) {
             const characterLife = document.querySelector('.character'+(i+1).toString());

@@ -334,22 +334,22 @@ button:active {
   margin-bottom: 7px;
 }
 
-.item--1 {
+#item--1 {
   background: #c7c7ff;
   font-family: "Handjet", cursive;
 }
 
-.item--2 {
+#item--2 {
   background: #f32121;
   font-family: "Handjet", cursive;
 }
 
-.item--3 {
+#item--3 {
   background: #9ff22e;
   font-family: "Handjet", cursive;
 }
 
-.item--4 {
+#item--4 {
   background: #ff00ff;
   font-family: "Handjet", cursive;
 }
@@ -365,19 +365,19 @@ button:active {
   font-weight: 600;
 }
 
-.text--1 {
+#text--1 {
   color: rgb(149, 149, 255);
 }
 
-.text--2 {
+#text--2 {
   color: rgb(252, 161, 71);
 }
 
-.text--3 {
+#text--3 {
   color: rgb(66, 193, 110);
 }
 
-.text--4 {
+#text--4 {
   color: rgb(220, 91, 183);
 }
 
