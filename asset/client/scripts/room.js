@@ -8,27 +8,27 @@ import {
 } from "./setting-page.js";
 
 class Player {
-  constructor(namePlayer, adress, direction, lives, bombe, positionLeft, positionTop, hitPlayer, canMove,indice) {
+  constructor(namePlayer, adress, direction, lives, bombe, positionLeft, positionTop, hitPlayer, canMove, indice) {
 
-      this.namePlayer = namePlayer = ""
-      this.adress = adress = ""
-      this.direction = direction = ""
-      this.lives = lives = 3
-      this.bombe = bombe = false
-      this.positionLeft = positionLeft = 0
-      this.positionTop = positionTop = 0
-      this.hitPlayer = hitPlayer = false
-      this.canMove = canMove = false
-      this.indice = indice = 0
+    this.namePlayer = namePlayer = ""
+    this.adress = adress = ""
+    this.direction = direction = ""
+    this.lives = lives = 3
+    this.bombe = bombe = false
+    this.positionLeft = positionLeft = 0
+    this.positionTop = positionTop = 0
+    this.hitPlayer = hitPlayer = false
+    this.canMove = canMove = false
+    this.indice = indice = 0
 
   }
 }
 
-let timePassed = 0;
+// let timePassed = 0;
 const FULL_DASH_ARRAY = 283;
 const TIME_LIMIT = 40;
 let timeLeft = null
-let timerInterval,IDInterval = null;
+let timerInterval, IDInterval = null;
 const WARNING_THRESHOLD = 10;
 const ALERT_THRESHOLD = 5;
 
@@ -49,6 +49,8 @@ let remainingPathColor = COLOR_CODES.info.color;
 let clientAdress = null
 let clientPlayer = null
 let count, cpt, count2 = 0
+
+let setIntervalID = []
 
 let player = new Player()
 
@@ -79,8 +81,6 @@ export function GoRoom(dataServer, socket) {
       }
     }))
     // playersIn = dataServer.data.playersJoined.name
-
-
     document.getElementById("chrono").innerHTML = `
     <div class="base-timer">
     <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -105,7 +105,11 @@ export function GoRoom(dataServer, socket) {
                   </div>
                   `;
 
+
   }
+
+
+
 
 
   if (dataServer.type == "newPlayersList") {
@@ -117,56 +121,60 @@ export function GoRoom(dataServer, socket) {
 
   if (dataServer.type == "Chrono") {
 
-    timePassed = dataServer.data.time
+    // timePassed = dataServer.data.time
 
-    if (dataServer.data.nbPlayers >= 2 && dataServer.data.nbPlayers <= 4) {
-      if (count == 0) {
+    // if (dataServer.data.nbPlayers >= 2 && dataServer.data.nbPlayers <= 4) {
+    // if (count == 0) {
 
-        timerInterval = startTimer(dataServer.data.duration)
-        count++
-       
+    timerInterval = startTimer(dataServer.data.duration)
+    setIntervalID.push(timerInterval)
+    console.log("timerInterval startTimer:", timerInterval)
+    // count++
 
-        socket.send(JSON.stringify({
-          type: "timerID",
-          data: {
-            playerAdress: clientAdress,
-            playerName: clientPlayer,
-            ID: timerInterval,
-          }
-        }))
+
+    socket.send(JSON.stringify({
+      type: "timerID",
+      data: {
+        playerAdress: clientAdress,
+        playerName: clientPlayer,
+        ID: timerInterval,
       }
-    }
+    }))
+    // }
+    // }
   }
   if (dataServer.type == "Chrono2") {
 
-    if (dataServer.data.readyGame) {
-        clearInterval(dataServer.data.ID)
+    // if (dataServer.data.readyGame) {
+    // clearInterval(dataServer.data.ID)
 
-      if (cpt == 0) {
-        timePassed = 0
-        cpt++
-      }
-      timePassed = dataServer.data.time
-      if (count2 == 0) {
-        console.log("count:", count)
-
-        timerInterval = startTimerGame(dataServer.data.duration)
-        count2++
-
-        socket.send(JSON.stringify({
-          type: "timerID2",
-          data: {
-            playerAdress: clientAdress,
-            playerName: clientPlayer,
-            ID: IDInterval,
-          }
-        }))
-      }
+    if (cpt == 0) {
+      // timePassed = 0
+      cpt++
     }
+    // timePassed = dataServer.data.time
+    // if (count2 == 0) {
+    // console.log("count:", count)
+
+     timerInterval = startTimerGame(dataServer.data.duration)
+    setIntervalID.push(timerInterval)
+     console.log("timerInterval startTimerGame:", timerInterval)
+    // count2++
+
+    socket.send(JSON.stringify({
+      type: "timerID2",
+      data: {
+        playerAdress: clientAdress,
+        playerName: clientPlayer,
+        ID: IDInterval,
+      }
+    }))
+    // }
+    // }
   }
 
   if (dataServer.type == "StopTimerGame") {
-    clearInterval(IDInterval)
+    clearInterval(timerInterval)
   }
 
 }
@@ -179,8 +187,11 @@ function onTimesUp(timerInterval) {
 }
 
 export function startTimer(timeLimit) {
+  let timePassed = 0;
+  timeLeft = timeLimit
 
   timerInterval = setInterval(() => {
+    timePassed = timePassed + 1
     timeLeft = timeLimit - timePassed;
     document.getElementById("base-timer-label").innerHTML = timeLeft;
     setCircleDasharray(timeLimit);
@@ -188,40 +199,44 @@ export function startTimer(timeLimit) {
 
     console.log("time Left:", timeLeft)
 
-    if (timeLeft == 0) {
-      clearInterval(timerInterval)
+    if (timeLeft === 0) {
+      // onTimesUp(timerInterval)
+      stopAllSetInterval()
       socket.send(JSON.stringify({
         Type: "roomChronoStop",
         Data: null,
       }))
     }
-    console.log("time Left:", timeLeft)
-
   }, 1000);
+
 
   return timerInterval
 }
 
 export function startTimerGame(timeLimit) {
+  let timePassed = 0;
+  timeLeft = timeLimit
 
-    IDInterval = setInterval(() => {
+  timerInterval = setInterval(() => {
+    timePassed = timePassed + 1
     timeLeft = timeLimit - timePassed;
     document.getElementById("base-timer-label").innerHTML = timeLeft;
     setCircleDasharray(timeLimit);
     setRemainingPathColor(timeLeft);
-
     console.log("time Left:", timeLeft)
 
-    if (timeLeft == 0) {
+    if (timeLeft === 0) {
+      // onTimesUp(timerInterval)
+      stopAllSetInterval()
       socket.send(JSON.stringify({
         Type: "StartGame",
         Data: null
       }))
-      clearInterval(IDInterval)
       masquerElementsParClasse('room')
       displayGame()
     }
   }, 1000);
+  return timerInterval
 }
 
 
@@ -272,4 +287,10 @@ export function setCircleDasharray(timeLimit) {
     .setAttribute("stroke-dasharray", circleDasharray);
 }
 
-export {player}
+function stopAllSetInterval() {
+  setIntervalID.forEach(element => {
+    clearInterval(element)
+  });
+}
+
+export { player }

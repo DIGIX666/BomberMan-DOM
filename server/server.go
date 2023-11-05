@@ -25,6 +25,7 @@ var (
 	stopLoopRoom      = make(chan bool)
 	stopLoopGame      = make(chan bool)
 	startTime         time.Time
+	nbrPlayer         = 0
 	timerID           = []map[string]interface{}{}
 	elapsed           = 0
 	newMap            = make(map[string]interface{})
@@ -96,10 +97,19 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 
 		case "roomChronoStop":
 			startTime = time.Now()
-			TimerGame(conn, activeClients, 10)
+			// TimerGame(conn, activeClients, 10)
+			// TimerRoom(conn, activeConnections, 20, stopLoopRoom)
+			StartTimer("Chrono2", activeConnections, 10)
 
 		case "StartGame":
 			fmt.Println("GOING goGame")
+
+			// if nbrPlayer == len(activeConnections) {
+			// 	goGame(conn)
+			// 	nbrPlayer = 0
+			// }else{
+			// 	nbrPlayer++
+			// }
 			goGame(conn)
 			fmt.Println("OUT OF goGame")
 
@@ -224,7 +234,8 @@ func room(conn *websocket.Conn, player string) {
 			fmt.Printf("len(activeConnections): %v\n", len(activeConnections))
 			fmt.Printf("activeConnections: %v\n", activeConnections)
 			startTime = time.Now()
-			TimerRoom(conn, activeConnections, 20, stopLoopRoom)
+			// TimerRoom(conn, activeConnections, 20, stopLoopRoom)
+			StartTimer("Chrono", activeConnections, 20)
 			count++
 
 		}
@@ -258,6 +269,17 @@ func manageClientInfo(conn *websocket.Conn, dataReceive structure.DataParam) {
 			fmt.Println("erreur writingJSON data function manageClientInfo:")
 			log.Fatal(err)
 		}
+	}
+}
+
+func StartTimer(chrono string, activeConnections map[string]*websocket.Conn, duration int) {
+	for _, c := range activeConnections {
+		c.WriteJSON(structure.DataParam{
+			Type: chrono,
+			Data: map[string]interface{}{
+				"duration": duration,
+			},
+		})
 	}
 }
 
@@ -382,30 +404,30 @@ func goGame(conn *websocket.Conn) {
 
 	fmt.Printf("activeConnections: %v\n", activeConnections)
 	// fmt.Printf("donnee: %v\n", donnee)
-	for key, value := range activeClients {
-		for i := 0; i < len(timerID); i++ {
-			for k, v := range timerID[i] {
-				if key == k {
-					fmt.Printf("ID: %v\n", int(v.(float64)))
-					fmt.Printf("key: %v\n", key)
-					data := structure.DataParam{
-						Type: "Chrono2",
-						Data: map[string]interface{}{
-							// "Game":      true,
-							"ID":        int(v.(float64)),
-							"duration":  20,
-							"nbPlayers": userDB.NumberOfPlayers(),
-						},
-					}
-					err := value.WriteJSON(data)
-					if err != nil {
-						fmt.Println("Error WriteJSON in TimerManager Last loop")
-						log.Fatal(err)
-					}
-				}
-			}
-		}
-	}
+	// for key, value := range activeClients {
+	// 	for i := 0; i < len(timerID); i++ {
+	// 		for k, v := range timerID[i] {
+	// 			if key == k {
+	// 				fmt.Printf("ID: %v\n", int(v.(float64)))
+	// 				fmt.Printf("key: %v\n", key)
+	// 				data := structure.DataParam{
+	// 					Type: "Chrono2",
+	// 					Data: map[string]interface{}{
+	// 						// "Game":      true,
+	// 						"ID":        int(v.(float64)),
+	// 						"duration":  20,
+	// 						"nbPlayers": userDB.NumberOfPlayers(),
+	// 					},
+	// 				}
+	// 				err := value.WriteJSON(data)
+	// 				if err != nil {
+	// 					fmt.Println("Error WriteJSON in TimerManager Last loop")
+	// 					log.Fatal(err)
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
 
 	joueurs := userDB.PlayersTab()
 	mapJoueurs := []string{}
