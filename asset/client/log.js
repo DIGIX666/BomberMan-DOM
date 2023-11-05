@@ -31,8 +31,4 @@ function navigateTo(route) {
     history.pushState(null, null, route);
     loadPage(route);
 }
-
-
-
-
 /****************************/

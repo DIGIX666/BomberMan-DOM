@@ -2,13 +2,17 @@ import {
   GameInit,
   GamePlay,
   PlayerMoved,
-
 } from "./scripts/game.js";
 
 import {
   GoRoom,
-  player
+  updatePlayerName,
+  player,
 } from "./scripts/room.js";
+
+
+let playerNames = [];
+console.log("player tableau",playerNames)
 
 
 let socket = new WebSocket("ws://localhost:8080/ws")
@@ -28,8 +32,21 @@ requestAnimationFrame(function (timestamp) {
 
     GoRoom(dataServer, socket)
 
-    ///////////////////Recevoir les joueurs///////////////////////////////////////////
 
+    ///////////////////Recevoir les joueurs///////////////////////////////////////////
+    
+    // Vérifiez si le type de données est "newPlayersList"
+    if (dataServer.type === "newPlayersList") {
+      var playersFromServer = dataServer.data.players;
+
+      // Mettez à jour le tableau des pseudonymes des joueurs avec la liste complète
+      playerNames = playersFromServer;
+    }
+
+    // Mettez à jour les éléments HTML correspondants avec les pseudonymes
+    for (var i = 0; i < playerNames.length; i++) {
+      updatePlayerName(i, playerNames[i]);
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////
 

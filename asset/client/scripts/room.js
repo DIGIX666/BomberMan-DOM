@@ -54,11 +54,9 @@ let setIntervalID = []
 
 let player = new Player()
 
+
+let playersIn = []
 export function GoRoom(dataServer, socket) {
-
-
-
-  let playersIn = []
 
   // let timeLeft = TIME_LIMIT;
 
@@ -80,13 +78,12 @@ export function GoRoom(dataServer, socket) {
         client: dataServer.data.clientAdress
       }
     }))
-    // playersIn = dataServer.data.playersJoined.name
     document.getElementById("chrono").innerHTML = `
     <div class="base-timer">
     <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <g class="base-timer__circle">
     <circle class="base-timer__path-elapsed" cx="50" cy="50" r="45"></circle>
-    <path
+    <path 
     id="base-timer-path-remaining"
     stroke-dasharray="283"
     class="base-timer__path-remaining ${remainingPathColor}"
@@ -111,13 +108,8 @@ export function GoRoom(dataServer, socket) {
 
 
 
+ 
 
-  if (dataServer.type == "newPlayersList") {
-
-    if (!playersIn.includes(dataServer.data.lastPlayer)) {
-      playersIn.push(dataServer.data.lastPlayer)
-    }
-  }
 
   if (dataServer.type == "Chrono") {
 
@@ -234,6 +226,19 @@ export function startTimerGame(timeLimit) {
       }))
       masquerElementsParClasse('room')
       displayGame()
+    // Récupérez les pseudos des joueurs de la section "Room"
+    const player1Name = document.getElementById("player1").textContent;
+    const player2Name = document.getElementById("player2").textContent;
+    const player3Name = document.getElementById("player3").textContent;
+    const player4Name = document.getElementById("player4").textContent;
+
+    console.log(player1Name);
+    console.log(player2Name);
+    // Injectez les pseudos récupérés dans les éléments de la section "Game"
+    document.getElementById("player1Input").textContent = player1Name;
+    document.getElementById("player2Input").textContent = player2Name;
+    document.getElementById("player3Input").textContent = player3Name;
+    document.getElementById("player4Input").textContent = player4Name;
     }
   }, 1000);
   return timerInterval
@@ -293,4 +298,12 @@ function stopAllSetInterval() {
   });
 }
 
-export { player }
+// Dans votre code côté client (connexion.js)
+export function updatePlayerName(index, name) {
+  var playerNameElement = document.getElementById("player" + (index + 1));
+    playerNameElement.textContent = name;
+
+    // Ajoutez des logs pour vérifier que les pseudonymes sont mis à jour
+    console.log("Mise à jour du joueur " + (index + 1) + " avec le nom : " + name);
+}
+export { player };

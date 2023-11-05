@@ -103,10 +103,10 @@
   top: 120px;
   left: 130px;
   width: 60px;
-  height: 96px;
-  background-image: url(../asset/images/character/perso1/perso1-marche.png);
+  height: 100px;
+  background-image: url(../asset/images/character/perso1/perso1.png);
   /* Ajustez les valeurs de background-position pour afficher la première image */
-  background-position: -5px -17px;
+  background-position: -47px -430px;
 }
 
 .character2 {
@@ -115,10 +115,10 @@
   top: 120px;
   left: 830px;
   width: 60px;
-  height: 96px;
-  background-image: url(../asset/images/character/perso2/idle_rouge.png);
+  height: 100px;
+  background-image: url(../asset/images/character/perso2/perso2.png);
   /* Ajustez les valeurs de background-position pour afficher la première image */
-  background-position: -5px -17px;
+  background-position: -190px -430px;
 }
 
 .character3 {
@@ -127,10 +127,10 @@
   top: 600px;
   left: 130px;
   width: 60px;
-  height: 96px;
-  background-image: url(../asset/images/character/perso3/idle_jaune.png);
+  height: 100px;
+  background-image: url(../asset/images/character/perso3/perso3.png);
   /* Ajustez les valeurs de background-position pour afficher la première image */
-  background-position: -5px -17px;
+  background-position: -330px -430px;
 }
 
 .character4 {
@@ -139,10 +139,10 @@
   top: 600px;
   left: 830px;
   width: 60px;
-  height: 96px;
-  background-image: url(../asset/images/character/perso4/idle_magenta.png);
+  height: 100px;
+  background-image: url(../asset/images/character/perso4/perso4.png);
   /* Ajustez les valeurs de background-position pour afficher la première image */
-  background-position: -5px -17px;
+  background-position: -260px -430px;
 }
 
 
@@ -522,6 +522,4 @@ iframe {
   left: 0;
   width: 100%;
   height: 100%;
-}
-
-/*# sourceMappingURL=styles.css.map */
+}/*# sourceMappingURL=styles.css.map */
