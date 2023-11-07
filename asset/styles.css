@@ -2,8 +2,7 @@
 /* styles.css */
 @import url("https://fonts.googleapis.com/css2?family=Handjet:wght@300&display=swap");
 .game {
-  /* position: absolute; */
-  /* margin: 20px; */
+  margin: 20px;
   display: grid;
   grid-template-columns: repeat(10, 100px);
   grid-template-rows: repeat(8, 100px);
@@ -23,7 +22,6 @@
   width: 100px;
   border-radius: 100%;
   overflow: hidden;
-  border: solid;
 }
 
 .card-game {
@@ -99,7 +97,6 @@
 
 .character1 {
   position: absolute;
-  border: solid;
   top: 120px;
   left: 130px;
   width: 60px;
@@ -111,7 +108,6 @@
 
 .character2 {
   position: absolute;
-  border: solid;
   top: 120px;
   left: 830px;
   width: 60px;
@@ -123,7 +119,6 @@
 
 .character3 {
   position: absolute;
-  border: solid;
   top: 600px;
   left: 130px;
   width: 60px;
@@ -135,7 +130,6 @@
 
 .character4 {
   position: absolute;
-  border: solid;
   top: 600px;
   left: 830px;
   width: 60px;
@@ -145,12 +139,9 @@
   background-position: -260px -430px;
 }
 
-
-
 .bombe {
   position: absolute;
   overflow: hidden;
-  border: solid;
   width: 32px;
   height: 40px;
   background-image: url(../asset/images/bombe.png);
@@ -176,6 +167,33 @@
     opacity: 0;
   }
 }
+.reward-speed {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-image: url(../asset/images/bonus_speed.png);
+  background-size: cover;
+  border-radius: 30%;
+}
+
+.reward-bomb {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-image: url(../asset/images/bonus_bombe.png);
+  background-size: cover;
+  border-radius: 30%;
+}
+
+.reward-fire {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-image: url(../asset/images/bonus_flame.png);
+  background-size: cover;
+  border-radius: 30%;
+}
+
 .log {
   display: flex;
   justify-content: center;
