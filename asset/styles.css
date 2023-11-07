@@ -22,7 +22,6 @@
   width: 100px;
   border-radius: 100%;
   overflow: hidden;
-  border: solid;
 }
 
 .card-game {
@@ -62,56 +61,51 @@
 
 .character1 {
   position: absolute;
-  border: solid;
   top: 120px;
   left: 130px;
   width: 60px;
-  height: 96px;
+  height: 100px;
   background-image: url(../asset/images/character/perso1/perso1.png);
   /* Ajustez les valeurs de background-position pour afficher la première image */
-  background-position: -5px -17px;
+  background-position: -47px -430px;
 }
 
 .character2 {
   position: absolute;
-  border: solid;
   top: 120px;
   left: 830px;
   width: 60px;
-  height: 96px;
+  height: 100px;
   background-image: url(../asset/images/character/perso2/perso2.png);
   /* Ajustez les valeurs de background-position pour afficher la première image */
-  background-position: -5px -17px;
+  background-position: -190px -430px;
 }
 
 .character3 {
   position: absolute;
-  border: solid;
   top: 600px;
   left: 130px;
   width: 60px;
-  height: 96px;
+  height: 100px;
   background-image: url(../asset/images/character/perso3/perso3.png);
   /* Ajustez les valeurs de background-position pour afficher la première image */
-  background-position: -5px -17px;
+  background-position: -330px -430px;
 }
 
 .character4 {
   position: absolute;
-  border: solid;
   top: 600px;
   left: 830px;
   width: 60px;
-  height: 96px;
+  height: 100px;
   background-image: url(../asset/images/character/perso4/perso4.png);
   /* Ajustez les valeurs de background-position pour afficher la première image */
-  background-position: -5px -17px;
+  background-position: -260px -430px;
 }
 
 .bombe {
   position: absolute;
   overflow: hidden;
-  border: solid;
   width: 32px;
   height: 40px;
   background-image: url(../asset/images/bombe.png);
@@ -137,6 +131,33 @@
     opacity: 0;
   }
 }
+.reward-speed {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-image: url(../asset/images/bonus_speed.png);
+  background-size: cover;
+  border-radius: 30%;
+}
+
+.reward-bomb {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-image: url(../asset/images/bonus_bombe.png);
+  background-size: cover;
+  border-radius: 30%;
+}
+
+.reward-fire {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-image: url(../asset/images/bonus_flame.png);
+  background-size: cover;
+  border-radius: 30%;
+}
+
 .log {
   display: flex;
   justify-content: center;

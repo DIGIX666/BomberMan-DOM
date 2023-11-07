@@ -92,8 +92,6 @@ export function GameInit(players, i) {
     charLeft = parseInt(docCharacter.left.replace("px", ""));
     charTop = parseInt(docCharacter.top.replace("px", ""));
 
-    //  charLeft = character.getBoundingClientRect().left
-    //  charTop = character.getBoundingClientRect().top
     //Send to server that the Initialization it's done
     socket.send(JSON.stringify({
         Type: "GameSet",
@@ -180,6 +178,7 @@ export function PlayerMoved(socket, player, data, mapData) {
     }
 }
 //////////////////////////////////////
+
 
 export function GamePlay(socket, player, mapData, i) {
     let currentLife = player.lives;
@@ -336,8 +335,8 @@ function dropBomb(character, x, y, currentLife, player, mapData) {
         // Créer l'élément d'explosion
         const explosion = document.createElement('div');
         explosion.classList.add('explosion');
-        explosion.style.left = x + 'px';
-        explosion.style.top = y + 'px';
+        explosion.style.left = bomb.style.left;
+        explosion.style.top = bomb.style.top;
         bomberMan.appendChild(explosion);
 
         // Vérifier les collisions avec les briques
@@ -347,17 +346,74 @@ function dropBomb(character, x, y, currentLife, player, mapData) {
                 const brickRow = parseInt(brick.getAttribute('data-row'));
                 const brickCol = parseInt(brick.getAttribute('data-col'));
                 brick.style.visibility = 'hidden'; // Cacher la brique visuellement
-                brick.classList.remove('brick');  // Retirer la classe "brick"
+                // brick.classList.remove('brick'); // Cette ligne n'est plus nécessaire, car nous masquons la brique
 
-                mapData[brickRow][brickCol] = ' '; // Mettre à jour le modèle de données
-                if (
-                    checkCollision(explosion, character) &&
-                    !player.hitPlayer
-                ) {
-                    player.hitPlayer = true // Marquer que le joueur a été touché
-                    reduceLife(currentLife, player); // Appeler la fonction pour réduire la vie du joueur
-                    console.log("vie perdu");
+                
+                // if (Math.random() < 0.5) { 
+                //     // Créer un élément pour le sprite à faire apparaître (reward)
+                //     const rewardspeed = document.createElement('div');
+                //     const rewardfire = document.createElement('div');
+                //     const rewardbomb = document.createElement('div');
+                //     const randomNumber = Math.random();
+                    
+                //     if (randomNumber < 0.33) {
+                //         rewardspeed.classList.add('reward-speed');
+                //     } else if (randomNumber < 1) { 
+                //         rewardbomb.classList.add('reward-bomb');
+                //     } else {
+                //         rewardfire.classList.add('reward-fire');
+                //     }
+                    
+                //     rewardspeed.style.left = bomb.style.left;
+                //     rewardspeed.style.top = bomb.style.top;
+                //     bomberMan.appendChild(rewardspeed); // Ajoutez le sprite au conteneur
+
+                //     rewardbomb.style.left = bomb.style.left;
+                //     rewardbomb.style.top = bomb.style.top;
+                //     bomberMan.appendChild(rewardbomb); // Ajoutez le sprite au conteneur
+
+                //     rewardfire.style.left = bomb.style.left;
+                //     rewardfire.style.top = bomb.style.top;
+                //     bomberMan.appendChild(rewardfire); // Ajoutez le sprite au conteneur
+                // }
+
+                // Créer un tableau pour suivre les récompenses déjà créées
+                const createdRewards = [];
+
+                if (Math.random() < 0.5 && createdRewards.length < 3) {
+                    const randomNumber = Math.random();
+                    // Créer un élément pour le sprite à faire apparaître (reward)
+                    const rewardspeed = document.createElement('div');
+                    const rewardfire = document.createElement('div');
+                    const rewardbomb = document.createElement('div');
+
+                    if (randomNumber < 0.33 && createdRewards.indexOf('reward-speed') === -1) {
+                        createdRewards.push('reward-speed');
+                        rewardspeed.classList.add('reward-speed');
+                    } else if (randomNumber < 0.66 && createdRewards.indexOf('reward-bomb') === -1) {
+                        createdRewards.push('reward-bomb');
+                        rewardbomb.classList.add('reward-bomb');
+                    } else if ( randomNumber < 1.2 && createdRewards.indexOf('reward-fire') === -1) {
+                        createdRewards.push('reward-fire');
+                        rewardfire.classList.add('reward-fire');
+                    }
+
+                    rewardspeed.style.left = bomb.style.left;
+                    rewardspeed.style.top = bomb.style.top;
+
+                    rewardbomb.style.left = bomb.style.left;
+                    rewardbomb.style.top = bomb.style.top;
+
+                    rewardfire.style.left = bomb.style.left;
+                    rewardfire.style.top = bomb.style.top;
+
+                    bomberMan.appendChild(rewardspeed); // Ajoutez le sprite au conteneur
+                    bomberMan.appendChild(rewardbomb); // Ajoutez le sprite au conteneur
+                    bomberMan.appendChild(rewardfire); // Ajoutez le sprite au conteneur
+                    console.log("reward:", createdRewards)
                 }
+
+                mapData[brickRow][brickCol] = ' '; // Mettre à jour le modèle de données en supprimant la brique
             }
         });
 
