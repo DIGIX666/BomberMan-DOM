@@ -193,7 +193,8 @@ export function PlayerMoved(socket, player, data) {
 
     if (player.bomb && character != null) {
 
-        dropBomb(character, data.x, data.y, data.currentLife, player, data.map,data.who)
+        dropBomb(character, data.x, data.y, data.currentLife, player, data.map,data.who,data.hit)
+        playerLives(character,data.x,data.y,data.who)
         UpdateBricks()
         player.bomb = false
     }
@@ -219,7 +220,6 @@ export function GamePlay(socket, player, mapData, i) {
         // charTop = getComputedStyle(character).top.replace("px", "");
         // let charLeft = character.getBoundingClientRect().left
         // let charTop = character.getBoundingClientRect().top
-
 
         if (event.key === 'ArrowRight') {
             console.log("charLeft:", charLeft)
@@ -321,8 +321,8 @@ export function GamePlay(socket, player, mapData, i) {
         console.log("character before bomb:", character);
         // Ajouter la logique pour déposer une bombe avec la touche Espace
         if (event.key === ' ' && character != null) { // Touche Espace
-            dropBomb(character, charLeft + charWidth / 2, charTop + charHeight / 2, currentLife, player, mapData,i);
-            UpdateBricks();
+            // dropBomb(character, charLeft + charWidth / 2, charTop + charHeight / 2, player.lives, player, mapData,i);
+            // UpdateBricks();
           
             socket.send(JSON.stringify({
                 Type: "Player Dropped Bomb",
@@ -332,7 +332,8 @@ export function GamePlay(socket, player, mapData, i) {
                     x: charLeft + charWidth / 2,
                     y: charTop + charHeight / 2,
                     currentLife: player.lives,
-                    map: dropBomb(character, charLeft + charWidth / 2, charTop + charHeight / 2, currentLife, player, mapData,i),
+                    hit: player.hitPlayer,
+                    map: dropBomb(character, charLeft + charWidth / 2, charTop + charHeight / 2, player.lives, player, mapData,i,player.hitPlayer),
                     who: i,
                 }
             }));
@@ -341,10 +342,8 @@ export function GamePlay(socket, player, mapData, i) {
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
 ///////// Drop Bomb ///////////////
-function dropBomb(character, x, y, currentLife, player, mapData,i) {
+function dropBomb(character, x, y, currentLife, player, mapData,i,hit) {
     const bomb = document.createElement('div');
     bomb.classList.add('bombe');
     bomb.style.left = x + 'px';
@@ -382,14 +381,14 @@ function dropBomb(character, x, y, currentLife, player, mapData,i) {
                 UpdateBricks()
             }
         });
-        if (
-            checkCollision(explosion, character) 
-        ) {
-            player.hitPlayer = true// Marquer que le joueur a été touché
-            reduceLife(currentLife, player,i); // Appeler la fonction pour réduire la vie du joueur
-            console.log("vie perdu");
+        // if (
+        //     checkCollision(explosion, character)
+        // ) {
+        //     player.hitPlayer = true// Marquer que le joueur a été touché
+        //     reduceLife(player,i,hit); // Appeler la fonction pour réduire la vie du joueur
+        //     console.log("vie perdu");
             
-        }
+        // }
 
         // Supprimer l'élément d'explosion après un délai
         setTimeout(function () {
@@ -402,19 +401,20 @@ function dropBomb(character, x, y, currentLife, player, mapData,i) {
 
 
 ///////// Reduce Life //////////////
-function reduceLife(currentLife, player,i,countTouch) {
+function reduceLife(player,i) {
     const lifeElement = document.querySelector('.life'+(i+1).toString());
     console.log("lifeElement:", lifeElement);
     console.log("lifeElement.textContent:", lifeElement.textContent);
     currentLife = parseInt(lifeElement.textContent);
     
-    if (currentLife > 0) {
+    if (player.lives > 0) {
         player.lives--
+        player.hitPlayer = false
 
         lifeElement.textContent = player.lives;
         // console.log("currentLife:", currentLife);
 
-        if (currentLife === 0) {
+        if (player.lives === 0) {
             const characterLife = document.querySelector('.character'+(i+1).toString());
             bomberMan.removeChild(characterLife);
             console.log("Game over!");
@@ -518,4 +518,20 @@ function UpdatePlayers(){
     });
 
     return players
+}
+
+function playerLives(character,x,y,i){
+    const explosion = document.createElement('div');
+    explosion.classList.add('explosion');
+    explosion.style.left = x + 'px';
+    explosion.style.top = y + 'px';
+    bomberMan.appendChild(explosion);
+    if (
+        checkCollision(explosion, character)
+    ) {
+        player.hitPlayer = true// Marquer que le joueur a été touché
+        reduceLife(player,i); // Appeler la fonction pour réduire la vie du joueur
+        console.log("vie perdu");
+        
+    }
 }
