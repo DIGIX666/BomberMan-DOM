@@ -333,7 +333,7 @@ export function GamePlay(socket, player, mapData, i) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
+let countTouch = 0
 ///////// Drop Bomb ///////////////
 function dropBomb(character, x, y, currentLife, player, mapData,i) {
     const bomb = document.createElement('div');
@@ -405,7 +405,7 @@ function dropBomb(character, x, y, currentLife, player, mapData,i) {
             checkCollision(explosion, character) 
         ) {
             player.hitPlayer = true// Marquer que le joueur a été touché
-            countTouch = 0
+            countTouch = countTouch + 1 
             reduceLife(currentLife, player,i); // Appeler la fonction pour réduire la vie du joueur
             console.log("vie perdu");
             
@@ -538,3 +538,34 @@ function UpdatePlayers(){
 
     return players
 }
+
+
+///////////// FPS /////////////// 
+window.requestAnimFrame = (function() {
+    return window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame ||
+        window.ieRequestAnimationFrame ||
+        function(callback) {
+            window.setTimeout(callback, 1000 / 60); 
+        };
+})();
+let fpsElement = document.getElementById("fps");
+
+let then = Date.now() / 1000;  // get time in seconds
+
+let render = function() {
+    let now = Date.now() / 1000;  // get time in seconds
+
+    // compute time since last frame
+    let elapsedTime = now - then;
+    then = now;
+
+    // compute fps
+    let fps = 1 / elapsedTime;
+    fpsElement.innerText = fps.toFixed(2);
+
+    requestAnimFrame(render);
+};
+render();
+///////////////////////////////////////
