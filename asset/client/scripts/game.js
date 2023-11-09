@@ -420,13 +420,13 @@ function reduceLife(player, i) {
             const characterLife = document.querySelector('.character' + (i + 1).toString());
             bomberMan.removeChild(characterLife);
             console.log("Game over!");
-            // socket.send(JSON.stringify({
-            //     Type: "GAME OVER",
-            //     Data: {
-            //         name: player.namePlayer,
-            //         adress: player.playerAdress,
-            //     }
-            // }))
+            socket.send(JSON.stringify({
+                Type: "GAME OVER",
+                Data: {
+                    name: player.namePlayer,
+                    adress: player.playerAdress,
+                }
+            }))
         }
     }
 }
