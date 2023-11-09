@@ -81,12 +81,12 @@ export function GameInit(players, i) {
         bomberMan.appendChild(character4);
     }
 
-    for (let k = 1; k <=players.length; k++) {
-        const item = document.getElementById("item--"+k.toString());
+    for (let k = 1; k <= players.length; k++) {
+        const item = document.getElementById("item--" + k.toString());
         console.log("item:", item);
         // const textItem = document.getElementsByClassName(".text--"+k.toString());
         let life = document.createElement('span');
-        life.classList.add('life'+k.toString());
+        life.classList.add('life' + k.toString());
         life.textContent = "3";
         item.appendChild(life);
     }
@@ -125,25 +125,27 @@ export function GetNameAndAdress(activeCo) {
 
 
 ////////// Player Moved //////////////
-export function PlayerMoved(socket, player, data, mapData) {
+export function PlayerMoved(socket, player, data) {
 
-    
+
     let playerName = player.namePlayer
     console.log("dataServer:", data.who)
     console.log("data.who:", data.who)
     character = document.querySelector(".character" + ((data.who + 1).toString()))
     // console.log("character:", character);
     let docCharacter = getComputedStyle(character);
-    
+
     let left = parseInt(docCharacter.left.replace("px", ""));
     let top = parseInt(docCharacter.top.replace("px", ""));
 
     console.log("data from moving:", data);
-    console.log("mapData from moving:", mapData);
+    console.log("mapData from moving:", data.map);
 
     // Vérifier si le mouvement est possible
     if (data.direction == "Up" && data.move) {
-        if (Collision(left, data.position - 10, mapData)) {
+        UpdateBricks()
+        UpdatePlayers()
+        if (Collision(left, data.position - 10, data.map)) {
             // player.positionTop = data.position - 10;
             // character.style.top = player.positionTop + 'px';
             top = data.position - 10;
@@ -151,7 +153,9 @@ export function PlayerMoved(socket, player, data, mapData) {
         }
     }
     if (data.direction == "Down" && data.move) {
-        if (Collision(left, data.position + 10, mapData)) {
+        UpdateBricks()
+        UpdatePlayers()
+        if (Collision(left, data.position + 10, data.map)) {
             // player.positionTop = data.position + 10;
             // character.style.top = player.positionTop + 'px';
             top = data.position + 10;
@@ -159,31 +163,30 @@ export function PlayerMoved(socket, player, data, mapData) {
         }
 
     }
-
     if (data.direction == "Left" && data.move) {
-        if (Collision(data.position - 10, top, mapData)) {
+        UpdateBricks()
+        UpdatePlayers()
+        if (Collision(data.position - 10, top, data.map)) {
             // player.positionLeft = data.position - 10;
             // character.style.left = player.positionLeft + 'px';
             left = data.position - 10;
             character.style.left = left + 'px';
         }
     }
-
     if (data.direction == "Right" && data.move) {
-        if (Collision(data.position + 10, top, mapData)) {
+        UpdateBricks()
+        UpdatePlayers()
+        if (Collision(data.position + 10, top, data.map)) {
             // player.positionLeft = data.position + 10;
             // character.style.left = player.positionLeft + 'px';
             left = data.position + 10;
             character.style.left = left + 'px';
         }
     }
+    if (data.bombed && character != null) {
 
-    console.log("character before bomb ws:", character);
-
-
-    if (player.bomb && character != null) {
-
-        dropBomb(character, data.x, data.y, data.currentLife, player, mapData,data.who)
+        dropBomb(character, data.x, data.y, data.currentLife, player, data.map, data.who, data.hit)
+        // playerLives(character,data.x,data.y,data.who)
         UpdateBricks()
         player.bomb = false
     }
@@ -192,6 +195,8 @@ export function PlayerMoved(socket, player, data, mapData) {
 
 
 export function GamePlay(socket, player, mapData, i) {
+    // console.log("character before bomb:", character);
+
 
     document.addEventListener('keydown', (event) => {
 
@@ -210,7 +215,6 @@ export function GamePlay(socket, player, mapData, i) {
         // charTop = getComputedStyle(character).top.replace("px", "");
         // let charLeft = character.getBoundingClientRect().left
         // let charTop = character.getBoundingClientRect().top
-
 
         if (event.key === 'ArrowRight') {
             console.log("charLeft:", charLeft)
@@ -309,12 +313,14 @@ export function GamePlay(socket, player, mapData, i) {
                 }))
             }
         }
-        console.log("character before bomb:", character);
-        // Ajouter la logique pour déposer une bombe avec la touche Espace
-        if (event.key === ' ' && character != null) { // Touche Espace
-            dropBomb(character, charLeft + charWidth / 2, charTop + charHeight / 2, currentLife, player, mapData,i);
-            UpdateBricks();
-          
+        if (event.key === ' ' && character != null) {
+
+            // Ajouter la logique pour déposer une bombe avec la touche Espace 
+            // dropBomb(character, charLeft + charWidth / 2, charTop + charHeight / 2, player.lives, player, mapData,i);
+            // UpdateBricks();
+            player.bomb = true
+            
+
             socket.send(JSON.stringify({
                 Type: "Player Dropped Bomb",
                 data: {
@@ -323,7 +329,9 @@ export function GamePlay(socket, player, mapData, i) {
                     x: charLeft + charWidth / 2,
                     y: charTop + charHeight / 2,
                     currentLife: player.lives,
-                    updateMap: mapData,
+                    hit: player.hitPlayer,
+                    // map: ,
+                    bombed: player.bomb,
                     who: i,
                 }
             }));
@@ -331,19 +339,23 @@ export function GamePlay(socket, player, mapData, i) {
     });
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
+let cpt =0
 ///////// Drop Bomb ///////////////
-function dropBomb(character, x, y, currentLife, player, mapData,i) {
+function dropBomb(character, x, y, currentLife, player, mapData, i, hit) {
     const bomb = document.createElement('div');
     bomb.classList.add('bombe');
     bomb.style.left = x + 'px';
     bomb.style.top = y + 'px';
     bomberMan.appendChild(bomb);
 
+    // Créer l'élément d'explosion
+    const explosion = document.createElement('div');
+    explosion.classList.add('explosion');
+    explosion.style.left = x + 'px';
+    explosion.style.top = y + 'px';
     // Programmer l'animation d'explosion après 3 secondes
     setTimeout(function () {
+        bomberMan.appendChild(explosion);
         bomberMan.removeChild(bomb); // Supprimer l'élément de la bombe
 
         // Créer l'élément d'explosion
@@ -352,7 +364,17 @@ function dropBomb(character, x, y, currentLife, player, mapData,i) {
         explosion.style.left = bomb.style.left;
         explosion.style.top = bomb.style.top;
         bomberMan.appendChild(explosion);
+        if (checkCollision(explosion, character)) {
+            player.hitPlayer = true  // Marquer que le joueur a été touché
+            if (player.hitPlayer && cpt == 0) {
+                reduceLife(player, i); // Appeler la fonction pour réduire la vie du joueur
+                player.hitPlayer = false
+                cpt++
+                console.log("vie perdu");
+            }
+            console.log("player.hitPlayer:", player.hitPlayer)
 
+        }
         // Vérifier les collisions avec les briques
         const bricks = document.querySelectorAll('.brick');
         bricks.forEach((brick) => {
@@ -399,42 +421,48 @@ function dropBomb(character, x, y, currentLife, player, mapData,i) {
                 }
 
                 mapData[brickRow][brickCol] = ' '; // Mettre à jour le modèle de données en supprimant la brique
+                // brick.style.visibility = 'hidden'; // Cacher la brique visuellement
+                brick.classList.remove('brick');  // Retirer la classe "brick"
+
+                mapData[brickRow][brickCol] = ' '; // Mettre à jour le modèle de données
+                socket.send(JSON.stringify({
+                    Type: "GameSet",
+                    Data: {
+                        map: mapData
+                    }
+                }))
+                UpdateBricks()
             }
         });
-        if (
-            checkCollision(explosion, character) 
-        ) {
-            player.hitPlayer = true// Marquer que le joueur a été touché
-            countTouch = 0
-            reduceLife(currentLife, player,i); // Appeler la fonction pour réduire la vie du joueur
-            console.log("vie perdu");
-            
-        }
 
         // Supprimer l'élément d'explosion après un délai
         setTimeout(function () {
             bomberMan.removeChild(explosion);
         }, 1000); // Supprimer l'explosion après 1 seconde
-    }, 2000); // 3 secondes
+    }, 2000); // 2 secondes
+
+cpt = 0
 }
 ///////////////////////////////////
 
 
 ///////// Reduce Life //////////////
-function reduceLife(currentLife, player,i,countTouch) {
-    const lifeElement = document.querySelector('.life'+(i+1).toString());
-    console.log("lifeElement:", lifeElement);
-    console.log("lifeElement.textContent:", lifeElement.textContent);
+function reduceLife(player, i) {
+    const lifeElement = document.querySelector('.life' + (i + 1).toString());
+    // console.log("lifeElement:", lifeElement);
+    // console.log("lifeElement.textContent:", lifeElement.textContent);
     currentLife = parseInt(lifeElement.textContent);
-    
-    if (currentLife > 0) {
-        player.lives--;
 
-        lifeElement.textContent = currentLife
-        console.log("currentLife:", currentLife);
+    if (currentLife > 0) {
+        currentLife--
+
+        lifeElement.textContent = currentLife.toString();
+
+
+        console.log("player.lives:", player.lives);
 
         if (currentLife === 0) {
-            const characterLife = document.querySelector('.character'+(i+1).toString());
+            const characterLife = document.querySelector('.character' + (i + 1).toString());
             bomberMan.removeChild(characterLife);
             console.log("Game over!");
             socket.send(JSON.stringify({
@@ -448,7 +476,6 @@ function reduceLife(currentLife, player,i,countTouch) {
     }
 }
 ///////////////////////////////////////
-
 
 ///////// Check Collision /////////////
 function checkCollision(element1, element2) {
@@ -517,7 +544,7 @@ function UpdateBricks() {
 }
 
 
-function UpdatePlayers(){
+function UpdatePlayers() {
     let players = []
     document.querySelectorAll(".character").forEach((element) => {
         let x = element.getBoundingClientRect().x;
@@ -537,4 +564,16 @@ function UpdatePlayers(){
     });
 
     return players
+}
+
+function playerLives(character, x, y, i) {
+
+    if (
+        checkCollision(explosion, character)
+    ) {
+        player.hitPlayer = true// Marquer que le joueur a été touché
+        reduceLife(player, i); // Appeler la fonction pour réduire la vie du joueur
+        console.log("vie perdu");
+
+    }
 }

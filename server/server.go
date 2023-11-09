@@ -124,6 +124,23 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 		case "GameSet":
 			StartGameplay(conn, data.Data)
 
+		case "Game Over":
+			GameOver(data.Data)
+
+		}
+	}
+}
+
+func GameOver(data map[string]interface{}) {
+	donnee := structure.DataParam{
+		Type: "PlayerDead",
+		Data: data,
+	}
+	for _, c := range activeConnections {
+
+		err := c.WriteJSON(donnee)
+		if err != nil {
+			log.Panicf("Error WriteJSON function GameOver:%v", err)
 		}
 	}
 }
@@ -229,13 +246,13 @@ func room(conn *websocket.Conn, player string) {
 		}
 
 		if len(activeConnections) == 2 && count == 0 {
-			println("DURATION 20 !!!!!!!!!!")
+			println("DURATION 30 !!!!!!!!!!")
 
 			fmt.Printf("len(activeConnections): %v\n", len(activeConnections))
 			fmt.Printf("activeConnections: %v\n", activeConnections)
 			startTime = time.Now()
 			// TimerRoom(conn, activeConnections, 20, stopLoopRoom)
-			StartTimer("Chrono", activeConnections, 20)
+			StartTimer("Chrono", activeConnections, 30)
 			count++
 
 		}
