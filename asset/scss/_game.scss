@@ -104,3 +104,30 @@ background-position: -5px -17px;
   }
 }
 
+.reward-speed {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-image: url(../asset/images/bonus_speed.png);
+  background-size: cover;
+  border-radius: 30%;
+}
+
+.reward-bomb {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-image: url(../asset/images/bonus_bombe.png);
+  background-size: cover;
+  border-radius: 30%;
+}
+
+.reward-fire {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-image: url(../asset/images/bonus_flame.png);
+  background-size: cover;
+  border-radius: 30%;
+}
+

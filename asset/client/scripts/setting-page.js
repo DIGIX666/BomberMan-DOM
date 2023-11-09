@@ -12,14 +12,20 @@ masquerElementsParClasse('bomberman');
 
 
 /////////////////////////////////////////////////////////////
-// CACHER LA PAGE DE REGISTER ET AFFICHER LA PAGE D'ATTENTE /
+//CACHER LA PAGE DE REGISTER ET AFFICHER LA PAGE D'ATTENTE///
 /////////////////////////////////////////////////////////////
 
 export function displayRoom() {
 
+<<<<<<< HEAD
     console.log("IN DisplayRoom")
     // Sélectionnez le bouton par son ID
     // const button = document.getElementById('button');
+=======
+
+    //Sélectionnez le bouton par son ID
+    //const button = document.getElementById('button');
+>>>>>>> lives
 
     // Sélectionnez la div avec la classe "room"
     const roomDiv = document.querySelector('.room');

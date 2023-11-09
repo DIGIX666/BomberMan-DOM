@@ -1,35 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="./asset/styles.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="./asset/styles.css" />
     <title>Log Players</title>
-</head>
+  </head>
 
-<body>
-
-<!----------------- LOG HTML -------------->
+  <body>
+    <!----------------- LOG HTML -------------->
     <section class="log">
-        <div class="group">
-            <input required="" type="text" class="input">
-            <span class="highlight"></span>
-            <span class="bar"></span>   
-            <label>Name</label>
-        </div>
-        <!-- <a href="/room"><button id="button">Join!</button></a> -->
-        <button id="button">Join!</button>
+      <div class="group">
+        <input required="" type="text" class="input" />
+        <span class="highlight"></span>
+        <span class="bar"></span>
+        <label>Name</label>
+      </div>
+      <!-- <a href="/room"><button id="button">Join!</button></a> -->
+      <button id="button">Join!</button>
     </section>
-<!------------------ FIN LOG HTML ----------------->
+    <!------------------ FIN LOG HTML ----------------->
 
-<!------------------ ROOM HTML ------------------->
-<div class="room">
-<h1 class="players_heading">Players</h1>
-    <button id="button-game">Start</button>
-    <div class="card">
+    <!------------------ ROOM HTML ------------------->
+    <div class="room">
+      <h1 class="players_heading">Players</h1>
+      <button id="button-game">Start</button>
+      <div class="card">
         <div class="item item--1">
             <svg viewBox="0 0 24 24" width="24" height="24">
                 <path fill="none" d="M0 0L24 0 24 24 0 24z"></path>
@@ -56,20 +56,25 @@
         </div>
 
         <div class="item item--3">
-            <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-                <defs>
-                    <style>
-                        .cls-1 {
-                            fill: #e79165;
-                        }
+          <svg
+            id="Layer_1"
+            data-name="Layer 1"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 48 48"
+          >
+            <defs>
+              <style>
+                .cls-1 {
+                  fill: #e79165;
+                }
 
-                        .cls-2 {
-                            fill: #9fd367;
-                        }
+                .cls-2 {
+                  fill: #9fd367;
+                }
 
-                        .cls-3 {
-                            fill: #84b749;
-                        }
+                .cls-3 {
+                  fill: #84b749;
+                }
 
                         .cls-4 {
                             fill: #d37b54;
@@ -131,16 +136,29 @@
             <span class="quantity" id="player4"></span>
             <span class="text text--4"> Air </span>
         </div>
+      </div>
+      <div id="chrono"></div>
+    </div>
+    <div class="chat">
+        <ul class="chat-list">
+            <li class="li-chat" >
+           </li>
+           <div class="struct-chat"></div>
+           
+           <div class="chat-text">
+               <input id="message-chat" class="message-type" type="text-area" placeholder="Speak...">
+           </div>
+       </ul>
     </div>
     <div id="chrono"></div>
 </div>
 <!---------------- FIN ROOM HTML ------------------>
 
-<!----------------- GAME HTML --------------------->
-<div class="bomberman">
-    <div class="game"></div>
-    <div class="card-game">
-        <div class="item item--1">
+    <!----------------- GAME HTML --------------------->
+    <div class="bomberman">
+      <div class="game"></div>
+      <div class="card-game">
+        <div class="item" id="item--1">
             <svg viewBox="0 0 24 24" width="24" height="24">
                 <path fill="none" d="M0 0L24 0 24 24 0 24z"></path>
                 <path
@@ -148,11 +166,11 @@
                         fill="rgba(149,149,255,1)"></path>
             </svg>
             <span class="quantity" id="player1Input"></span>
-            <span class="text text--1"> Eaux </span>
-            <span class="life"> 3 </span>
+            <span class="text" id="text--1"> Eaux </span>
+            <!-- <span class="life"></span> -->
         </div>
 
-        <div class="item item--2">
+        <div class="item" id="item--2">
             <svg version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
                  x="0px" y="0px" width="533.333px" height="533.333px" viewBox="0 0 533.333 533.333"
                  style="enable-background:new 0 0 533.333 533.333;" xml:space="preserve">
@@ -163,25 +181,30 @@
         </g>
       </svg>
             <span class="quantity" id="player2Input"></span>
-            <span class="text text--2"> Feux </span>
-            <span class="life"> 3 </span>
+            <span class="text" id="text--2"> Feux </span>
+            <span class="life"></span>
         </div>
 
-        <div class="item item--3">
-            <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
-                <defs>
-                    <style>
-                        .cls-1 {
-                            fill: #e79165;
-                        }
+        <div class="item" id="item--3">
+          <svg
+            id="Layer_1"
+            data-name="Layer 1"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 48 48"
+          >
+            <defs>
+              <style>
+                .cls-1 {
+                  fill: #e79165;
+                }
 
-                        .cls-2 {
-                            fill: #9fd367;
-                        }
+                .cls-2 {
+                  fill: #9fd367;
+                }
 
-                        .cls-3 {
-                            fill: #84b749;
-                        }
+                .cls-3 {
+                  fill: #84b749;
+                }
 
                         .cls-4 {
                             fill: #d37b54;
@@ -204,11 +227,11 @@
                       d="M.36,47.64a7.58,7.58,0,0,1,7.31-4.93A8.16,8.16,0,0,1,9.79,43l1.07.29.88-.61a5.21,5.21,0,0,1,3-.93,4.88,4.88,0,0,1,1.17.13l1.13.29.89-.71a8,8,0,0,1,5-1.68,8.15,8.15,0,0,1,3.86,1l.52.28h1.59l.67-.68a5.07,5.07,0,0,1,3.7-1.55,4.92,4.92,0,0,1,4.53,2.74l.56,1.21h2a7.58,7.58,0,0,1,7.31,4.93Z" />
             </svg>
             <span class="quantity" id="player3Input"></span>
-            <span class="text text--3"> Terre </span>
-            <span class="life"> 3 </span>
+            <span class="text" id="text--3"> Terre </span>
+            <!-- <span class="life"></span> -->
         </div>
 
-        <div class="item item--4">
+        <div class="item" id="item--4">
             <svg enable-background="new 0 0 512 512" height="512px" id="Layer_1" version="1.1" viewBox="0 0 512 512"
                  width="512px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"
                  xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -242,24 +265,24 @@
         </g>
       </svg>
             <span class="quantity" id="player4Input"></span>
-            <span class="text text--4"> Air </span>
-            <span class="life"> 3 </span>
+            <span class="text"id="text--4"> Air </span>
+            <!-- <span class="life"></span> -->
         </div>
+      </div>
     </div>
-</div>
-<!--------------- FIN GAME HTML ------------------->
+    <!--------------- FIN GAME HTML ------------------->
 
-
-<!------------------------- SCRIPT --------------------->
-    <script type="module">
-        import { WSManager } from "./asset/client/connect.js";
+    <!------------------------- SCRIPT --------------------->
+    <!-- <script type="module">
+        import { WSManager } from "/asset/client/connexion.js";
         WSManager();
-    </script>
-    <script type="module" src="../asset/client/log.js"></script>
-    <script type="module" src="../asset/client/scripts/room.js"></script>
-    <script type="module" src="../asset/client/scripts/game.js"></script>
-    <script type="module" src="../asset/client/scripts/setting-page.js"></script>
-    <!-- <script type="module" src="../asset/client/route.js"></script> -->
-<!----------------------- FIN SCRIPT ----------------------->
-</body>
+    </script> -->
+    <script type="module" src="/asset/client/log.js"></script>
+    <script type="module" src="/asset/client/scripts/room.js"></script>
+    <script type="module" src="/asset/client/scripts/game.js"></script>
+    <script type="module" src="/asset/client/scripts/setting-page.js"></script>
+    <script type="module" src="/asset/client/route.js"></script>
+    <script type="module" src="/asset/client/connexion.js"></script>
+    <!----------------------- FIN SCRIPT ----------------------->
+  </body>
 </html>

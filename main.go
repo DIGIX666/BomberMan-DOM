@@ -28,5 +28,5 @@ func main() {
 }
 
 func handleLog(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./asset/log.html")
+	http.ServeFile(w, r, "./asset/client/index.html")
 }

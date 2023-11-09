@@ -2,7 +2,8 @@
 /* styles.css */
 @import url("https://fonts.googleapis.com/css2?family=Handjet:wght@300&display=swap");
 .game {
-  margin: 20px;
+  /* position: absolute; */
+  /* margin: 20px; */
   display: grid;
   grid-template-columns: repeat(10, 100px);
   grid-template-rows: repeat(8, 100px);
@@ -48,7 +49,7 @@
   justify-content: center;
 }
 
-.life {
+.life1 {
   font-size: 25px;
   font-weight: 600;
   background-image: url(../asset/images/vie.png);
@@ -60,17 +61,91 @@
   justify-content: center;
 }
 
-.character {
+.life2 {
+  font-size: 25px;
+  font-weight: 600;
+  background-image: url(../asset/images/vie.png);
+  height: 44px;
+  width: 50px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.life3 {
+  font-size: 25px;
+  font-weight: 600;
+  background-image: url(../asset/images/vie.png);
+  height: 44px;
+  width: 50px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.life4 {
+  font-size: 25px;
+  font-weight: 600;
+  background-image: url(../asset/images/vie.png);
+  height: 44px;
+  width: 50px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.character1 {
   position: absolute;
   border: solid;
   top: 120px;
   left: 130px;
   width: 60px;
-  height: 96px;
-  background-image: url(../asset/images/character/perso1/perso1-marche.png);
+  height: 100px;
+  background-image: url(../asset/images/character/perso1/perso1.png);
   /* Ajustez les valeurs de background-position pour afficher la première image */
-  background-position: -5px -17px;
+  background-position: -47px -430px;
 }
+
+.character2 {
+  position: absolute;
+  border: solid;
+  top: 120px;
+  left: 830px;
+  width: 60px;
+  height: 100px;
+  background-image: url(../asset/images/character/perso2/perso2.png);
+  /* Ajustez les valeurs de background-position pour afficher la première image */
+  background-position: -190px -430px;
+}
+
+.character3 {
+  position: absolute;
+  border: solid;
+  top: 600px;
+  left: 130px;
+  width: 60px;
+  height: 100px;
+  background-image: url(../asset/images/character/perso3/perso3.png);
+  /* Ajustez les valeurs de background-position pour afficher la première image */
+  background-position: -330px -430px;
+}
+
+.character4 {
+  position: absolute;
+  border: solid;
+  top: 600px;
+  left: 830px;
+  width: 60px;
+  height: 100px;
+  background-image: url(../asset/images/character/perso4/perso4.png);
+  /* Ajustez les valeurs de background-position pour afficher la première image */
+  background-position: -260px -430px;
+}
+
+
 
 .bombe {
   position: absolute;
@@ -101,6 +176,34 @@
     opacity: 0;
   }
 }
+
+.reward-speed {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-image: url(../asset/images/bonus_speed.png);
+  background-size: cover;
+  border-radius: 30%;
+}
+
+.reward-bomb {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-image: url(../asset/images/bonus_bombe.png);
+  background-size: cover;
+  border-radius: 30%;
+}
+
+.reward-fire {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-image: url(../asset/images/bonus_flame.png);
+  background-size: cover;
+  border-radius: 30%;
+}
+
 .log {
   display: flex;
   justify-content: center;
@@ -259,22 +362,22 @@ button:active {
   margin-bottom: 7px;
 }
 
-.item--1 {
+#item--1 {
   background: #c7c7ff;
   font-family: "Handjet", cursive;
 }
 
-.item--2 {
+#item--2 {
   background: #f32121;
   font-family: "Handjet", cursive;
 }
 
-.item--3 {
+#item--3 {
   background: #9ff22e;
   font-family: "Handjet", cursive;
 }
 
-.item--4 {
+#item--4 {
   background: #ff00ff;
   font-family: "Handjet", cursive;
 }
@@ -298,19 +401,19 @@ button:active {
   font-weight: 600;
 }
 
-.text--1 {
+#text--1 {
   color: rgb(149, 149, 255);
 }
 
-.text--2 {
+#text--2 {
   color: rgb(252, 161, 71);
 }
 
-.text--3 {
+#text--3 {
   color: rgb(66, 193, 110);
 }
 
-.text--4 {
+#text--4 {
   color: rgb(220, 91, 183);
 }
 
@@ -455,6 +558,4 @@ iframe {
   left: 0;
   width: 100%;
   height: 100%;
-}
-
-/*# sourceMappingURL=styles.css.map */
+}/*# sourceMappingURL=styles.css.map */
