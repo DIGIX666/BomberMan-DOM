@@ -69,6 +69,7 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 
 		fmt.Printf("data.Type: %v\n", data.Type)
 		fmt.Printf("data: %v\n", data)
+		data = structure.DataParam{}
 		err := conn.ReadJSON(&data)
 		if err != nil {
 			fmt.Println("Error Reading JSON")
@@ -98,7 +99,7 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 			startTime = time.Now()
 			// TimerGame(conn, activeClients, 10)
 			// TimerRoom(conn, activeConnections, 20, stopLoopRoom)
-			StartTimer("Chrono2", activeConnections, 10)
+			StartTimer("Chrono2", activeConnections, 1)
 
 		case "StartGame":
 			fmt.Println("GOING goGame")
@@ -124,25 +125,25 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 			StartGameplay(conn, data.Data)
 
 		case "Game Over":
-			GameOver(data.Data)
+			// GameOver(data.Data)
 
 		}
 	}
 }
 
-func GameOver(data map[string]interface{}) {
-	donnee := structure.DataParam{
-		Type: "PlayerDead",
-		Data: data,
-	}
-	for _, c := range activeConnections {
+// func GameOver(data map[string]interface{}) {
+// 	donnee := structure.DataParam{
+// 		Type: "PlayerDead",
+// 		Data: data,
+// 	}
+// 	for _, c := range activeConnections {
 
-		err := c.WriteJSON(donnee)
-		if err != nil {
-			log.Panicf("Error WriteJSON function GameOver:%v", err)
-		}
-	}
-}
+// 		err := c.WriteJSON(donnee)
+// 		if err != nil {
+// 			log.Panicf("Error WriteJSON function GameOver:%v", err)
+// 		}
+// 	}
+// }
 
 func Bombed(data map[string]interface{}) {
 	donnee := structure.DataParam{
@@ -251,7 +252,7 @@ func room(conn *websocket.Conn, player string) {
 			fmt.Printf("activeConnections: %v\n", activeConnections)
 			startTime = time.Now()
 			// TimerRoom(conn, activeConnections, 20, stopLoopRoom)
-			StartTimer("Chrono", activeConnections, 30)
+			StartTimer("Chrono", activeConnections, 2)
 			count++
 
 		}
