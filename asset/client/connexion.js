@@ -94,17 +94,16 @@ requestAnimationFrame(function (timestamp) {
 
     if (dataServer.type == "Bombed") {
 
-      player.bomb = true;
+      // player.bomb = true;
       player.lives = dataServer.data.currentLife;
-      PlayerMoved(socket, player, dataServer.data, dataServer.data.updateMap);
+      PlayerMoved(socket, player, dataServer.data);
 
     }
 
     if (dataServer.type == "PlayerMoved") {
 
       player.position = dataServer.data.dataInfo.position
-
-      PlayerMoved(socket, player, dataServer.data.dataInfo, dataServer.data.dataInfo.map, indice);
+      PlayerMoved(socket, player, dataServer.data.dataInfo);
     }
 
   };
