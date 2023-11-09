@@ -152,7 +152,7 @@ export function PlayerMoved(socket, player, data) {
             // character.style.top = player.positionTop + 'px';
             top = data.position - 10;
             character.style.top = top + 'px';
-            
+
         }
     }
     if (data.direction == "Down" && data.move) {
@@ -163,7 +163,7 @@ export function PlayerMoved(socket, player, data) {
             // character.style.top = player.positionTop + 'px';
             top = data.position + 10;
             character.style.top = top + 'px';
-            
+
         }
 
     }
@@ -175,7 +175,7 @@ export function PlayerMoved(socket, player, data) {
             // character.style.left = player.positionLeft + 'px';
             left = data.position - 10;
             character.style.left = left + 'px';
-            
+
         }
     }
     if (data.direction == "Right" && data.move) {
@@ -186,7 +186,7 @@ export function PlayerMoved(socket, player, data) {
             // character.style.left = player.positionLeft + 'px';
             left = data.position + 10;
             character.style.left = left + 'px';
-            
+
         }
     }
     if ((data.bombed) && character != null) {
@@ -319,14 +319,14 @@ export function GamePlay(socket, player, mapUpdate, i) {
                     }
                 }))
             }
-        }else if (event.key === ' ' && character != null) {
+        } else if (event.key === ' ' && character != null) {
 
             // Ajouter la logique pour déposer une bombe avec la touche Espace 
             // dropBomb(character, charLeft + charWidth / 2, charTop + charHeight / 2, player.lives, player, mapData,i);
             // UpdateBricks();
             player.bomb = true
             console.log("SPACE PRESSED")
-            
+
 
             socket.send(JSON.stringify({
                 Type: "Player Dropped Bomb",
@@ -346,7 +346,7 @@ export function GamePlay(socket, player, mapUpdate, i) {
     });
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-let cpt =0
+let cpt = 0
 ///////// Drop Bomb ///////////////
 function dropBomb(character, x, y, currentLife, player, map, i, hit) {
     const bomb = document.createElement('div');
@@ -385,6 +385,42 @@ function dropBomb(character, x, y, currentLife, player, map, i, hit) {
                 // brick.style.visibility = 'hidden'; // Cacher la brique visuellement
                 brick.classList.remove('brick');  // Retirer la classe "brick"
 
+                // Créer un tableau pour suivre les récompenses déjà créées
+                const createdRewards = [];
+
+                if (Math.random() < 0.5 && createdRewards.length < 3) {
+                    const randomNumber = Math.random();
+                    // Créer un élément pour le sprite à faire apparaître (reward)
+                    const rewardspeed = document.createElement('div');
+                    const rewardfire = document.createElement('div');
+                    const rewardbomb = document.createElement('div');
+
+                    if (randomNumber < 0.33 && createdRewards.indexOf('reward-speed') === -1) {
+                        createdRewards.push('reward-speed');
+                        rewardspeed.classList.add('reward-speed');
+                    } else if (randomNumber < 0.66 && createdRewards.indexOf('reward-bomb') === -1) {
+                        createdRewards.push('reward-bomb');
+                        rewardbomb.classList.add('reward-bomb');
+                    } else if (randomNumber < 1.2 && createdRewards.indexOf('reward-fire') === -1) {
+                        createdRewards.push('reward-fire');
+                        rewardfire.classList.add('reward-fire');
+                    }
+
+                    rewardspeed.style.left = bomb.style.left;
+                    rewardspeed.style.top = bomb.style.top;
+
+                    rewardbomb.style.left = bomb.style.left;
+                    rewardbomb.style.top = bomb.style.top;
+
+                    rewardfire.style.left = bomb.style.left;
+                    rewardfire.style.top = bomb.style.top;
+
+                    bomberMan.appendChild(rewardspeed); // Ajoutez le sprite au conteneur
+                    bomberMan.appendChild(rewardbomb); // Ajoutez le sprite au conteneur
+                    bomberMan.appendChild(rewardfire); // Ajoutez le sprite au conteneur
+                    console.log("reward:", createdRewards)
+                }
+
                 map[brickRow][brickCol] = ' '; // Mettre à jour le modèle de données
                 socket.send(JSON.stringify({
                     Type: "GameSet",
@@ -402,7 +438,7 @@ function dropBomb(character, x, y, currentLife, player, map, i, hit) {
         }, 1000); // Supprimer l'explosion après 1 seconde
     }, 2000); // 2 secondes
 
-cpt = 0
+    cpt = 0
 }
 ///////////////////////////////////
 
