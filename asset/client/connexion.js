@@ -94,7 +94,7 @@ requestAnimationFrame(function (timestamp) {
 
     if (dataServer.type == "Bombed") {
 
-      player.bomb = true;
+      // player.bomb = true;
       player.lives = dataServer.data.currentLife;
       PlayerMoved(socket, player, dataServer.data);
 
@@ -103,7 +103,6 @@ requestAnimationFrame(function (timestamp) {
     if (dataServer.type == "PlayerMoved") {
 
       player.position = dataServer.data.dataInfo.position
-
       PlayerMoved(socket, player, dataServer.data.dataInfo);
     }
 
