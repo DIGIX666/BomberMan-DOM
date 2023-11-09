@@ -94,7 +94,6 @@ requestAnimationFrame(function (timestamp) {
 
     if (dataServer.type == "Bombed") {
 
-      // player.bomb = true;
       player.lives = dataServer.data.currentLife;
       PlayerMoved(socket, player, dataServer.data);
 

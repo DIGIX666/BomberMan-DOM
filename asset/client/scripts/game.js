@@ -351,19 +351,19 @@ function dropBomb(character, x, y, currentLife, player, mapData, i, hit) {
     // Créer l'élément d'explosion
     const explosion = document.createElement('div');
     explosion.classList.add('explosion');
-    explosion.style.left = x + 'px';
-    explosion.style.top = y + 'px';
+    explosion.style.left = bomb.style.left;
+    explosion.style.top = bomb.style.top;
     // Programmer l'animation d'explosion après 3 secondes
+    
     setTimeout(function () {
         bomberMan.appendChild(explosion);
         bomberMan.removeChild(bomb); // Supprimer l'élément de la bombe
-
-        // Créer l'élément d'explosion
-        const explosion = document.createElement('div');
-        explosion.classList.add('explosion');
-        explosion.style.left = bomb.style.left;
-        explosion.style.top = bomb.style.top;
-        bomberMan.appendChild(explosion);
+        // // Créer l'élément d'explosion
+        // const explosion = document.createElement('div');
+        // explosion.classList.add('explosion');
+        // explosion.style.left = bomb.style.left;
+        // explosion.style.top = bomb.style.top;
+        // bomberMan.appendChild(explosion);
         if (checkCollision(explosion, character)) {
             player.hitPlayer = true  // Marquer que le joueur a été touché
             if (player.hitPlayer && cpt == 0) {
