@@ -48,13 +48,12 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Client connecté au serveur WebSocket.")
 
-	var data structure.DataParam
-
 	// activeClients = make(map[string]*websocket.Conn)
 
 	// Boucle de gestion des messages du client
 
 	println("BEFORE LOOP")
+	var data structure.DataParam
 	for {
 		println("Loooping....")
 		fmt.Printf("len(activeConnections): %v\n", len(activeConnections))
