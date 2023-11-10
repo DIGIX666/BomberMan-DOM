@@ -2,7 +2,6 @@ import {
   GameInit,
   GamePlay,
   PlayerMoved,
-  reduceLife,
 } from "./scripts/game.js";
 
 import {
@@ -108,18 +107,18 @@ requestAnimationFrame(function (timestamp) {
       PlayerMoved(socket, player, dataServer.data.dataInfo);
     }
 
-    if (dataServer.type == "PlayerHit") {
+    // if (dataServer.type == "PlayerHit") {
 
-      // player.lives = dataServer.data.currentLife;
-      // PlayerMoved(socket, player, dataServer.data);
+    //   // player.lives = dataServer.data.currentLife;
+    //   // PlayerMoved(socket, player, dataServer.data);
 
-      if (dataServer.data.hit) {
-        console.log("REDUCE LIFE !!!!!!")
-        reduceLife(player, dataServer.data.indice)
-        player.hitPlayer = false
-      }
+    //   if (dataServer.data.hit) {
+    //     console.log("REDUCE LIFE !!!!!!")
+    //     reduceLife(player, dataServer.data.indice)
+    //     player.hitPlayer = false
+    //   }
 
-    }
+    // }
 
   };
   frameCount++;

@@ -378,26 +378,29 @@ function dropBomb(character, x, y, currentLife, player, map, i, hit) {
         //         }
         //     }))
         // }
+        if (cpt == 0) {
 
-        BombCheckCollision(explosion)
-        // if (checkCollision(explosion, character)) {
-        //     player.hitPlayer = true  // Marquer que le joueur a été touché
+            BombCheckCollision(explosion)
+            cpt++
+        }
+        if (checkCollision(explosion, character)) {
+            player.hitPlayer = true  // Marquer que le joueur a été touché
 
-        //     // if (player.hitPlayer && cpt == 0) {
+            if (player.hitPlayer && cpt == 0) {
 
 
-        //     // console.log("indice player:", player.getIndiceWhenHitPlayer())
+                // console.log("indice player:", player.getIndiceWhenHitPlayer())
 
-            
-        //     // console.log("indice player:", BombCheckCollision(explosion))
-        //     // reduceLife(player, BombCheckCollision(explosion)); // Appeler la fonction pour réduire la vie du joueur
-        //     player.hitPlayer = false
-        //     cpt++
-        //     console.log("vie perdu");
-        //     // }
-        //     // console.log("player.hitPlayer:", player.hitPlayer)
 
-        // }
+                // console.log("indice player:", BombCheckCollision(explosion))
+                reduceLife(player, i); // Appeler la fonction pour réduire la vie du joueur
+                player.hitPlayer = false
+                cpt++
+                console.log("vie perdu");
+            }
+            // console.log("player.hitPlayer:", player.hitPlayer)
+
+        }
         // Vérifier les collisions avec les briques
         const bricks = document.querySelectorAll('.brick');
         bricks.forEach((brick) => {
@@ -470,7 +473,7 @@ export function reduceLife(player, i) {
     const lifeElement = document.querySelector('.life' + (i + 1).toString());
     // console.log("lifeElement:", lifeElement);
     // console.log("lifeElement.textContent:", lifeElement.textContent);
-    currentLife = parseInt(lifeElement.textContent);    
+    currentLife = parseInt(lifeElement.textContent);
 
     if (currentLife > 0) {
         currentLife--
@@ -507,29 +510,37 @@ function checkCollision(element1, element2) {
     );
 }
 ///////////////////////////////////////
-
+let count = 0
 function BombCheckCollision(element1) {
+
     for (let i = 0; i < playerLength; i++) {
         console.log("i:", i)
         const player = document.querySelector(".character" + ((i + 1).toString()))
 
         const rect1 = element1.getBoundingClientRect();
         const rect2 = player.getBoundingClientRect();
-    
-        if(
+
+        if (
             rect1.left < rect2.right &&
             rect1.right > rect2.left &&
             rect1.top < rect2.bottom &&
             rect1.bottom > rect2.top
-        ){
+        ) {
 
-            console.log("indice explosion:", i)
-            console.log("BombCheckCollision:")
-            reduceLife(player, i)
+            if (count == 0) {
+                console.log("indice explosion:", i)
+                console.log("BombCheckCollision:")
+
+                reduceLife(player, i)
+                count++
+                break
+            }
 
 
         }
     }
+
+    count = 0
 }
 
 
