@@ -39,6 +39,7 @@ document.querySelectorAll(".wall").forEach((element) => {
 let charLeft = 0
 let charTop = 0
 let currentLife = player.lives;
+let playerLength = 0
 
 export function GameInit(players, i) {
     let mapData = [
@@ -72,13 +73,16 @@ export function GameInit(players, i) {
 
     if (players.length == 2) {
         bomberMan.appendChild(character2);
+        playerLength = 2
     } else if (players.length == 3) {
         bomberMan.appendChild(character2);
         bomberMan.appendChild(character3);
+        playerLength = 3
     } else if (players.length == 4) {
         bomberMan.appendChild(character2);
         bomberMan.appendChild(character3);
         bomberMan.appendChild(character4);
+        playerLength = 4
     }
 
     for (let k = 1; k <= players.length; k++) {
@@ -123,12 +127,8 @@ export function GetNameAndAdress(activeCo) {
     return result
 }
 
-
-
-
 ////////// Player Moved //////////////
 export function PlayerMoved(socket, player, data) {
-
 
     let playerName = player.namePlayer
     console.log("dataServer:", data.who)
@@ -189,9 +189,10 @@ export function PlayerMoved(socket, player, data) {
 
         }
     }
+
     if ((data.bombed) && character != null) {
 
-        console.log("MAP:", data.map)
+        console.log("map:", data.map)
 
         dropBomb(character, data.x, data.y, data.currentLife, player, data.map, data.who, data.hit)
         // playerLives(character,data.x,data.y,data.who)
@@ -365,17 +366,38 @@ function dropBomb(character, x, y, currentLife, player, map, i, hit) {
         bomberMan.removeChild(bomb); // Supprimer l'élément de la bombe
         bomberMan.appendChild(explosion);
 
-        if (checkCollision(explosion, character)) {
-            player.hitPlayer = true  // Marquer que le joueur a été touché
-            if (player.hitPlayer && cpt == 0) {
-                reduceLife(player, i); // Appeler la fonction pour réduire la vie du joueur
-                player.hitPlayer = false
-                cpt++
-                console.log("vie perdu");
-            }
-            console.log("player.hitPlayer:", player.hitPlayer)
+        // if (BombCheckCollision(explosion)!=-1) {
+        //     socket.send(JSON.stringify({
+        //         Type: "Player Hit",
+        //         data: {
+        //             name: player.playerName,
+        //             adress: player.playerAdress,
+        //             currentLife: player.lives,
+        //             hit: player.hitPlayer,
+        //             indice: BombCheckCollision(explosion),
+        //         }
+        //     }))
+        // }
 
-        }
+        BombCheckCollision(explosion)
+        // if (checkCollision(explosion, character)) {
+        //     player.hitPlayer = true  // Marquer que le joueur a été touché
+
+        //     // if (player.hitPlayer && cpt == 0) {
+
+
+        //     // console.log("indice player:", player.getIndiceWhenHitPlayer())
+
+            
+        //     // console.log("indice player:", BombCheckCollision(explosion))
+        //     // reduceLife(player, BombCheckCollision(explosion)); // Appeler la fonction pour réduire la vie du joueur
+        //     player.hitPlayer = false
+        //     cpt++
+        //     console.log("vie perdu");
+        //     // }
+        //     // console.log("player.hitPlayer:", player.hitPlayer)
+
+        // }
         // Vérifier les collisions avec les briques
         const bricks = document.querySelectorAll('.brick');
         bricks.forEach((brick) => {
@@ -444,19 +466,18 @@ function dropBomb(character, x, y, currentLife, player, map, i, hit) {
 
 
 ///////// Reduce Life //////////////
-function reduceLife(player, i) {
+export function reduceLife(player, i) {
     const lifeElement = document.querySelector('.life' + (i + 1).toString());
     // console.log("lifeElement:", lifeElement);
     // console.log("lifeElement.textContent:", lifeElement.textContent);
-    currentLife = parseInt(lifeElement.textContent);
+    currentLife = parseInt(lifeElement.textContent);    
 
     if (currentLife > 0) {
         currentLife--
 
         lifeElement.textContent = currentLife.toString();
 
-
-        console.log("player.lives:", player.lives);
+        // console.log("player.lives:", player.lives);
 
         if (currentLife === 0) {
             const characterLife = document.querySelector('.character' + (i + 1).toString());
@@ -486,6 +507,30 @@ function checkCollision(element1, element2) {
     );
 }
 ///////////////////////////////////////
+
+function BombCheckCollision(element1) {
+    for (let i = 0; i < playerLength; i++) {
+        console.log("i:", i)
+        const player = document.querySelector(".character" + ((i + 1).toString()))
+
+        const rect1 = element1.getBoundingClientRect();
+        const rect2 = player.getBoundingClientRect();
+    
+        if(
+            rect1.left < rect2.right &&
+            rect1.right > rect2.left &&
+            rect1.top < rect2.bottom &&
+            rect1.bottom > rect2.top
+        ){
+
+            console.log("indice explosion:", i)
+            console.log("BombCheckCollision:")
+            reduceLife(player, i)
+
+
+        }
+    }
+}
 
 
 ///////// Collision /////////////
@@ -574,3 +619,5 @@ function playerLives(character, x, y, i) {
 
     }
 }
+
+

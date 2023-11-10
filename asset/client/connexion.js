@@ -2,6 +2,7 @@ import {
   GameInit,
   GamePlay,
   PlayerMoved,
+  reduceLife,
 } from "./scripts/game.js";
 
 import {
@@ -12,7 +13,7 @@ import {
 
 
 let playerNames = [];
-console.log("player tableau",playerNames)
+console.log("player tableau", playerNames)
 
 
 let socket = new WebSocket("ws://localhost:8080/ws")
@@ -34,7 +35,7 @@ requestAnimationFrame(function (timestamp) {
 
 
     ///////////////////Recevoir les joueurs///////////////////////////////////////////
-    
+
     // Vérifiez si le type de données est "newPlayersList"
     if (dataServer.type === "newPlayersList") {
       var playersFromServer = dataServer.data.players;
@@ -72,6 +73,7 @@ requestAnimationFrame(function (timestamp) {
         if (arr[index] == player.adress) {
           console.log("index:", index)
           indice = index
+          player.indice = index
           GameInit(arr, indice)
           arr = []
 
@@ -95,7 +97,7 @@ requestAnimationFrame(function (timestamp) {
     if (dataServer.type == "Bombed") {
 
       // player.bomb = true;
-      player.lives = dataServer.data.currentLife;
+      player.lives = dataServer.data.currentLife
       PlayerMoved(socket, player, dataServer.data);
 
     }
@@ -104,6 +106,19 @@ requestAnimationFrame(function (timestamp) {
 
       player.position = dataServer.data.dataInfo.position
       PlayerMoved(socket, player, dataServer.data.dataInfo);
+    }
+
+    if (dataServer.type == "PlayerHit") {
+
+      // player.lives = dataServer.data.currentLife;
+      // PlayerMoved(socket, player, dataServer.data);
+
+      if (dataServer.data.hit) {
+        console.log("REDUCE LIFE !!!!!!")
+        reduceLife(player, dataServer.data.indice)
+        player.hitPlayer = false
+      }
+
     }
 
   };

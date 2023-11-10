@@ -125,6 +125,9 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 		case "GameSet":
 			StartGameplay(conn, data.Data)
 
+		case "Player Hit":
+			PlayerHit(data.Data)
+
 		case "Game Over":
 			// GameOver(data.Data)
 
@@ -132,19 +135,19 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// func GameOver(data map[string]interface{}) {
-// 	donnee := structure.DataParam{
-// 		Type: "PlayerDead",
-// 		Data: data,
-// 	}
-// 	for _, c := range activeConnections {
+func PlayerHit(data map[string]interface{}) {
+	donnee := structure.DataParam{
+		Type: "PlayerHit",
+		Data: data,
+	}
+	for _, c := range activeConnections {
 
-// 		err := c.WriteJSON(donnee)
-// 		if err != nil {
-// 			log.Panicf("Error WriteJSON function GameOver:%v", err)
-// 		}
-// 	}
-// }
+		err := c.WriteJSON(donnee)
+		if err != nil {
+			log.Panicf("Error WriteJSON function PlayerHit:%v", err)
+		}
+	}
+}
 
 func Bombed(data map[string]interface{}) {
 	donnee := structure.DataParam{
