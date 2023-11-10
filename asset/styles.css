@@ -2,8 +2,7 @@
 /* styles.css */
 @import url("https://fonts.googleapis.com/css2?family=Handjet:wght@300&display=swap");
 .game {
-  /* position: absolute; */
-  /* margin: 20px; */
+  margin: 20px;
   display: grid;
   grid-template-columns: repeat(10, 100px);
   grid-template-rows: repeat(8, 100px);
@@ -49,43 +48,7 @@
   justify-content: center;
 }
 
-.life1 {
-  font-size: 25px;
-  font-weight: 600;
-  background-image: url(../asset/images/vie.png);
-  height: 44px;
-  width: 50px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.life2 {
-  font-size: 25px;
-  font-weight: 600;
-  background-image: url(../asset/images/vie.png);
-  height: 44px;
-  width: 50px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.life3 {
-  font-size: 25px;
-  font-weight: 600;
-  background-image: url(../asset/images/vie.png);
-  height: 44px;
-  width: 50px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.life4 {
+.life {
   font-size: 25px;
   font-weight: 600;
   background-image: url(../asset/images/vie.png);
@@ -99,7 +62,6 @@
 
 .character1 {
   position: absolute;
-  border: solid;
   top: 120px;
   left: 130px;
   width: 60px;
@@ -111,7 +73,6 @@
 
 .character2 {
   position: absolute;
-  border: solid;
   top: 120px;
   left: 830px;
   width: 60px;
@@ -123,7 +84,6 @@
 
 .character3 {
   position: absolute;
-  border: solid;
   top: 600px;
   left: 130px;
   width: 60px;
@@ -135,7 +95,6 @@
 
 .character4 {
   position: absolute;
-  border: solid;
   top: 600px;
   left: 830px;
   width: 60px;
@@ -145,12 +104,9 @@
   background-position: -260px -430px;
 }
 
-
-
 .bombe {
   position: absolute;
   overflow: hidden;
-  border: solid;
   width: 32px;
   height: 40px;
   background-image: url(../asset/images/bombe.png);
@@ -176,7 +132,6 @@
     opacity: 0;
   }
 }
-
 .reward-speed {
   position: absolute;
   width: 50px;
@@ -362,22 +317,22 @@ button:active {
   margin-bottom: 7px;
 }
 
-#item--1 {
+.item--1 {
   background: #c7c7ff;
   font-family: "Handjet", cursive;
 }
 
-#item--2 {
+.item--2 {
   background: #f32121;
   font-family: "Handjet", cursive;
 }
 
-#item--3 {
+.item--3 {
   background: #9ff22e;
   font-family: "Handjet", cursive;
 }
 
-#item--4 {
+.item--4 {
   background: #ff00ff;
   font-family: "Handjet", cursive;
 }
@@ -401,19 +356,19 @@ button:active {
   font-weight: 600;
 }
 
-#text--1 {
+.text--1 {
   color: rgb(149, 149, 255);
 }
 
-#text--2 {
+.text--2 {
   color: rgb(252, 161, 71);
 }
 
-#text--3 {
+.text--3 {
   color: rgb(66, 193, 110);
 }
 
-#text--4 {
+.text--4 {
   color: rgb(220, 91, 183);
 }
 

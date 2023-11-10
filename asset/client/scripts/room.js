@@ -27,6 +27,13 @@ class Player {
     this.indice = indice = 0
 
   }
+  getIndiceWhenHitPlayer() {
+    if (this.hitPlayer) {
+        return this.indice;
+    } else {
+        return -1; // Retourne -1 si hitPlayer n'est pas true
+    }
+}
 }
 
 // let timePassed = 0;
