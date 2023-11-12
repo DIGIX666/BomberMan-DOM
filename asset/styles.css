@@ -22,7 +22,6 @@
   width: 100px;
   border-radius: 100%;
   overflow: hidden;
-  border: solid;
 }
 
 .card-game {
@@ -337,18 +336,10 @@ button:active {
   font-family: "Handjet", cursive;
 }
 
-.quantity {
+.Player1, .Player2, .Player3, .Player4 {
   font-size: 25px;
   font-weight: 600;
 }
-
-/* .Player1,
-.Player2,
-.Player3,
-.Player4{
-  font-size: 25px;
-  font-weight: 600;
-} */
 
 .text {
   font-size: 12px;

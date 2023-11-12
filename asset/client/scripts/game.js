@@ -408,44 +408,8 @@ function dropBomb(character, x, y, currentLife, player, map, i, hit) {
                 const brickRow = parseInt(brick.getAttribute('data-row'));
                 const brickCol = parseInt(brick.getAttribute('data-col'));
                 // brick.style.visibility = 'hidden'; // Cacher la brique visuellement
-                brick.classList.remove('brick');  // Retirer la classe "brick"
-
-                // Créer un tableau pour suivre les récompenses déjà créées
-                const createdRewards = [];
-
-                if (Math.random() < 0.5 && createdRewards.length < 3) {
-                    const randomNumber = Math.random();
-                    // Créer un élément pour le sprite à faire apparaître (reward)
-                    const rewardspeed = document.createElement('div');
-                    const rewardfire = document.createElement('div');
-                    const rewardbomb = document.createElement('div');
-
-                    if (randomNumber < 0.33 && createdRewards.indexOf('reward-speed') === -1) {
-                        createdRewards.push('reward-speed');
-                        rewardspeed.classList.add('reward-speed');
-                    } else if (randomNumber < 0.66 && createdRewards.indexOf('reward-bomb') === -1) {
-                        createdRewards.push('reward-bomb');
-                        rewardbomb.classList.add('reward-bomb');
-                    } else if (randomNumber < 1.2 && createdRewards.indexOf('reward-fire') === -1) {
-                        createdRewards.push('reward-fire');
-                        rewardfire.classList.add('reward-fire');
-                    }
-
-                    rewardspeed.style.left = bomb.style.left;
-                    rewardspeed.style.top = bomb.style.top;
-
-                    rewardbomb.style.left = bomb.style.left;
-                    rewardbomb.style.top = bomb.style.top;
-
-                    rewardfire.style.left = bomb.style.left;
-                    rewardfire.style.top = bomb.style.top;
-
-                    bomberMan.appendChild(rewardspeed); // Ajoutez le sprite au conteneur
-                    bomberMan.appendChild(rewardbomb); // Ajoutez le sprite au conteneur
-                    bomberMan.appendChild(rewardfire); // Ajoutez le sprite au conteneur
-                    console.log("reward:", createdRewards)
-                }
-
+                brick.classList.remove('brick');  // Retirer la classe "brick"               
+                
                 map[brickRow][brickCol] = ' '; // Mettre à jour le modèle de données
                 socket.send(JSON.stringify({
                     Type: "GameSet",

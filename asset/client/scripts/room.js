@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-import { socket } from "../connect.js";
-import { displayGame,displayRoom, masquerElementsParClasse } from "./setting-page.js";
-=======
 import {
   socket
 } from "../connexion.js";
@@ -10,7 +6,6 @@ import {
   displayRoom,
   masquerElementsParClasse
 } from "./setting-page.js";
->>>>>>> lives
 
 class Player {
   constructor(namePlayer, adress, direction, lives, bombe, positionLeft, positionTop, hitPlayer, canMove, indice) {
@@ -64,18 +59,7 @@ let count, cpt, count2 = 0
 
 let setIntervalID = []
 
-<<<<<<< HEAD
-  socket.onmessage = function (event) {
-    let dataServer = JSON.parse(event.data)
-    let serverData = JSON.parse(event.data);
-    console.log("dataServer:", dataServer)
-    if (dataServer.type == "goRoom") {
-      displayRoom()
-      console.log("after displayRoom")
-      if (dataServer.data.name != "" && !playersIn.includes(dataServer.data.previousPlayers)) {
-=======
 let player = new Player()
->>>>>>> lives
 
 
 let playersIn = []
@@ -126,73 +110,6 @@ export function GoRoom(dataServer, socket) {
                   `;
 
 
-<<<<<<< HEAD
-      console.log("playersIn", playersIn)
-
-      // startTimer();
-      if (dataServer.data.name != "" && !playersIn.includes(dataServer.data.name)) {
-        playersIn.push(dataServer.data.name)
-      }
-    }
-
-    if (dataServer.type == "Chrono") {
-
-      console.log("nombre de player:", dataServer.data.nbPlayers)
-      timePassed = dataServer.data.time
-      if (dataServer.data.nbPlayers >= 2 && dataServer.data.nbPlayers <= 4) {
-
-        if (count == 0) {
-
-          timerInterval = startTimer(dataServer.data.duration)
-          console.log("duration:", dataServer.data.duration)
-          socket.send(JSON.stringify({
-            type: "timerID",
-            data: {
-              playerAdress: clientAdress,
-              playerName: clientPlayer,
-              ID: timerInterval,
-            }
-          }))
-          count++
-        }
-        // startTimer(40)
-      }
-      // console.log("time passed:", dataServer.data.time)
-      if (dataServer.data.readyGame) {
-        // console.log("NB PLAYERS in timesUP :", nbPlayers)
-        console.log("READY GAME")
-        // timePassed = dataServer.data.time
-      
-        clearInterval(dataServer.data.ID)
-        console.log("CLEAR ID:", dataServer.data.ID)
-        console.log("IN Ready game duration:", dataServer.data.duration)
-        startTimerGame(dataServer.data.duration)
-
-      }
-    }
-    if (dataServer.type === "Game") {
-      console.log("GO TO GAME")
-      masquerElementsParClasse('room')
-      displayGame()
-
-      socket.send(JSON.stringify({
-              type:"GameOn",
-              data: null,
-      }))
-    }
-    // Vérifiez si le type de données est "newPlayersList"
-    if (serverData.type === "newPlayersList") {
-      var lastPlayerFromServer = serverData.data.lastPlayer;
-
-      // Ajoutez le pseudonyme au tableau des pseudonymes des joueurs
-      playerNames.push(lastPlayerFromServer);
-    }
-    // Mettez à jour les éléments HTML correspondants avec les pseudonymes
-    for (var i = 0; i < playerNames.length; i++) {
-      updatePlayerName(i, playerNames[i]);
-    }
-=======
->>>>>>> lives
   }
 
 
