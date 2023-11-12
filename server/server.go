@@ -48,11 +48,10 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("Client connecté au serveur WebSocket.")
 
-	
 	// activeClients = make(map[string]*websocket.Conn)
-	
+
 	// Boucle de gestion des messages du client
-	
+
 	println("BEFORE LOOP")
 	var data structure.DataParam
 	for {
@@ -100,7 +99,7 @@ func HandleWebSocketConnection(w http.ResponseWriter, r *http.Request) {
 			startTime = time.Now()
 			// TimerGame(conn, activeClients, 10)
 			// TimerRoom(conn, activeConnections, 20, stopLoopRoom)
-			StartTimer("Chrono2", activeConnections, 1)
+			StartTimer("Chrono2", activeConnections, 10)
 
 		case "StartGame":
 			fmt.Println("GOING goGame")
@@ -259,7 +258,7 @@ func room(conn *websocket.Conn, player string) {
 			fmt.Printf("activeConnections: %v\n", activeConnections)
 			startTime = time.Now()
 			// TimerRoom(conn, activeConnections, 20, stopLoopRoom)
-			StartTimer("Chrono", activeConnections, 2)
+			StartTimer("Chrono", activeConnections, 20)
 			count++
 
 		}
@@ -508,4 +507,3 @@ func FindKeyByValueInterface(m map[string]interface{}, valueToFind string) (stri
 	}
 	return "", false // La clé n'a pas été trouvée
 }
-
